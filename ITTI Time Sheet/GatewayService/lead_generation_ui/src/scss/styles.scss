@@ -1,0 +1,57 @@
+// src/scss/styles.scss (Corrected)
+
+// 1. ALL @use RULES GO FIRST (Only include them once!)
+@use '@angular/material' as mat;
+@use "@coreui/coreui/scss/coreui" as * with (
+  $enable-deprecation-messages: false
+);
+@use "@coreui/chartjs/scss/coreui-chartjs";
+@use "theme";
+@use "custom";
+// @use "fixes"; // Uncomment if needed
+@use "examples";
+
+
+// 2. NOW IT'S SAFE to use variables, mixins, and CSS rules
+
+// Angular Material Theme Setup (Using the `mat` namespace)
+// Note: It's best to define this in a single place (the `html` or a high-level selector)
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light, // Using a specific theme-type is good practice
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+// Global System Styles (Merge duplicates and use Angular Material system variables)
+body {
+  // Default color scheme and system variables for Material
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // General body rules (Keep only one set)
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// Set height for layout (Merge duplicates)
+html, body {
+  height: 100%;
+}
+
+// Custom/Application-specific styles (Merge duplicates)
+.bg-orange {
+  background-color: #ff9800 !important;
+}
+
+// Font size (Keep only one)
+html, body {
+  font-size: 12px;
+}

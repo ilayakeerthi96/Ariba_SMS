@@ -1,0 +1,159 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": false
+  },
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "onboarding": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        },
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/lead-generation-ui",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "@angular/localize/init",
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "preserveSymlinks": true,
+            "assets": [             
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/@coreui/coreui/dist/css/coreui.min.css",
+              "node_modules/@coreui/icons/css/all.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "src/scss/styles.scss"
+            ],
+            "scripts": [
+                "node_modules/@coreui/coreui/dist/js/coreui.min.js"
+            ],
+            "allowedCommonJsDependencies": [],
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": []
+              }
+            }
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/environments/environment.ts",
+                  "with": "src/app/environments/environment.prod.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "7mb",
+                  "maximumError": "8mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "5kb",
+                  "maximumError": "10kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "lead-generation-ui:build:production"
+            },
+            "development": {
+              "buildTarget": "lead-generation-ui:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "buildTarget": "lead-generation-ui:build"
+          }
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing",
+              "@angular/localize/init"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "inlineStyleLanguage": "scss",
+            "assets": [             
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/@coreui/coreui/dist/css/coreui.min.css",
+              "node_modules/@coreui/icons/css/all.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "src/scss/styles.scss"
+            ],
+            "scripts": [
+                "node_modules/@coreui/coreui/dist/js/coreui.min.js"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
+  }
+}

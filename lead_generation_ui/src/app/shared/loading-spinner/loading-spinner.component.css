@@ -1,0 +1,49 @@
+.loading-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top */
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Reduced opacity for a lighter effect */
+    z-index: 999; /* Just below the spinner */
+  }
+  
+  .spinner-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Ensure it appears above the overlay */
+  }
+  
+  .spinner {
+    border: 3px solid transparent; /* Reduced border thickness */
+    width: 50px; /* Slightly smaller size */
+    height: 50px;
+    border-radius: 50%;
+    border-top: 3px solid #ff8000; /* Bright orange for contrast */
+    border-right: 3px solid #ffcc00; /* Lighter orange for gradient effect */
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 8px rgba(255, 128, 0, 0.8); /* Reduced glow effect */
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }

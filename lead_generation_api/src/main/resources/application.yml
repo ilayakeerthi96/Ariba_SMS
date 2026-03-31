@@ -1,0 +1,125 @@
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ariba_db?allowPublicKeyRetrieval=true&useSSL=false 
+    username: root
+    password: Admin@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update   
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        enable_lazy_load_no_trans: false
+        default_batch_fetch_size: 20
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+      fail-on-empty-beans: false
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # ============================================
+  # FILE UPLOAD CONFIGURATION (NEW)
+  # ============================================
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
+  # ============================================
+  # EMAIL CONFIGURATION
+  # ============================================
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ilayakeerthi96@gmail.com
+    password: xsabjgzsdvyfgzaz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
+# ============================================
+# JWT Configuration
+# ============================================
+jwt:
+  secret: SuperSecretKeyForJWTTokenSigningThatMeetsHS512SecurityRequirementsWith64BytesMinimumLength2024
+  expiration: 3600000
+
+# ============================================
+# Server Configuration
+# ============================================
+server:
+  port: 9092
+  servlet:
+    context-path: /leadcapture
+  compression:
+    enabled: true
+    min-response-size: 1024
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+# ============================================
+# Logging Configuration
+# ============================================
+logging:
+  level:
+    root: INFO
+    com.itti.leadcapturing: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa: DEBUG
+    org.hibernate.engine.transaction: DEBUG
+    org.springframework.mail: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# ============================================
+# Application Custom Properties
+# ============================================
+app:
+  email:
+    from: ilayakeerthi96@gmail.com
+    enabled: true
+  base:
+    url: http://localhost:4200
+  # ============================================
+  # FILE UPLOAD PROPERTIES (NEW)
+  # ============================================
+  upload:
+    allowed-extensions: jpg,jpeg,png,gif,svg
+    max-logo-size: 5242880  # 5MB in bytes
+
+

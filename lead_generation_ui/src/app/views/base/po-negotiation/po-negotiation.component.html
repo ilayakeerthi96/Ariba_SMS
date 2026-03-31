@@ -1,0 +1,1008 @@
+<!-- <c-container fluid class="mt-4 po-negotiation-page">
+
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <div class="page-header-card">
+        <div class="page-header-inner">
+          <div>
+            <div class="page-breadcrumb">
+              <span class="bc-step bc-done">Quote Comparison</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-done">Supplier Evaluation</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-done">Select Supplier</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-active">Price Review</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-pending">Create PO</span>
+            </div>
+            <h2 class="page-title mt-2 mb-1">
+              <i class="bi bi-cash-coin me-2"></i>PO Price Negotiation
+            </h2>
+            <p class="page-subtitle" *ngIf="supplierName">
+              RFQ #{{ rfqId }} · <strong class="text-white">{{ supplierName }}</strong>
+             
+              <span class="badge ms-2" style="background:rgba(255,255,255,0.2); font-size:0.8rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+              </span>
+            </p>
+            <p class="page-subtitle" *ngIf="!supplierName">
+              RFQ #{{ rfqId }} · Supplier #{{ supplierId }}
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button cButton color="outline-light" size="sm" (click)="resetAll()"
+                    *ngIf="negotiation && lineItems.length > 0">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset All
+            </button>
+            <button cButton color="outline-secondary" size="sm" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i> Back
+            </button>
+          </div>
+        </div>
+      </div>
+    </c-col>
+  </c-row>
+
+  
+  <div *ngIf="isLoading" class="text-center py-5">
+    <c-spinner color="primary" style="width:3rem;height:3rem;"></c-spinner>
+    <p class="mt-3 text-muted">Initializing price negotiation...</p>
+  </div>
+
+
+  <div *ngIf="!isLoading && !negotiation" class="text-center py-5">
+    <i class="bi bi-exclamation-triangle display-1 text-warning mb-3 d-block"></i>
+    <h5 class="fw-bold">Failed to Load Negotiation</h5>
+    <div *ngIf="errorMessage" class="alert alert-danger mx-auto mt-3" style="max-width:600px;text-align:left;">
+      <strong><i class="bi bi-bug me-2"></i>Backend Error:</strong>
+      <div class="mt-1">{{ errorMessage }}</div>
+    </div>
+    <div class="d-flex gap-2 justify-content-center mt-3">
+      <button cButton color="primary" (click)="retryInit()">
+        <i class="bi bi-arrow-clockwise me-1"></i> Retry
+      </button>
+      <button cButton color="secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left me-1"></i> Go Back
+      </button>
+      <button cButton color="outline-secondary" (click)="goToList()">
+        <i class="bi bi-list-ul me-1"></i> View PO List
+      </button>
+    </div>
+  </div>
+
+  
+  <div *ngIf="!isLoading && negotiation">
+    <c-row class="g-4">
+
+      
+      <c-col xs="12" lg="9">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div>
+              <h5 class="mb-0 fw-bold">
+                <i class="bi bi-table me-2 text-primary"></i>
+                Price Review — Line Items
+              </h5>
+              <small class="text-muted">
+                Enter <strong>Discount %</strong> or <strong>Discount {{ currencySymbol }}</strong> — they sync automatically.
+                Or enter a <strong>Final Rate</strong> directly. Final Rate <strong>cannot exceed</strong> Quoted Amount.
+              </small>
+            </div>
+            <span class="badge bg-primary rounded-pill">{{ lineItems.length }} items</span>
+          </div>
+
+          
+          <div *ngIf="hasValidationErrors" class="validation-alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Validation Error:</strong> One or more Final Rates exceed the Quoted Amount. Please correct the highlighted rows.
+          </div>
+
+          <div class="table-responsive">
+            <table class="table negotiation-table mb-0">
+              <thead>
+                <tr>
+                  <th class="col-sl">#</th>
+                  <th class="col-item">Item / Description</th>
+                  <th class="col-qty text-center">Qty</th>
+                  <th class="col-uom text-center">UOM</th>
+                  <th class="col-quoted text-end">Rate</th>
+                  <th class="col-disc-pct text-center">Quoted Amount</th>
+                  <th class="col-disc-pct text-center">Discount %</th>
+                  <th class="col-disc-amt text-end">Discount {{ currencySymbol }}</th>
+                  <th class="col-final text-end">Final Rate</th>
+                  <th class="col-pretax text-end">Total<br><span class="col-subheader">(Before Tax)</span></th>
+                  <th class="col-tax text-center">Tax %</th>
+                  <th class="col-aftertax text-end">Total<br><span class="col-subheader">(After Tax)</span></th>
+                  <th class="col-reset text-center">↺</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let item of lineItems; trackBy: trackByItemId; let i = index"
+                    [class.row-has-discount]="item.discountAmount > 0"
+                    [class.row-has-error]="item.priceExceedsQuoted">
+
+                  <td class="td-center text-muted fw-bold">{{ i + 1 }}</td>
+
+                  <td class="td-item">
+                    <div class="fw-bold item-name">{{ item.itemDescription }}</div>
+                    <div *ngIf="item.itemCode" class="item-code">
+                      <i class="bi bi-upc me-1"></i>{{ item.itemCode }}
+                    </div>
+                    <div *ngIf="item.specifications" class="item-spec">{{ item.specifications }}</div>
+                  </td>
+
+                  <td class="td-center">
+                    <span class="qty-badge">{{ item.quantity }}</span>
+                  </td>
+
+                  <td class="td-center">
+                    <span class="uom-badge">{{ item.uom }}</span>
+                  </td>
+
+                  <td class="td-end">
+                    <div class="quoted-price">{{ formatCurrency(item.actualQuotedPrice) }}</div>
+                  </td>
+
+                  <td class="td-end">
+                    <div class="quoted-price">{{ formatCurrency(item.actualQuotedPrice * item.quantity) }}</div>
+                  </td>
+
+                 
+                  <td class="td-center">
+                    <div class="input-cell input-cell-discount">
+                      <input type="number" class="tbl-input text-center"
+                        [(ngModel)]="item.discountPercentage"
+                        (ngModelChange)="onDiscountChange(item)"
+                        min="0" max="100" step="0.5" placeholder="0" />
+                      <span class="input-suffix">%</span>
+                    </div>
+                    <div *ngIf="item.discountPercentage > 0" class="cell-hint cell-hint-green">
+                      −{{ item.discountPercentage | number:'1.1-2' }}%
+                    </div>
+                    <div *ngIf="!(item.discountPercentage > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+               
+                  <td class="td-end">
+                    <div class="input-cell input-cell-discount">
+                      <span class="input-prefix">{{ currencySymbol }}</span>
+                      <input type="number" class="tbl-input text-end"
+                        [(ngModel)]="item.discountAmount"
+                        (ngModelChange)="onDiscountAmountChange(item)"
+                        min="0" step="0.01" placeholder="0.00" />
+                    </div>
+                    <div *ngIf="item.discountAmount > 0" class="cell-hint cell-hint-green">
+                      Saving {{ currencySymbol }}{{ item.discountAmount | number:'1.0-2' }} / unit
+                    </div>
+                    <div *ngIf="!(item.discountAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                
+                  <td class="td-end">
+                    <div class="input-cell input-cell-final" [class.input-cell-error]="item.priceExceedsQuoted">
+                      <span class="input-prefix">{{ currencySymbol }}</span>
+                      <input type="number" class="tbl-input text-end"
+                        [class.text-danger]="item.priceExceedsQuoted"
+                        [(ngModel)]="item.finalizedPrice"
+                        (ngModelChange)="onFinalizedPriceChange(item)"
+                        min="0" step="0.01" placeholder="0.00" />
+                    </div>
+                    <div *ngIf="item.priceExceedsQuoted; else finalRateSpacer" class="cell-hint cell-hint-red">
+                      <i class="bi bi-exclamation-triangle-fill"></i> Max {{ formatCurrency(item.actualQuotedPrice) }}
+                    </div>
+                    <ng-template #finalRateSpacer><div class="cell-hint-spacer">&nbsp;</div></ng-template>
+                  </td>
+
+                  
+                  <td class="td-end">
+                    <div class="line-total" [class.line-total-green]="item.discountAmount > 0">
+                      {{ formatCurrency(item.lineTotal) }}
+                    </div>
+                    <div *ngIf="item.discountAmount > 0" class="cell-hint cell-hint-green">
+                      Saved: {{ formatCurrency(item.discountAmount * item.quantity) }}
+                    </div>
+                    <div *ngIf="!(item.discountAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                
+                  <td class="td-center">
+                    <div class="input-cell input-cell-tax-active">
+                      <input type="number" class="tbl-input text-center"
+                        [(ngModel)]="item.taxPercentage"
+                        (ngModelChange)="onItemTaxChange(item)"
+                        min="0" max="100" step="0.5" placeholder="0" />
+                      <span class="input-suffix">%</span>
+                    </div>
+                    <div *ngIf="item.taxAmount > 0" class="cell-hint cell-hint-amber">
+                      +{{ formatCurrency(item.taxAmount) }}
+                    </div>
+                    <div *ngIf="!(item.taxAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                 
+                  <td class="td-end">
+                    <div class="line-total line-total-aftertax">
+                      {{ formatCurrency(item.lineTotalWithTax) }}
+                    </div>
+                    <div *ngIf="item.taxPercentage > 0" class="cell-hint cell-hint-amber">
+                      Tax: +{{ formatCurrency(item.taxAmount) }}
+                    </div>
+                    <div *ngIf="!(item.taxPercentage > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                
+                  <td class="td-center">
+                    <button class="btn-reset" (click)="resetItem(item)"
+                            title="Reset to quoted price"
+                            [disabled]="item.finalizedPrice === item.actualQuotedPrice && item.discountAmount === 0">
+                      <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                  </td>
+                </tr>
+
+                <tr *ngIf="lineItems.length === 0">
+                  <td colspan="13" class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-4 d-block mb-3 opacity-25"></i>
+                    No line items found
+                  </td>
+                </tr>
+              </tbody>
+
+             
+              <tfoot *ngIf="lineItems.length > 0">
+                <tr class="totals-footer-row">
+                  <td colspan="4" class="footer-label">TOTALS</td>
+                  <td></td>
+                  <td class="text-end">
+                    <div class="footer-val footer-val-bright">{{ formatCurrency(subtotalQuoted) }}</div>
+                  </td>
+                  <td class="text-center">
+                    <span *ngIf="totalDiscountAmount === 0" class="footer-dash">—</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="footer-disc-amt" *ngIf="totalDiscountAmount > 0">
+                      −{{ formatCurrency(totalDiscountAmount) }}
+                    </span>
+                    <span *ngIf="totalDiscountAmount === 0" class="footer-dash">—</span>
+                  </td>
+                  <td></td>
+                  <td class="text-end">
+                    <div class="footer-val footer-val-bright">{{ formatCurrency(subtotalFinalized) }}</div>
+                  </td>
+                  <td class="text-center">
+                    <span *ngIf="totalTaxAmount > 0" class="footer-tax">
+                      +{{ formatCurrency(totalTaxAmount) }}
+                    </span>
+                    <span *ngIf="totalTaxAmount === 0" class="footer-dash">—</span>
+                  </td>
+                  <td class="text-end">
+                    <div class="footer-grand">{{ formatCurrency(grandTotalFinalized) }}</div>
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </c-col>
+
+     
+      <c-col xs="12" lg="3">
+
+      
+        <div class="section-card mb-3">
+          <div class="section-card-header">
+            <h6 class="mb-0 fw-bold">
+              <i class="bi bi-file-text me-2 text-info"></i>Terms / Notes
+            </h6>
+          </div>
+          <div class="p-3">
+            <textarea class="form-control form-control-sm" [(ngModel)]="terms"
+                      rows="3" placeholder="Payment terms, delivery notes..."></textarea>
+          </div>
+        </div>
+
+        
+        <div class="section-card mb-3">
+          <div class="section-card-header">
+            <h6 class="mb-0 fw-bold">
+              <i class="bi bi-calculator me-2 text-success"></i>Price Summary
+            </h6>
+            
+            <span class="badge bg-primary" style="font-size:0.75rem;">
+              <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+            </span>
+          </div>
+
+          <div class="summary-body">
+
+            
+            <div class="summary-section">
+              <div class="summary-section-label">QUOTED AMOUNT</div>
+              <div class="summary-row">
+                <span class="sr-label"><i class="bi bi-receipt me-1"></i>Quoted Amount</span>
+                <span class="sr-value">{{ formatCurrency(subtotalQuoted) }}</span>
+              </div>
+            </div>
+
+           
+            <div class="summary-section summary-section-discount" *ngIf="totalDiscountAmount > 0">
+              <div class="summary-section-label text-success">LINE DISCOUNT</div>
+              <div class="summary-row">
+                <span class="sr-label"><i class="bi bi-scissors me-1"></i>Total Discount</span>
+                <span class="sr-value text-success fw-bold">−{{ formatCurrency(totalDiscountAmount) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="sr-label fw-semibold"><i class="bi bi-check2-circle me-1"></i>Price After Discount</span>
+                <span class="sr-value fw-bold">{{ formatCurrency(subtotalFinalized) }}</span>
+              </div>
+            </div>
+
+            
+            <div class="summary-section" *ngIf="totalDiscountAmount === 0">
+              <div class="summary-row">
+                <span class="sr-label fw-semibold"><i class="bi bi-check2-circle me-1"></i>Finalized Subtotal</span>
+                <span class="sr-value fw-bold">{{ formatCurrency(subtotalFinalized) }}</span>
+              </div>
+            </div>
+
+            
+            <div class="summary-section summary-section-tax" *ngIf="totalTaxAmount > 0">
+              <div class="summary-section-label text-warning">GST / TAX</div>
+              <div class="summary-row">
+                <span class="sr-label"><i class="bi bi-bank me-1"></i>Total GST</span>
+                <span class="sr-value text-warning fw-semibold">+{{ formatCurrency(totalTaxAmount) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="sr-label fw-semibold"><i class="bi bi-check2-circle me-1"></i>Amount After Tax</span>
+                <span class="sr-value fw-bold">{{ formatCurrency(grandTotalFinalized) }}</span>
+              </div>
+            </div>
+
+            <div class="summary-section" *ngIf="totalTaxAmount === 0">
+              <div class="summary-row">
+                <span class="sr-label text-muted"><i class="bi bi-bank me-1"></i>GST / Tax</span>
+                <span class="sr-value text-muted">Not applied</span>
+              </div>
+            </div>
+
+            
+            <div class="summary-section" style="border-color:#e2e8f0;">
+              <div class="summary-section-label" style="color:#64748b;">ROUNDING OFF</div>
+              <div class="summary-row" style="align-items:center;">
+                <span class="sr-label">
+                  <i class="bi bi-plus-slash-minus me-1"></i>Round Off
+                </span>
+                <div style="display:flex;align-items:center;gap:0.4rem;">
+                  <button class="rounding-sign-btn"
+                          [class.rounding-sign-plus]="roundingSign === '+'"
+                          [class.rounding-sign-minus]="roundingSign === '-'"
+                          (click)="toggleRoundingSign()"
+                          title="Toggle add / deduct">
+                    {{ roundingSign }}
+                  </button>
+                  <div class="ov-input-box" style="height:30px;width:100px;border-color:#cbd5e1;">
+                    <span class="ov-unit" style="background:#f8fafc;color:#475569;border-right:1px solid #e2e8f0;">
+                      {{ currencySymbol }}
+                    </span>
+                    <input type="number"
+                           class="ov-input text-end"
+                           [style.color]="roundingSign === '-' ? '#dc2626' : '#16a34a'"
+                           style="font-size:0.82rem;font-weight:600;"
+                           [(ngModel)]="roundingOffDisplay"
+                           (ngModelChange)="onRoundingOffChange()"
+                           min="0" step="0.01" placeholder="0.00" />
+                  </div>
+                  <button class="ov-clear-btn" (click)="clearRoundingOff()"
+                          [disabled]="roundingOff === 0" title="Clear rounding">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="summary-row summary-row-sub" *ngIf="roundingOff !== 0">
+                <span class="sr-label-sub">
+                  {{ roundingSign === '-' ? 'Deducted from total' : 'Added to total' }}
+                </span>
+                <span class="sr-value-sub fw-semibold"
+                      [style.color]="roundingSign === '-' ? '#16a34a' : '#d97706'">
+                  {{ roundingSign === '-' ? '−' : '+' }}{{ formatCurrency(roundingOffAbsDisplay) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="savings-banner" *ngIf="combinedDiscountAmount > 0">
+              <i class="bi bi-stars me-1"></i>
+              Total Savings: <strong>{{ formatCurrency(combinedDiscountAmount) }}</strong>
+              ({{ combinedDiscountPercent | number:'1.1-1' }}% off original)
+            </div>
+
+            
+            <div class="grand-total-box">
+              <div class="gt-label">Total Amount ({{ currencyCode }})</div>
+              <div class="gt-value">{{ formatCurrency(netPayable) }}</div>
+            </div>
+
+            
+            <div *ngIf="hasValidationErrors" class="summary-validation-warning">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+              Fix validation errors before creating PO.
+            </div>
+
+          </div>
+        </div>
+
+        
+        <div class="action-panel">
+          <button cButton color="outline-primary" class="w-100 mb-2"
+                  (click)="saveNegotiation()" [disabled]="isSaving || isCreatingPO">
+            <c-spinner *ngIf="isSaving" size="sm" class="me-1"></c-spinner>
+            <i *ngIf="!isSaving" class="bi bi-floppy me-1"></i>
+            {{ isSaving ? 'Saving...' : 'Save Draft' }}
+          </button>
+
+          <button cButton color="success" class="w-100 btn-lg"
+                  (click)="createPO()"
+                  [disabled]="isSaving || isCreatingPO || lineItems.length === 0 || hasValidationErrors">
+            <c-spinner *ngIf="isCreatingPO" size="sm" class="me-1"></c-spinner>
+            <i *ngIf="!isCreatingPO" class="bi bi-file-earmark-check-fill me-2"></i>
+            {{ isCreatingPO ? 'Creating PO...' : 'Finalize & Create PO' }}
+          </button>
+
+          <p class="text-muted text-center mt-2 small">
+            <i class="bi bi-info-circle me-1"></i>Creates a DRAFT PO with finalized prices
+          </p>
+
+          <button class="btn btn-sm btn-link text-muted w-100 mt-1" (click)="goToList()">
+            <i class="bi bi-list-ul me-1"></i> View All Purchase Orders
+          </button>
+        </div>
+
+      </c-col>
+    </c-row>
+  </div>
+
+</c-container> -->
+
+<c-container fluid class="mt-4 po-negotiation-page">
+
+  <!-- ===== PAGE HEADER ===== -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <div class="page-header-card">
+        <div class="page-header-inner">
+          <div>
+            <div class="page-breadcrumb">
+              <span class="bc-step bc-done">Quote Comparison</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-done">Supplier Evaluation</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-done">Select Supplier</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-active">Price Review</span>
+              <i class="bi bi-chevron-right bc-arrow"></i>
+              <span class="bc-step bc-pending">Create PO</span>
+            </div>
+            <h2 class="page-title mt-2 mb-1">
+              <i class="bi bi-cash-coin me-2"></i>PO Price Negotiation
+            </h2>
+            <p class="page-subtitle" *ngIf="supplierName">
+              RFQ #{{ rfqId }} · <strong class="text-white">{{ supplierName }}</strong>
+              <span class="badge ms-2" style="background:rgba(255,255,255,0.2); font-size:0.8rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+              </span>
+              <!-- ✅ Buyer's original currency badge — only shown for cross-border -->
+              <span *ngIf="isCrossBorder" class="badge ms-1" style="background:rgba(6,182,212,0.3); font-size:0.8rem;">
+                <i class="bi bi-arrow-left-right me-1"></i>{{ buyerOriginalCurrencySymbol }} {{ buyerOriginalCurrencyCode }}
+              </span>
+              <span *ngIf="isCrossBorder && exchangeRatesLoaded" class="ms-2" style="font-size:0.75rem; opacity:0.85;">
+                {{ exchangeRateLabel }}
+              </span>
+            </p>
+            <p class="page-subtitle" *ngIf="!supplierName">
+              RFQ #{{ rfqId }} · Supplier #{{ supplierId }}
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button cButton color="outline-light" size="sm" (click)="resetAll()"
+                    *ngIf="negotiation && lineItems.length > 0">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset All
+            </button>
+            <button cButton color="outline-secondary" size="sm" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i> Back
+            </button>
+          </div>
+        </div>
+      </div>
+    </c-col>
+  </c-row>
+
+  <!-- ===== LOADING ===== -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <c-spinner color="primary" style="width:3rem;height:3rem;"></c-spinner>
+    <p class="mt-3 text-muted">Initializing price negotiation...</p>
+  </div>
+
+  <!-- ===== ERROR STATE ===== -->
+  <div *ngIf="!isLoading && !negotiation" class="text-center py-5">
+    <i class="bi bi-exclamation-triangle display-1 text-warning mb-3 d-block"></i>
+    <h5 class="fw-bold">Failed to Load Negotiation</h5>
+    <div *ngIf="errorMessage" class="alert alert-danger mx-auto mt-3" style="max-width:600px;text-align:left;">
+      <strong><i class="bi bi-bug me-2"></i>Backend Error:</strong>
+      <div class="mt-1">{{ errorMessage }}</div>
+    </div>
+    <div class="d-flex gap-2 justify-content-center mt-3">
+      <button cButton color="primary" (click)="retryInit()">
+        <i class="bi bi-arrow-clockwise me-1"></i> Retry
+      </button>
+      <button cButton color="secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left me-1"></i> Go Back
+      </button>
+      <button cButton color="outline-secondary" (click)="goToList()">
+        <i class="bi bi-list-ul me-1"></i> View PO List
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div *ngIf="!isLoading && negotiation">
+    <c-row class="g-4">
+
+      <!-- LEFT: Line Items Table -->
+      <c-col xs="12" lg="9">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div>
+              <h5 class="mb-0 fw-bold">
+                <i class="bi bi-table me-2 text-primary"></i>Price Review — Line Items
+              </h5>
+              <small class="text-muted">
+                Enter <strong>Discount %</strong> or <strong>Discount {{ currencySymbol }}</strong> — they sync automatically.
+                Final Rate <strong>cannot exceed</strong> Quoted Amount.
+              </small>
+              <!-- ✅ Cross-border info banner -->
+              <div *ngIf="isCrossBorder" class="mt-1" style="font-size:0.78rem; color:#0891b2; font-weight:500;">
+                <i class="bi bi-currency-exchange me-1"></i>
+                Transaction: <strong>{{ currencyCode }}</strong> |
+                <span *ngIf="exchangeRatesLoaded">{{ exchangeRateLabel }} — highlighted columns show amounts in {{ buyerOriginalCurrencyCode }}</span>
+                <span *ngIf="!exchangeRatesLoaded">Loading {{ buyerOriginalCurrencyCode }} rates...</span>
+              </div>
+            </div>
+            <span class="badge bg-primary rounded-pill">{{ lineItems.length }} items</span>
+          </div>
+
+          <div *ngIf="hasValidationErrors" class="validation-alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Validation Error:</strong> One or more Final Rates exceed the Quoted Amount. Please correct the highlighted rows.
+          </div>
+
+          <div class="table-responsive">
+            <table class="table negotiation-table mb-0">
+              <thead>
+                <!-- ===== GROUP HEADER ROW (cross-border only) ===== -->
+                <tr *ngIf="isCrossBorder" class="group-header-row">
+                  <th colspan="12"
+                      style="text-align:center; background:#dbeafe; color:#1d4ed8; border-bottom:1px solid #bfdbfe; font-size:0.72rem; padding:3px 8px; font-weight:600; letter-spacing:0.02em;">
+                    <i class="bi bi-globe2 me-1"></i>Supplier currency ({{ currencyCode }}) 
+                  </th>
+                  <!-- <th colspan="2"
+                      style="text-align:center; background:#d1fae5; color:#065f46; border-bottom:1px solid #6ee7b7; border-left:2px solid #6ee7b7; font-size:0.72rem; padding:3px 8px; font-weight:600; letter-spacing:0.02em;">
+                    <i class="bi bi-currency-exchange me-1"></i>Buyer currency ({{ buyerOriginalCurrencyCode }}) — converted
+                    <span *ngIf="exchangeRatesLoaded" style="font-weight:400; opacity:0.85;"> · {{ exchangeRateLabel }}</span>
+                  </th> -->
+                  <th style="background:#dbeafe; border-bottom:1px solid #bfdbfe;"></th>
+                </tr>
+
+                <!-- ===== MAIN COLUMN HEADER ROW (matches reference image style) ===== -->
+                <tr>
+                  <th class="col-sl">#</th>
+                  <th class="col-item">Item / Description</th>
+                  <th class="col-qty text-center">Qty</th>
+                  <th class="col-uom text-center">UOM</th>
+                  <th class="col-quoted text-end">Rate<br><span class="col-subheader">({{ currencyCode }})</span></th>
+                  <th class="col-disc-pct text-center">Quoted Amount<br><span class="col-subheader">({{ currencyCode }})</span></th>
+                  <th class="col-disc-pct text-center">Discount %</th>
+                  <th class="col-disc-amt text-end">Discount {{ currencySymbol }}</th>
+                  <th class="col-final text-end">Final Rate<br><span class="col-subheader">({{ currencyCode }})</span></th>
+                  <th class="col-pretax text-end">Total<br><span class="col-subheader">(Before Tax)</span></th>
+                  <th class="col-tax text-center">Tax %</th>
+                  <th class="col-aftertax text-end">Total<br><span class="col-subheader">(After Tax)</span></th>
+                  <!-- ✅ Buyer currency columns — only for cross-border -->
+                  <!-- <ng-container *ngIf="isCrossBorder">
+                    <th class="col-inr-rate text-end"
+                        style="background:#065f46; color:#6ee7b7; border-left:2px solid #6ee7b7; min-width:110px;">
+                      Final Rate<br><span class="col-subheader" style="color:#a7f3d0;">({{ buyerOriginalCurrencyCode }})</span>
+                    </th>
+                    <th class="col-inr-total text-end"
+                        style="background:#065f46; color:#6ee7b7; min-width:120px;">
+                      Total After Tax<br><span class="col-subheader" style="color:#a7f3d0;">({{ buyerOriginalCurrencyCode }})</span>
+                    </th>
+                  </ng-container> -->
+                  <th class="col-reset text-center">↺</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let item of lineItems; trackBy: trackByItemId; let i = index"
+                    [class.row-has-discount]="item.discountAmount > 0"
+                    [class.row-has-error]="item.priceExceedsQuoted">
+
+                  <td class="td-center text-muted fw-bold">{{ i + 1 }}</td>
+
+                  <td class="td-item">
+                    <div class="fw-bold item-name">{{ item.itemDescription }}</div>
+                    <div *ngIf="item.itemCode" class="item-code">
+                      <i class="bi bi-upc me-1"></i>{{ item.itemCode }}
+                    </div>
+                    <div *ngIf="item.specifications" class="item-spec">{{ item.specifications }}</div>
+                  </td>
+
+                  <td class="td-center"><span class="qty-badge">{{ item.quantity }}</span></td>
+                  <td class="td-center"><span class="uom-badge">{{ item.uom }}</span></td>
+
+                  <td class="td-end">
+                    <div class="quoted-price">{{ formatCurrency(item.actualQuotedPrice) }}</div>
+                  </td>
+
+                  <td class="td-end">
+                    <div class="quoted-price">{{ formatCurrency(item.actualQuotedPrice * item.quantity) }}</div>
+                  </td>
+
+                  <!-- Discount % -->
+                  <td class="td-center">
+                    <div class="input-cell input-cell-discount">
+                      <input type="number" class="tbl-input text-center"
+                        [(ngModel)]="item.discountPercentage"
+                        (ngModelChange)="onDiscountChange(item)"
+                        min="0" max="100" step="0.5" placeholder="0" />
+                      <span class="input-suffix">%</span>
+                    </div>
+                    <div *ngIf="item.discountPercentage > 0" class="cell-hint cell-hint-green">
+                      −{{ item.discountPercentage | number:'1.1-2' }}%
+                    </div>
+                    <div *ngIf="!(item.discountPercentage > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                  <!-- Discount Amount -->
+                  <td class="td-end">
+                    <div class="input-cell input-cell-discount">
+                      <span class="input-prefix"> {{ currencySymbol }} </span>
+                      <input type="number" class="tbl-input text-end"
+                        [(ngModel)]="item.discountAmount"
+                        (ngModelChange)="onDiscountAmountChange(item)"
+                        min="0" step="0.01" placeholder="0.00" />
+                    </div>
+                    <div *ngIf="item.discountAmount > 0" class="cell-hint cell-hint-green">
+                      Saving {{ currencySymbol }}{{ item.discountAmount | number:'1.0-2' }} / unit
+                    </div>
+                    <div *ngIf="!(item.discountAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                  <!-- Final Rate -->
+                  <td class="td-end">
+                    <div class="input-cell input-cell-final" [class.input-cell-error]="item.priceExceedsQuoted">
+                      <span class="input-prefix">{{ currencySymbol }}</span>
+                      <input type="number" class="tbl-input text-end"
+                        [class.text-danger]="item.priceExceedsQuoted"
+                        [(ngModel)]="item.finalizedPrice"
+                        (ngModelChange)="onFinalizedPriceChange(item)"
+                        min="0" step="0.01" placeholder="0.00" />
+                    </div>
+                    <div *ngIf="item.priceExceedsQuoted; else finalRateSpacer" class="cell-hint cell-hint-red">
+                      <i class="bi bi-exclamation-triangle-fill"></i> Max {{ formatCurrency(item.actualQuotedPrice) }}
+                    </div>
+                    <ng-template #finalRateSpacer><div class="cell-hint-spacer">&nbsp;</div></ng-template>
+                  </td>
+
+                  <!-- Total Before Tax -->
+                  <td class="td-end">
+                    <div class="line-total" [class.line-total-green]="item.discountAmount > 0">
+                      {{ formatCurrency(item.lineTotal) }}
+                    </div>
+                    <div *ngIf="item.discountAmount > 0" class="cell-hint cell-hint-green">
+                      Saved: {{ formatCurrency(item.discountAmount * item.quantity) }}
+                    </div>
+                    <div *ngIf="!(item.discountAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                  <!-- Tax % -->
+                  <td class="td-center">
+                    <div class="input-cell input-cell-tax-active">
+                      <input type="number" class="tbl-input text-center"
+                        [(ngModel)]="item.taxPercentage"
+                        (ngModelChange)="onItemTaxChange(item)"
+                        min="0" max="100" step="0.5" placeholder="0" />
+                      <span class="input-suffix">%</span>
+                    </div>
+                    <div *ngIf="item.taxAmount > 0" class="cell-hint cell-hint-amber">
+                      +{{ formatCurrency(item.taxAmount) }}
+                    </div>
+                    <div *ngIf="!(item.taxAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                  <!-- Total After Tax -->
+                  <td class="td-end">
+                    <div class="line-total line-total-aftertax">
+                      {{ formatCurrency(item.lineTotalWithTax) }}
+                    </div>
+                    <div *ngIf="item.taxPercentage > 0" class="cell-hint cell-hint-amber">
+                      Tax: +{{ formatCurrency(item.taxAmount) }}
+                    </div>
+                    <div *ngIf="!(item.taxPercentage > 0)" class="cell-hint-spacer">&nbsp;</div>
+                  </td>
+
+                  <!-- ✅ NEW COLUMN 1: Final Rate in buyer's original currency -->
+                  <!-- <ng-container *ngIf="isCrossBorder">
+                    <td class="td-end" style="background:#f0fdff; border-left:2px solid #80deea;">
+                      <div *ngIf="exchangeRatesLoaded" class="fw-semibold" style="color:#0891b2;">
+                        {{ formatBuyerCurrency(convertToBuyerCurrency(item.finalizedPrice)) }}
+                      </div>
+                      <div *ngIf="!exchangeRatesLoaded" class="text-muted" style="font-size:0.73rem;">Loading...</div>
+                      <div class="cell-hint-spacer">&nbsp;</div>
+                    </td>
+
+                   
+                    <td class="td-end" style="background:#f0fdff;">
+                      <div *ngIf="exchangeRatesLoaded" class="fw-bold" style="color:#0891b2;">
+                        {{ formatBuyerCurrency(convertToBuyerCurrency(item.lineTotalWithTax)) }}
+                      </div>
+                      <div *ngIf="!exchangeRatesLoaded" class="text-muted" style="font-size:0.73rem;">Loading...</div>
+                      <div *ngIf="item.discountAmount > 0 && exchangeRatesLoaded"
+                           class="cell-hint" style="color:#0891b2; font-size:0.68rem;">
+                        Saved: {{ formatBuyerCurrency(convertToBuyerCurrency(item.discountAmount * item.quantity)) }}
+                      </div>
+                      <div *ngIf="!(item.discountAmount > 0)" class="cell-hint-spacer">&nbsp;</div>
+                    </td>
+                  </ng-container> -->
+
+                  <!-- Reset -->
+                  <td class="td-center">
+                    <button class="btn-reset" (click)="resetItem(item)"
+                            title="Reset to quoted price"
+                            [disabled]="item.finalizedPrice === item.actualQuotedPrice && item.discountAmount === 0">
+                      <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                  </td>
+                </tr>
+
+                <tr *ngIf="lineItems.length === 0">
+                  <td [attr.colspan]="isCrossBorder ? 15 : 13" class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-4 d-block mb-3 opacity-25"></i>
+                    No line items found
+                  </td>
+                </tr>
+              </tbody>
+
+              <!-- TABLE TOTALS FOOTER -->
+              <tfoot *ngIf="lineItems.length > 0">
+                <tr class="totals-footer-row">
+                  <td colspan="4" class="footer-label">TOTALS</td>
+                  <td></td>
+                  <td class="text-end">
+                    <div class="footer-val footer-val-bright">{{ formatCurrency(subtotalQuoted) }}</div>
+                  </td>
+                  <td class="text-center">
+                    <span *ngIf="totalDiscountAmount === 0" class="footer-dash">—</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="footer-disc-amt" *ngIf="totalDiscountAmount > 0">
+                      −{{ formatCurrency(totalDiscountAmount) }}
+                    </span>
+                    <span *ngIf="totalDiscountAmount === 0" class="footer-dash">—</span>
+                  </td>
+                  <td></td>
+                  <td class="text-end">
+                    <div class="footer-val footer-val-bright">{{ formatCurrency(subtotalFinalized) }}</div>
+                  </td>
+                  <td class="text-center">
+                    <span *ngIf="totalTaxAmount > 0" class="footer-tax">+{{ formatCurrency(totalTaxAmount) }}</span>
+                    <span *ngIf="totalTaxAmount === 0" class="footer-dash">—</span>
+                  </td>
+                  <td class="text-end">
+                    <div class="footer-grand">{{ formatCurrency(grandTotalFinalized) }}</div>
+                  </td>
+                  <!-- ✅ Footer: Grand total in buyer's original currency -->
+                  <!-- <ng-container *ngIf="isCrossBorder">
+                    <td class="text-end" style="background:#e0f7fa; border-left:2px solid #80deea;">
+                      <div class="footer-dash">—</div>
+                    </td>
+                    <td class="text-end" style="background:#e0f7fa;">
+                      <div *ngIf="exchangeRatesLoaded" class="footer-val fw-bold" style="color:#006064;">
+                        {{ formatBuyerCurrency(convertToBuyerCurrency(grandTotalFinalized)) }}
+                      </div>
+                      <div *ngIf="!exchangeRatesLoaded" class="footer-dash text-muted">...</div>
+                    </td>
+                  </ng-container> -->
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </c-col>
+
+      <!-- RIGHT: Terms + Summary + Actions -->
+      <c-col xs="12" lg="3">
+
+        <!-- Terms / Notes -->
+        <div class="section-card mb-3">
+          <div class="section-card-header">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-file-text me-2 text-info"></i>Terms / Notes</h6>
+          </div>
+          <div class="p-3">
+            <textarea class="form-control form-control-sm" [(ngModel)]="terms"
+                      rows="3" placeholder="Payment terms, delivery notes..."></textarea>
+          </div>
+        </div>
+
+        <!-- SUMMARY PANEL -->
+        <div class="section-card mb-3">
+          <div class="section-card-header">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-calculator me-2 text-success"></i>Price Summary</h6>
+            <div class="d-flex gap-1 flex-wrap">
+              <span class="badge bg-primary" style="font-size:0.7rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+              </span>
+              <span *ngIf="isCrossBorder" class="badge" style="background:#0891b2; font-size:0.7rem;">
+                <i class="bi bi-arrow-left-right me-1"></i>{{ buyerOriginalCurrencySymbol }} {{ buyerOriginalCurrencyCode }}
+              </span>
+            </div>
+          </div>
+
+          <div class="summary-body">
+
+            <div class="summary-section">
+              <div class="summary-section-label">QUOTED AMOUNT</div>
+              <div class="summary-row">
+                <span class="sr-label"><i class="bi bi-receipt me-1"></i>Quoted Amount</span>
+                <span class="sr-value">{{ formatCurrency(subtotalQuoted) }}</span>
+              </div>
+              <div class="summary-row" *ngIf="isCrossBorder && exchangeRatesLoaded">
+                <span class="sr-label" style="color:#0891b2; font-size:0.75rem;">
+                  <i class="bi bi-arrow-left-right me-1"></i>In {{ buyerOriginalCurrencyCode }}
+                </span>
+                <span class="sr-value" style="color:#0891b2; font-size:0.8rem;">
+                  {{ formatBuyerCurrency(convertToBuyerCurrency(subtotalQuoted)) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="summary-section summary-section-discount" *ngIf="totalDiscountAmount > 0">
+              <div class="summary-section-label text-success">LINE DISCOUNT</div>
+              <div class="summary-row">
+                <span class="sr-label"><i class="bi bi-scissors me-1"></i>Total Discount</span>
+                <span class="sr-value text-success fw-bold">−{{ formatCurrency(totalDiscountAmount) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="sr-label fw-semibold"><i class="bi bi-check2-circle me-1"></i>Price After Discount</span>
+                <span class="sr-value fw-bold">{{ formatCurrency(subtotalFinalized) }}</span>
+              </div>
+            </div>
+
+            <div class="summary-section" *ngIf="totalDiscountAmount === 0">
+              <div class="summary-row">
+                <span class="sr-label fw-semibold"><i class="bi bi-check2-circle me-1"></i>Finalized Subtotal</span>
+                <span class="sr-value fw-bold">{{ formatCurrency(subtotalFinalized) }}</span>
+              </div>
+            </div>
+
+            <div class="summary-section summary-section-tax" *ngIf="totalTaxAmount > 0">
+              <div class="summary-section-label text-warning">GST / TAX</div>
+              <div class="summary-row">
+                <span class="sr-label"><i class="bi bi-bank me-1"></i>Total GST</span>
+                <span class="sr-value text-warning fw-semibold">+{{ formatCurrency(totalTaxAmount) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="sr-label fw-semibold"><i class="bi bi-check2-circle me-1"></i>Amount After Tax</span>
+                <span class="sr-value fw-bold">{{ formatCurrency(grandTotalFinalized) }}</span>
+              </div>
+            </div>
+
+            <div class="summary-section" *ngIf="totalTaxAmount === 0">
+              <div class="summary-row">
+                <span class="sr-label text-muted"><i class="bi bi-bank me-1"></i>GST / Tax</span>
+                <span class="sr-value text-muted">Not applied</span>
+              </div>
+            </div>
+
+            <div class="summary-section" style="border-color:#e2e8f0;">
+              <div class="summary-section-label" style="color:#64748b;">ROUNDING OFF</div>
+              <div class="summary-row" style="align-items:center;">
+                <span class="sr-label"><i class="bi bi-plus-slash-minus me-1"></i>Round Off</span>
+                <div style="display:flex;align-items:center;gap:0.4rem;">
+                  <button class="rounding-sign-btn"
+                          [class.rounding-sign-plus]="roundingSign === '+'"
+                          [class.rounding-sign-minus]="roundingSign === '-'"
+                          (click)="toggleRoundingSign()">
+                    {{ roundingSign }}
+                  </button>
+                  <div class="ov-input-box" style="height:30px;width:100px;border-color:#cbd5e1;">
+                    <span class="ov-unit" style="background:#f8fafc;color:#475569;border-right:1px solid #e2e8f0;">
+                      {{ currencySymbol }}
+                    </span>
+                    <input type="number" class="ov-input text-end"
+                           [style.color]="roundingSign === '-' ? '#dc2626' : '#16a34a'"
+                           style="font-size:0.82rem;font-weight:600;"
+                           [(ngModel)]="roundingOffDisplay"
+                           (ngModelChange)="onRoundingOffChange()"
+                           min="0" step="0.01" placeholder="0.00" />
+                  </div>
+                  <button class="ov-clear-btn" (click)="clearRoundingOff()" [disabled]="roundingOff === 0">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="summary-row summary-row-sub" *ngIf="roundingOff !== 0">
+                <span class="sr-label-sub">{{ roundingSign === '-' ? 'Deducted from total' : 'Added to total' }}</span>
+                <span class="sr-value-sub fw-semibold"
+                      [style.color]="roundingSign === '-' ? '#16a34a' : '#d97706'">
+                  {{ roundingSign === '-' ? '−' : '+' }}{{ formatCurrency(roundingOffAbsDisplay) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="savings-banner" *ngIf="combinedDiscountAmount > 0">
+              <i class="bi bi-stars me-1"></i>
+              Total Savings: <strong>{{ formatCurrency(combinedDiscountAmount) }}</strong>
+              ({{ combinedDiscountPercent | number:'1.1-1' }}% off original)
+            </div>
+
+            <!-- Grand total in transaction currency -->
+            <div class="grand-total-box">
+              <div class="gt-label">Total Amount ({{ currencyCode }})</div>
+              <div class="gt-value">{{ formatCurrency(netPayable) }}</div>
+            </div>
+
+            <!-- ✅ Grand total converted to buyer's original currency -->
+            <div *ngIf="isCrossBorder && exchangeRatesLoaded"
+                 class="mt-2 p-2 rounded text-center"
+                 style="background:#e0f7fa; border:1px solid #80deea;">
+              <div style="font-size:0.7rem; color:#006064; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+                <i class="bi bi-arrow-left-right me-1"></i>Total in {{ buyerOriginalCurrencyCode }}
+              </div>
+              <div style="font-size:1.1rem; font-weight:700; color:#006064;">
+                {{ formatBuyerCurrency(convertToBuyerCurrency(netPayable)) }}
+              </div>
+              <div style="font-size:0.68rem; color:#00838f; margin-top:2px;">{{ exchangeRateLabel }}</div>
+            </div>
+            <div *ngIf="isCrossBorder && !exchangeRatesLoaded"
+                 class="mt-2 p-2 rounded text-center text-muted"
+                 style="background:#f8fafc; border:1px solid #e2e8f0; font-size:0.78rem;">
+              <i class="bi bi-hourglass-split me-1"></i>Loading {{ buyerOriginalCurrencyCode }} rate...
+            </div>
+
+            <div *ngIf="hasValidationErrors" class="summary-validation-warning">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>Fix validation errors before creating PO.
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="action-panel">
+          <button cButton color="outline-primary" class="w-100 mb-2"
+                  (click)="saveNegotiation()" [disabled]="isSaving || isCreatingPO">
+            <c-spinner *ngIf="isSaving" size="sm" class="me-1"></c-spinner>
+            <i *ngIf="!isSaving" class="bi bi-floppy me-1"></i>
+            {{ isSaving ? 'Saving...' : 'Save Draft' }}
+          </button>
+          <button cButton color="success" class="w-100 btn-lg"
+                  (click)="createPO()"
+                  [disabled]="isSaving || isCreatingPO || lineItems.length === 0 || hasValidationErrors">
+            <c-spinner *ngIf="isCreatingPO" size="sm" class="me-1"></c-spinner>
+            <i *ngIf="!isCreatingPO" class="bi bi-file-earmark-check-fill me-2"></i>
+            {{ isCreatingPO ? 'Creating PO...' : 'Finalize & Create PO' }}
+          </button>
+          <p class="text-muted text-center mt-2 small">
+            <i class="bi bi-info-circle me-1"></i>Creates a DRAFT PO with finalized prices
+          </p>
+          <button class="btn btn-sm btn-link text-muted w-100 mt-1" (click)="goToList()">
+            <i class="bi bi-list-ul me-1"></i> View All Purchase Orders
+          </button>
+        </div>
+
+      </c-col>
+    </c-row>
+  </div>
+
+</c-container>

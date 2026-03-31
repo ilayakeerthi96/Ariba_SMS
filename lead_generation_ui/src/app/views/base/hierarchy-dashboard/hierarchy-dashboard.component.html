@@ -1,0 +1,387 @@
+<div class="container-fluid p-4">
+
+  <!-- ==================== COMPANY INFO CARD ==================== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+        <div class="gradient-header">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-4 text-center text-lg-start mb-3 mb-lg-0">
+              <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <div class="avatar-circle-large me-3">{{ userName.substring(0, 2).toUpperCase() }}</div>
+                <div class="text-white">
+                  <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ userName }}</h3>
+                  <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                    <i class="bi bi-shield-check me-1"></i>{{ hierarchyLevelName }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-8">
+              <div class="row g-2">
+                <div class="col-12 col-md-4">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Company Name</div>
+                      <div class="info-value">{{ companyName }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Email</div>
+                      <div class="info-value">{{ userEmail }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Approval Level</div>
+                      <div class="info-value">Level {{ hierarchyLevelOrder }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="fw-bold text-dark mb-1">
+            <i class="bi bi-speedometer2"></i>&nbsp;&nbsp;{{ hierarchyLevelName }} Dashboard
+          </h3>
+          <p class="text-muted small mb-0">Review and manage RFQs and Purchase Orders awaiting approval.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-warning position-relative"
+                  (click)="navigateToPendingApprovals()" *ngIf="totalBadgeCount > 0">
+            <i class="bi bi-clock-history"></i> Approvals &amp; HOLD
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ totalBadgeCount }}
+            </span>
+          </button>
+          <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="isLoading || isPOLoading">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== RFQ STAT CARDS ==================== -->
+  <div class="section-label-row mb-2">
+    <span class="section-label-text"><i class="bi bi-file-text me-1"></i>RFQ Overview</span>
+    <hr class="section-label-line">
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white;">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="stat-info"><h4>{{ allRFQs.length }}</h4><p>Total RFQs</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f5576c 0%, #c0392b 100%); color:white;">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="pendingApprovalsCount > 0 ? '#c0392b' : '#2d3748'">{{ pendingApprovalsCount }}</h4>
+          <p>Pending RFQ Approvals</p>
+          <small *ngIf="pendingApprovalsCount > 0" class="text-danger fw-bold" style="font-size:0.72rem;">
+            <i class="bi bi-exclamation-circle-fill me-1"></i>Action Required
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ff8f00 0%, #e65100 100%); color:white;">
+          <i class="bi bi-pause-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="holdApprovalsCount > 0 ? '#e65100' : '#2d3748'">{{ holdApprovalsCount }}</h4>
+          <p>RFQs On HOLD by You</p>
+          <small *ngIf="holdApprovalsCount > 0" class="fw-bold" style="font-size:0.72rem; color:#e65100;">
+            <i class="bi bi-info-circle-fill me-1"></i>Awaiting Release
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #1a8a3c 100%); color:white;">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h4>{{ (filteredRFQs | filter:'approvalStatus':'APPROVED').length }}</h4>
+          <p>Approved RFQs</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PO STAT CARDS ==================== -->
+  <div class="section-label-row mb-2">
+    <span class="section-label-text"><i class="bi bi-file-earmark-check me-1"></i>Purchase Order Overview</span>
+    <hr class="section-label-line">
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white;">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="stat-info"><h4>{{ allPOs.length }}</h4><p>Total POs</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%); color:white;">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="pendingPOCount > 0 ? '#c62828' : '#2d3748'">{{ pendingPOCount }}</h4>
+          <p>Pending PO Approvals</p>
+          <small *ngIf="pendingPOCount > 0" class="text-danger fw-bold" style="font-size:0.72rem;">
+            <i class="bi bi-exclamation-circle-fill me-1"></i>Action Required
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ff8f00 0%, #e65100 100%); color:white;">
+          <i class="bi bi-pause-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="holdPOCount > 0 ? '#e65100' : '#2d3748'">{{ holdPOCount }}</h4>
+          <p>POs On HOLD by You</p>
+          <small *ngIf="holdPOCount > 0" class="fw-bold" style="font-size:0.72rem; color:#e65100;">
+            <i class="bi bi-info-circle-fill me-1"></i>Awaiting Release
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #1a8a3c 100%); color:white;">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="stat-info"><h4>{{ approvedPOCount }}</h4><p>Approved POs</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB NAV ==================== -->
+  <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+    <div class="card-header bg-white border-0 pt-3 px-4 pb-0" style="border-radius: 12px 12px 0 0;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <ul class="nav nav-tabs border-0" style="gap: 4px;">
+          <li class="nav-item">
+            <button class="nav-link dash-tab-btn" [class.active]="activeTab === 'rfq'" (click)="switchTab('rfq')">
+              <i class="bi bi-file-text me-1"></i>RFQs
+              <span class="tab-count-badge" [class.badge-active]="activeTab === 'rfq'">{{ allRFQs.length }}</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link dash-tab-btn" [class.active]="activeTab === 'po'" (click)="switchTab('po')">
+              <i class="bi bi-cart-check me-1"></i>Purchase Orders
+              <span class="tab-count-badge" [class.badge-active]="activeTab === 'po'"
+                    [class.badge-alert]="pendingPOCount > 0 && activeTab !== 'po'">
+                {{ allPOs.length }}
+              </span>
+            </button>
+          </li>
+        </ul>
+
+        <!-- RFQ Filters -->
+        <div *ngIf="activeTab === 'rfq'" class="d-flex gap-2 align-items-center">
+          <input type="text" class="form-control form-control-sm" style="width: 200px;"
+            placeholder="Search RFQ number, title..." [(ngModel)]="searchText" (ngModelChange)="applyRFQFilters()"/>
+          <select class="form-select form-select-sm" style="width: 160px;"
+            [(ngModel)]="approvalStatusFilter" (change)="applyRFQFilters()">
+            <option value="">All Approval Status</option>
+            <option *ngFor="let s of approvalStatuses" [value]="s">{{ s | titlecase }}</option>
+          </select>
+        </div>
+
+        <!-- PO Filters -->
+        <div *ngIf="activeTab === 'po'" class="d-flex gap-2 align-items-center">
+          <input type="text" class="form-control form-control-sm" style="width: 200px;"
+            placeholder="Search PO, RFQ, supplier..." [(ngModel)]="poSearchText" (ngModelChange)="applyPOFilters()"/>
+          <select class="form-select form-select-sm" style="width: 160px;"
+            [(ngModel)]="poStatusFilter" (change)="applyPOFilters()">
+            <option value="">All Statuses</option>
+            <option *ngFor="let s of poStatuses" [value]="s">{{ getPOStatusLabel(s) }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+
+      <!-- ==================== RFQ TAB ==================== -->
+      <div *ngIf="activeTab === 'rfq'">
+        <div class="px-4 py-2 border-bottom" style="background:#f8f9fa;">
+          <small class="text-muted">Showing {{ pagedRFQs.length }} of {{ filteredRFQs.length }} RFQs</small>
+        </div>
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="text-muted mt-3">Loading RFQs...</p>
+        </div>
+        <div *ngIf="!isLoading" class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead style="background-color: #f8f9fa;">
+              <tr>
+                <th class="ps-4">Sl No</th><th>RFQ Number</th><th>RFQ Details</th>
+                <th>Created Date</th><th class="text-center">Suppliers</th>
+                <!-- <th class="text-center">Responses</th> -->
+                <th>Approval Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let rfq of pagedRFQs; let i = index" class="table-row-hover">
+                <td class="ps-4"><strong>{{ (currentPage - 1) * pageSize + i + 1 }}</strong></td>
+                <td>
+                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewRFQDetails(rfq)">
+                    {{ rfq.rfqNumber }}
+                  </div>
+                </td>
+                <td style="max-width: 240px;">
+                  <div class="text-dark fw-semibold">{{ rfq.rfqTitle }}</div>
+                  <div class="text-muted small" *ngIf="rfq.rfqDescription">
+                    {{ rfq.rfqDescription.substring(0, 50) }}{{ rfq.rfqDescription.length > 50 ? '...' : '' }}
+                  </div>
+                  <div class="text-muted small">
+                    <i class="bi bi-building me-1"></i>{{ rfq.buyer?.companyName || rfq.buyerName || 'N/A' }}
+                  </div>
+                </td>
+                <td><span class="text-muted small">{{ formatDate(rfq.createdAt) }}</span></td>
+                <td class="text-center"><span class="badge bg-info">{{ rfq.suppliersCount || 0 }}</span></td>
+                <!-- <td class="text-center"><span class="badge bg-success">0</span></td> -->
+                <td>
+                  <span [class]="'badge ' + getApprovalStatusClass(rfq.approvalStatus)">
+                    {{ rfq.approvalStatus | titlecase }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="pagedRFQs.length === 0">
+                <td colspan="7" class="text-center text-muted py-5">
+                  <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                  <p class="mb-0">No RFQs found</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-4 border-top"
+             *ngIf="!isLoading && filteredRFQs.length > 0">
+          <div class="text-muted small">Page {{ currentPage }} of {{ totalPages }}</div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === 1"
+              (click)="onPageChange(currentPage - 1)"><i class="bi bi-chevron-left"></i> Previous</button>
+            <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalPages"
+              (click)="onPageChange(currentPage + 1)">Next <i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PO TAB ==================== -->
+      <div *ngIf="activeTab === 'po'">
+        <div class="px-4 py-2 border-bottom" style="background:#f8f9fa;">
+          <small class="text-muted">Showing {{ pagedPOs.length }} of {{ filteredPOs.length }} Purchase Orders</small>
+        </div>
+        <div *ngIf="isPOLoading" class="text-center py-5">
+          <div class="spinner-border text-warning" role="status"></div>
+          <p class="text-muted mt-3">Loading Purchase Orders...</p>
+        </div>
+        <div *ngIf="!isPOLoading" class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead style="background-color: #f8f9fa;">
+              <tr>
+                <th class="ps-4">Sl No</th><th>PO Number</th><th>RFQ Reference</th>
+                <th>Supplier</th><th class="text-center">Items</th>
+                <!-- ✅ Grand Total column — no hardcoded INR -->
+                <th class="text-end">Grand Total</th>
+                <th>PO Date</th><th>Status</th><th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let po of pagedPOs; let i = index" class="table-row-hover">
+                <td class="ps-4"><strong>{{ (poCurrentPage - 1) * poPageSize + i + 1 }}</strong></td>
+                <td>
+                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewPODetails(po)">
+                    {{ po.poNumber || ('PO-' + po.id) }}
+                  </div>
+                </td>
+                <td>
+                  <div class="text-muted small">
+                    <i class="bi bi-link-45deg me-1"></i>{{ po.rfqNumber || 'N/A' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="fw-semibold">{{ po.supplierName }}</div>
+                  <div class="text-muted small" *ngIf="po.supplier?.email">
+                    <i class="bi bi-envelope me-1"></i>{{ po.supplier.email }}
+                  </div>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-secondary">{{ po.itemsCount }}</span>
+                </td>
+                <!-- ✅ Use formatCurrency with po.currencyCode (buyer's location currency) -->
+                <td class="text-end">
+                  <span class="fw-bold text-success">
+                    {{ formatCurrency(po.grandTotal, po.currencyCode) }}
+                  </span>
+                </td>
+                <td><span class="text-muted small">{{ formatDate(po.createdDate) }}</span></td>
+                <td>
+                  <span [class]="'po-status-badge ' + getPOStatusClass(po.approvalStatus || po.status)">
+                    {{ getPOStatusLabel(po.approvalStatus || po.status) }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-light text-info shadow-sm" (click)="viewPODetails(po)" title="View PO">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="pagedPOs.length === 0">
+                <td colspan="9" class="text-center text-muted py-5">
+                  <i class="bi bi-cart-x display-6 mb-3 d-block opacity-25"></i>
+                  <p class="mb-0">No Purchase Orders found</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-4 border-top"
+             *ngIf="!isPOLoading && filteredPOs.length > 0">
+          <div class="text-muted small">Page {{ poCurrentPage }} of {{ totalPOPages }}</div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" [disabled]="poCurrentPage === 1"
+              (click)="onPOPageChange(poCurrentPage - 1)"><i class="bi bi-chevron-left"></i> Previous</button>
+            <button class="btn btn-sm btn-outline-secondary" [disabled]="poCurrentPage >= totalPOPages"
+              (click)="onPOPageChange(poCurrentPage + 1)">Next <i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

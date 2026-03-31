@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .container { max-width:600px; margin:30px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    .header { background:#fbbc04; color:#fff; padding:28px 32px; }
+    .header h1 { margin:0; font-size:22px; }
+    .body { padding:28px 32px; color:#333; line-height:1.6; }
+    .info-box { background:#fffde7; border-left:4px solid #fbbc04; padding:16px 20px; border-radius:4px; margin:20px 0; }
+    .info-box p { margin:4px 0; font-size:14px; }
+    .remarks { background:#fff8e1; border:1px solid #ffe082; padding:14px 18px; border-radius:4px; margin:16px 0; }
+    .btn { display:inline-block; margin-top:20px; padding:12px 28px; background:#fbbc04; color:#fff; text-decoration:none; border-radius:5px; font-weight:bold; }
+    .footer { background:#f4f4f4; color:#999; font-size:12px; padding:16px 32px; text-align:center; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⚠️ Action Required – Resubmit Invoice</h1>
+  </div>
+  <div class="body">
+    <p>Hello <strong th:text="${supplierName}">Supplier</strong>,</p>
+    <p>Your invoice requires changes before it can be approved. Please review the buyer's remarks below, make the necessary corrections, and resubmit.</p>
+    <div class="info-box">
+      <p><strong>Invoice Number:</strong> <span th:text="${invoiceNumber}"></span></p>
+      <p><strong>PO Number:</strong> <span th:text="${poNumber}"></span></p>
+      <p><strong>Reviewed By:</strong> <span th:text="${buyerName}"></span></p>
+    </div>
+    <div class="remarks">
+      <p><strong>Buyer's Remarks:</strong></p>
+      <p th:text="${remarks}">Please review the discrepancies and resubmit.</p>
+    </div>
+    <p>⚠️ <strong>Please note:</strong> You have one opportunity to resubmit this invoice. A second rejection will permanently close the invoice.</p>
+    <a th:href="${invoiceLink}" class="btn">View &amp; Resubmit Invoice</a>
+  </div>
+  <div class="footer">This is an automated notification. Please do not reply to this email.</div>
+</div>
+</body>
+</html>

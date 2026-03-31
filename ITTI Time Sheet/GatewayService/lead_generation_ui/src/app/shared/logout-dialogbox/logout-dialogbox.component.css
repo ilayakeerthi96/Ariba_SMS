@@ -1,0 +1,29 @@
+.confirmButton{
+    margin-left: 30%;
+    padding-bottom: 15px;
+}
+/* .confirm_no_button{
+    color: white;
+    border-radius: 50px;
+    background: linear-gradient(to right,rgb(122, 207, 233), rgb(129, 151, 224) );
+    font-size: 0.7em;
+}
+.confirm_yes_button{
+    color: white;
+    border-radius: 50px;
+    background: linear-gradient(to right,rgb(0, 26, 255), rgb(0, 26, 255) );
+    font-size: 0.7em;
+} */
+button{
+    outline: none;
+}
+::ng-deep.mat-dialog-container {
+    border-radius: 10px;
+    /* padding: 24px !important; */
+}
+::ng-deep .cdk-overlay-pane {
+    align-items: center;
+}
+/* ::ng-deep.mat-dialog-container {
+    padding: 4px !important;
+} */

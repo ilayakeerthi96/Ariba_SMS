@@ -1,0 +1,24 @@
+<div class="dialog-container">
+  <!-- Icon -->
+  <mat-icon class="dialog-icon" [ngClass]="data.type">{{ iconMap[data.type] }}</mat-icon>
+
+  <!-- Title -->
+  <h2 class="dialog-title">{{ data.title }}</h2>
+
+  <!-- Message -->
+  <mat-dialog-content class="dialog-message">
+    <p>{{ data.message }}</p>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions align="center">
+    <ng-container *ngIf="data.showConfirmButtons; else okOnly">
+      <button class="btn btn-primary" (click)="onCancel()">Cancel</button> &nbsp;&nbsp;&nbsp;
+      <button class="btn btn-primary" (click)="onConfirm()">Confirm</button>
+    </ng-container>
+
+    <ng-template #okOnly>
+    <button class="btn btn-primary" (click)="closeDialog()">OK</button>
+    </ng-template>
+  </mat-dialog-actions>
+</div>

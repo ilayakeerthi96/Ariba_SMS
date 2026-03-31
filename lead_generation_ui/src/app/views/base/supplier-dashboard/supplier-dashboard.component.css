@@ -1,0 +1,1147 @@
+/* ============================================
+   GRADIENT HEADER SECTION
+   ============================================ */
+.gradient-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
+}
+
+.gradient-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+/* ============================================
+   AVATAR CIRCLE
+   ============================================ */
+.avatar-circle-large {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================
+   INFO CARDS IN HEADER
+   ============================================ */
+.info-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  height: 100%;
+}
+
+.info-card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Make sure CoreUI icons display properly */
+.info-card-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.info-card-content {
+  color: white;
+  flex: 1;
+  min-width: 0;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================================
+   RFQ EXPIRY STYLES
+   These all use muted, professional colours — not alarming red —
+   because "expired" is an informational state, not an error state.
+   ============================================================ */
+
+/* Row tint — very subtle warm background for expired rows */
+.rfq-row-expired td {
+  background: #fff8f8 !important;
+}
+
+.rfq-row-expired:hover td {
+  background: #fff2f2 !important;
+}
+
+/* Expired badge next to RFQ number */
+.rfq-badge-expired {
+  background   : #fee2e2;
+  color        : #991b1b;
+  border       : 1px solid #fca5a5;
+  border-radius: 4px;
+  font-size    : 0.65rem;
+  font-weight  : 600;
+  letter-spacing: 0.4px;
+  padding      : 2px 6px;
+  vertical-align: middle;
+}
+
+/* Closed lock badge in actions column */
+.rfq-closed-badge {
+  display      : inline-flex;
+  align-items  : center;
+  background   : #f1f5f9;
+  color        : #64748b;
+  border       : 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size    : 0.75rem;
+  font-weight  : 500;
+  padding      : 4px 10px;
+  white-space  : nowrap;
+  user-select  : none;
+}
+
+.rfq-closed-badge:hover {
+  background: #e2e8f0;
+  color     : #475569;
+}
+
+/* Expired stat card */
+.stat-card-expired {
+  border     : 1px solid #fecaca !important;
+  background : #fff5f5 !important;
+}
+
+.stat-icon-expired {
+  background: #fee2e2 !important;
+  color     : #991b1b !important;
+}
+/* EXPIRED status badge in the Status column */
+.rfq-status-expired-badge {
+  background    : #fee2e2;
+  color         : #991b1b;
+  border        : 1px solid #fca5a5;
+  border-radius : 4px;
+  font-size     : 0.75rem;
+  font-weight   : 600;
+  letter-spacing: 0.3px;
+  padding       : 4px 8px;
+}
+
+/* ============================================================
+   RFQ VIEW MODAL STYLES
+   Append these to supplier-dashboard.component.css
+   ============================================================ */
+
+/* ── Banner (top info strip) ────────────────────────────────── */
+.rfq-view-banner {
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8eaf6 100%);
+  border: 1.5px solid #c5cae9;
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.rfq-view-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* ── Date mini-cards ─────────────────────────────────────────── */
+.rfq-view-date-card {
+  background: #fff;
+  border: 1px solid #e2e5f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  border-left: 4px solid #667eea;
+}
+
+.rfq-view-date-due   { border-left-color: #ef4444; }
+.rfq-view-date-status { border-left-color: #43cea2; }
+
+.rfq-view-date-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #8a8a9a;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.rfq-view-date-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* ── Section cards ───────────────────────────────────────────── */
+.rfq-view-section-card {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.rfq-view-section-header {
+  padding: 12px 18px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+}
+
+.rfq-view-section-body {
+  padding: 16px 18px;
+}
+
+/* ── Info rows (label → value) ───────────────────────────────── */
+.rfq-view-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.85rem;
+}
+
+.rfq-view-info-row:last-child { border-bottom: none; }
+
+.rfq-view-info-label {
+  font-weight: 600;
+  color: #8a8a9a;
+  min-width: 120px;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding-top: 1px;
+}
+
+.rfq-view-info-value {
+  color: #1a1a2e;
+  flex: 1;
+  word-break: break-word;
+}
+
+/* ── Term blocks (payment/delivery/tax) ─────────────────────── */
+.rfq-view-term-block {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px 14px;
+  border-left: 4px solid #667eea;
+  height: 100%;
+}
+
+.rfq-view-term-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #8a8a9a;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.rfq-view-term-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* ── Attachment cards ────────────────────────────────────────── */
+.rfq-view-attachment-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.rfq-view-attachment-card:hover {
+  background: #f0f2ff;
+  border-color: #c5cae9;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.12);
+}
+
+.rfq-view-att-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.rfq-view-att-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rfq-view-att-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rfq-view-att-meta {
+  font-size: 0.72rem;
+  color: #8a8a9a;
+  margin-top: 2px;
+}
+
+.rfq-view-att-desc {
+  font-size: 0.72rem;
+  color: #6c757d;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rfq-view-att-download-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.rfq-view-att-download-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(102,126,234,0.4);
+}
+
+/* ── Tab count badge ─────────────────────────────────────────── */
+.tab-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #e9ecef;
+  color: #495057;
+  margin-left: 6px;
+}
+
+.tab-count-badge.badge-active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+/* ── Nav tab buttons ─────────────────────────────────────────── */
+.dash-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6c757d;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.dash-tab-btn:hover {
+  color: #667eea;
+  background: #f0f2ff;
+}
+
+.dash-tab-btn.active {
+  color: #667eea;
+  font-weight: 700;
+  border-bottom-color: #667eea;
+  background: #f0f2ff;
+}
+
+/* ── Table hover ─────────────────────────────────────────────── */
+.table-row-hover:hover td {
+  background: #f8f9ff !important;
+}
+
+/* ============================================
+   STATISTICS CARDS (4 COLORED BOXES)
+   ============================================ */
+.stat-card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(40%, -40%);
+}
+
+/* .stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+} */
+
+.stat-card-blue .stat-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-card-warning .stat-icon {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.stat-card-success .stat-icon {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.stat-card-info .stat-icon {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+/* Stat card content */
+.stat-card c-card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.stat-icon svg {
+  width: 32px;
+  height: 32px;
+  fill: currentColor;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* ============================================
+   TABLE STYLING
+   ============================================ */
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* color: #6c757d; */
+  border-bottom: 2px solid #dee2e6;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+}
+
+.table tbody td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* .table tbody tr:hover {
+  background-color: #f8f9fa;
+} */
+
+/* ============================================
+   BADGES
+   ============================================ */
+c-badge,
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.25rem;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+/* Buttons */
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-light {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.btn-light:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn {
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+c-modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: none;
+}
+
+c-modal-header h5 {
+  color: white;
+}
+
+c-modal-header button[cButtonClose] {
+  filter: brightness(0) invert(1);
+}
+
+/* ============================================
+   FORM CONTROLS
+   ============================================ */
+.form-control:focus,
+.form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+/* ============================================
+   PAGINATION
+   ============================================ */
+.btn-group .btn {
+  border-color: #667eea;
+}
+
+.btn-group .btn:hover:not(:disabled) {
+  background-color: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+c-spinner,
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* ============================================
+   CARD STYLING
+   ============================================ */
+c-card,
+.card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+c-card:hover,
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* ============================================
+   ALERT STYLING
+   ============================================ */
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.alert-success {
+  background-color: #d1f2eb;
+  color: #0c5460;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* ✅ NEW: Enhanced Alerts with Icons */
+.alert h6 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.alert h6 i {
+  margin-right: 0.5rem;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.table tbody tr td[colspan] {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.table tbody tr td[colspan] svg {
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+/* ✅ NEW: Modal Scrollbar */
+c-modal-body::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+c-modal-body::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+c-modal-body::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+c-modal-body::-webkit-scrollbar-thumb:hover,
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+/* ============================================
+   ✅ NEW: MODAL BODY ENHANCEMENT
+   ============================================ */
+c-modal-body,
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* ============================================
+   ✅ NEW: ATTACHMENTS LIST
+   ============================================ */
+.list-group-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px !important;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  padding: 1rem;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.list-group-item .btn:hover {
+  transform: scale(1.05);
+}
+
+.list-group-item i.bi {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
+
+/* ============================================
+   ✅ NEW: BUTTON ENHANCEMENTS
+   ============================================ */
+button[cButton] {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+button[cButton]:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button[cButton]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ✅ NEW: PDF Download Button */
+button[cButton][color="danger"] {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+}
+
+button[cButton][color="danger"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+}
+
+/* ============================================
+   ✅ NEW: CARD HEADERS IN MODALS
+   ============================================ */
+c-card-header strong {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+c-card-header strong i {
+  margin-right: 0.5rem;
+}
+
+/* ============================================
+   ✅ NEW: PRINT/PDF STYLES
+   ============================================ */
+.no-print {
+  display: block;
+}
+
+/* ============================================================
+   INVOICE CURRENCY SELECTOR
+   Append to supplier-dashboard.component.css
+   ============================================================ */
+
+.inv-currency-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inv-currency-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+.inv-currency-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.inv-currency-btn {
+  background: #fff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.22rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.inv-currency-btn:hover {
+  border-color: #1565c0;
+  color: #1565c0;
+  background: #e3f2fd;
+}
+
+.inv-currency-btn-active {
+  background: #1565c0 !important;
+  border-color: #1565c0 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(21, 101, 192, 0.3);
+}
+
+.inv-currency-hint {
+  font-size: 0.68rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+}
+
+.inv-currency-hint strong {
+  color: #1e293b;
+  margin-left: 0.2rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+  }
+  
+  .modal-body,
+  c-modal-body {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* ============================================
+   ✅ NEW: GAP UTILITIES
+   ============================================ */
+.gap-1 {
+  gap: 0.25rem !important;
+}
+
+.gap-2 {
+  gap: 0.5rem !important;
+}
+
+.gap-3 {
+  gap: 1rem !important;
+}
+
+/* ============================================
+   ✅ NEW: DYNAMIC FIELDS DISPLAY
+   ============================================ */
+.table small {
+  display: block;
+  line-height: 1.4;
+}
+
+.table small strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+/* ============================================
+   ✅ NEW: FLEX UTILITIES
+   ============================================ */
+.d-flex {
+  display: flex !important;
+}
+
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+/* ============================================
+   ✅ NEW: BACKGROUND & ROUNDED UTILITIES
+   ============================================ */
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.rounded {
+  border-radius: 0.5rem !important;
+}
+
+/* ============================================
+   ✅ NEW: BOOTSTRAP ICONS
+   ============================================ */
+.bi {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.fs-4 {
+  font-size: 1.5rem !important;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 991px) {
+  .avatar-circle-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+
+  .info-card {
+    padding: 0.875rem;
+  }
+
+  .info-card-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.3rem;
+  }
+
+  .info-value {
+    font-size: 0.875rem;
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+  }
+
+  .stat-icon {
+    width: 55px;
+    height: 55px;
+  }
+}
+
+@media (max-width: 767px) {
+  .gradient-header {
+    padding: 1rem;
+  }
+
+  .avatar-circle-large {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .info-card {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .info-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    margin-right: 0.75rem;
+  }
+
+  .info-label {
+    font-size: 0.7rem;
+  }
+
+  .info-value {
+    font-size: 0.85rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+  
+  /* ✅ NEW: Mobile Modal Adjustments */
+  c-modal-body,
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .list-group-item {
+    padding: 0.75rem;
+  }
+
+  .list-group-item i.bi {
+    font-size: 1.5rem;
+    margin-right: 0.75rem;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.border-0 {
+  border: 0 !important;
+}
+
+.fw-bold {
+  font-weight: 700 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.overflow-hidden {
+  overflow: hidden !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.opacity-90 {
+  opacity: 0.9 !important;
+}
+
+/* Ensure text in white cards is readable */
+.text-white .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* CoreUI specific overrides */
+c-card.text-white {
+  color: white !important;
+}
+
+c-card.text-white * {
+  color: inherit;
+}
+
+/* ============================================
+   ✅ NEW: PROFESSIONAL TYPOGRAPHY
+   ============================================ */
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.text-primary {
+  color: #667eea !important;
+}
+
+strong {
+  font-weight: 600;
+}
+
+small {
+  font-size: 85%;
+  color: #6c757d;
+}

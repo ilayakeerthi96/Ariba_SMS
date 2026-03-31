@@ -1,0 +1,588 @@
+<div class="wizard-container p-4">
+  <!-- Step Indicator -->
+  <div class="step-indicator mb-5">
+    <div class="step-item" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+      <div class="step-number">1</div>
+      <div class="step-label">Supplier Details</div>
+    </div>
+    <div class="step-item" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+      <div class="step-number">2</div>
+      <div class="step-label">Locations</div>
+    </div>
+    <div class="step-item" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+      <div class="step-number">3</div>
+      <div class="step-label">Categories</div>
+    </div>
+    <div class="step-item" [class.active]="currentStep === 4" [class.completed]="currentStep > 4">
+      <div class="step-number">4</div>
+      <div class="step-label">Contacts</div>
+    </div>
+  </div>
+
+  <form [formGroup]="supplierForm">
+
+    <!-- ========== STEP 1: SUPPLIER DETAILS ========== -->
+    <div *ngIf="currentStep === 1" class="step-content fade-in">
+      <div class="step-title mb-4">
+        <h4>Supplier Company Details</h4>
+        <p class="text-muted">Enter your company and contact information</p>
+      </div>
+
+      <!-- Company Information -->
+      <div class="section-header mb-3">Company Information</div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Company Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="companyName" 
+            placeholder="Enter company name" [class.is-invalid]="supplierForm.get('companyName')?.invalid && supplierForm.get('companyName')?.touched"/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Company Type <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="companyType" 
+            [class.is-invalid]="supplierForm.get('companyType')?.invalid && supplierForm.get('companyType')?.touched"
+            (change)="onCompanyTypeChange($event)">
+            <option value="">Select Company Type</option>
+            <option *ngFor="let type of companyTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <!-- Show "Specify Company Type" input when "Others" is selected -->
+        <div class="col-md-6 mb-3" *ngIf="supplierForm.get('companyType')?.value === 'Others'">
+          <label class="form-label">Specify Company Type <span class="text-danger">*</span></label>
+          <input 
+            type="text" 
+            class="form-control" 
+            formControlName="otherCompanyType" 
+            placeholder="e.g., Joint Venture, Partnership"
+            [class.is-invalid]="supplierForm.get('otherCompanyType')?.invalid && supplierForm.get('otherCompanyType')?.touched"
+          />
+          <div *ngIf="supplierForm.get('otherCompanyType')?.invalid && supplierForm.get('otherCompanyType')?.touched" class="invalid-feedback">
+            Please specify the company type.
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Industry Sector <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="industrySector" 
+            [class.is-invalid]="supplierForm.get('industrySector')?.invalid && supplierForm.get('industrySector')?.touched"
+            (change)="onIndustrySectorChange($event)">
+            <option value="">Select Industry Sector</option>
+            <option *ngFor="let sector of industrySectors" [value]="sector">{{ sector }}</option>
+          </select>
+        </div>
+
+        <!-- Show "Specify Industry Sector" input when "Others" is selected -->
+        <div class="col-md-6 mb-3" *ngIf="supplierForm.get('industrySector')?.value === 'Others'">
+          <label class="form-label">Specify Industry Sector <span class="text-danger">*</span></label>
+          <input 
+            type="text" 
+            class="form-control" 
+            formControlName="otherIndustrySector" 
+            placeholder="e.g., Consulting, Manufacturing"
+            [class.is-invalid]="supplierForm.get('otherIndustrySector')?.invalid && supplierForm.get('otherIndustrySector')?.touched"
+          />
+          <div *ngIf="supplierForm.get('otherIndustrySector')?.invalid && supplierForm.get('otherIndustrySector')?.touched" class="invalid-feedback">
+            Please specify the industry sector.
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Website</label>
+          <input type="url" class="form-control" formControlName="website" placeholder="https://example.com"/>
+        </div>
+      </div>
+
+      <!-- Contact Person Details -->
+      <div class="section-header mb-3">Primary Contact Person</div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contact Person Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="contactPersonName" 
+            placeholder="Full name" [class.is-invalid]="supplierForm.get('contactPersonName')?.invalid && supplierForm.get('contactPersonName')?.touched"/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Designation <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="contactPersonDesignation" 
+            placeholder="e.g., Supply Manager" [class.is-invalid]="supplierForm.get('contactPersonDesignation')?.invalid && supplierForm.get('contactPersonDesignation')?.touched"/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email <span class="text-danger">*</span></label>
+          <input type="email" class="form-control" formControlName="contactPersonEmail" 
+            placeholder="contact@company.com" [class.is-invalid]="supplierForm.get('contactPersonEmail')?.invalid && supplierForm.get('contactPersonEmail')?.touched"/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Phone <span class="text-danger">*</span></label>
+          <input type="tel" class="form-control" formControlName="contactPersonPhone" 
+            placeholder="10 digit number" maxlength="10" [class.is-invalid]="supplierForm.get('contactPersonPhone')?.invalid && supplierForm.get('contactPersonPhone')?.touched"/>
+        </div>
+      </div>
+
+      <!-- HQ Address -->
+      <div class="section-header mb-3">Headquarters Address</div>
+      <div class="row">
+        <div class="col-12 mb-3">
+          <label class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="addressLine1" 
+            placeholder="Street address" [class.is-invalid]="supplierForm.get('addressLine1')?.invalid && supplierForm.get('addressLine1')?.touched"/>
+        </div>
+        <div class="col-12 mb-3">
+          <label class="form-label">Address Line 2</label>
+          <input type="text" class="form-control" formControlName="addressLine2" 
+            placeholder="Building name, Floor, etc."/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">City <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="city" 
+            placeholder="City" [class.is-invalid]="supplierForm.get('city')?.invalid && supplierForm.get('city')?.touched"/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">State <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="state" [class.is-invalid]="supplierForm.get('state')?.invalid && supplierForm.get('state')?.touched">
+            <option value="">Select State</option>
+            <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Postal Code <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="postalCode" 
+            placeholder="6 digit code" maxlength="6" [class.is-invalid]="supplierForm.get('postalCode')?.invalid && supplierForm.get('postalCode')?.touched"/>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Country <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="country" placeholder="Country" [class.is-invalid]="supplierForm.get('country')?.invalid && supplierForm.get('country')?.touched"/>
+        </div>
+      </div>
+
+      <!-- Company Registration -->
+      <div class="section-header mb-3">Company Registration Details</div>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">GST Number</label>
+          <input type="text" class="form-control" formControlName="gstNumber" placeholder="15 digit GST"/>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">PAN Number</label>
+          <input type="text" class="form-control" formControlName="panNumber" placeholder="10 digit PAN"/>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">TAN Number</label>
+          <input type="text" class="form-control" formControlName="tanNumber" placeholder="Tax Account Number"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== STEP 2: LOCATIONS ========== -->
+    <div *ngIf="currentStep === 2" class="step-content fade-in">
+      <div class="step-title mb-4">
+        <h4>Add Supplier Locations</h4>
+        <p class="text-muted">Add office and warehouse locations</p>
+      </div>
+
+      <div formArrayName="locations">
+        <div *ngFor="let loc of locations.controls; let i = index" [formGroupName]="i" class="card mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Location {{ i + 1 }}</h6>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeLocation(i)" *ngIf="locations.length > 1">
+              <i class="bi bi-trash"></i> Remove
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Location Info -->
+            <div class="section-header mb-3">Location Information</div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Location Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="locationName" 
+                  placeholder="e.g., Head Office, Bangalore Branch" [class.is-invalid]="loc.get('locationName')?.invalid && loc.get('locationName')?.touched"/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Location Type <span class="text-danger">*</span></label>
+                <select class="form-control" formControlName="locationType" 
+                  [class.is-invalid]="loc.get('locationType')?.invalid && loc.get('locationType')?.touched"
+                  (change)="onLocationTypeChange($event, i)">
+                  <option value="">Select Type</option>
+                  <option *ngFor="let type of locationTypes" [value]="type">{{ type }}</option>
+                </select>
+              </div>
+
+              <!-- Show "Specify Location Type" input when "Others" is selected -->
+              <div class="col-md-6 mb-3" *ngIf="loc.get('locationType')?.value === 'Others'">
+                <label class="form-label">Specify Location Type <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="otherLocationType" 
+                  placeholder="e.g., Distribution Center, Retail Shop"
+                  [class.is-invalid]="loc.get('otherLocationType')?.invalid && loc.get('otherLocationType')?.touched"
+                />
+                <div *ngIf="loc.get('otherLocationType')?.invalid && loc.get('otherLocationType')?.touched" class="invalid-feedback">
+                  Please specify the location type.
+                </div>
+              </div>
+            </div>
+
+            <!-- Location Contact -->
+            <div class="section-header mb-3">Location Contact Person</div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Contact Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="locationContactName" 
+                  placeholder="Full name" [class.is-invalid]="loc.get('locationContactName')?.invalid && loc.get('locationContactName')?.touched"/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" formControlName="locationContactEmail" 
+                  placeholder="email@company.com" [class.is-invalid]="loc.get('locationContactEmail')?.invalid && loc.get('locationContactEmail')?.touched"/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Phone <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" formControlName="locationContactPhone" 
+                  placeholder="10 digit number" maxlength="10" [class.is-invalid]="loc.get('locationContactPhone')?.invalid && loc.get('locationContactPhone')?.touched"/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Landline Number</label>
+                <input type="tel" class="form-control" formControlName="landlineNumber" placeholder="Optional"/>
+              </div>
+            </div>
+
+            <!-- Location Address -->
+            <div class="section-header mb-3">Location Address</div>
+            <div class="row">
+              <div class="col-12 mb-3">
+                <label class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="addressLine1" 
+                  placeholder="Street address" [class.is-invalid]="loc.get('addressLine1')?.invalid && loc.get('addressLine1')?.touched"/>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Address Line 2</label>
+                <input type="text" class="form-control" formControlName="addressLine2" 
+                  placeholder="Building name, Floor, etc."/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">City <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="city" 
+                  placeholder="City" [class.is-invalid]="loc.get('city')?.invalid && loc.get('city')?.touched"/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">State <span class="text-danger">*</span></label>
+                <select class="form-control" formControlName="state" [class.is-invalid]="loc.get('state')?.invalid && loc.get('state')?.touched">
+                  <option value="">Select State</option>
+                  <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Postal Code <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="postalCode" 
+                  placeholder="6 digit code" maxlength="6" [class.is-invalid]="loc.get('postalCode')?.invalid && loc.get('postalCode')?.touched"/>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Country <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="country" 
+                  placeholder="Country" [class.is-invalid]="loc.get('country')?.invalid && loc.get('country')?.touched"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-lg w-100 mt-3" (click)="addLocation()">
+          <i class="bi bi-plus-circle"></i> Add Another Location
+        </button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 3: CATEGORIES/DEPARTMENTS ========== -->
+   <div *ngIf="currentStep === 3" class="step-content fade-in">
+  <div class="step-title mb-4">
+    <h4>Add Product Categories</h4>
+    <p class="text-muted">Add categories/departments and assign them to locations</p>
+  </div>
+
+  <div formArrayName="departments">
+    <div *ngFor="let dept of departments.controls; let i = index" [formGroupName]="i" class="card mb-4">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Category {{ i + 1 }}</h6>
+        <button type="button" class="btn btn-sm btn-outline-danger" 
+          (click)="removeDepartment(i)" *ngIf="departments.length > 1">
+          <i class="bi bi-trash"></i> Remove
+        </button>
+      </div>
+      <div class="card-body">
+        
+        <!-- NEW: Location Selection -->
+        <div class="section-header mb-3">Location Assignment</div>
+        <div class="row">
+          <div class="col-12 mb-3">
+            <label class="form-label">Select Location <span class="text-danger">*</span></label>
+            <select 
+              class="form-control" 
+              formControlName="locationIndex"
+              [class.is-invalid]="dept.get('locationIndex')?.invalid && dept.get('locationIndex')?.touched">
+              <option value="">Choose a location</option>
+              <option *ngFor="let loc of locations.controls; let idx = index" [value]="idx">
+                {{ loc.get('locationName')?.value || 'Location ' + (idx + 1) }}
+              </option>
+            </select>
+            <div *ngIf="dept.get('locationIndex')?.invalid && dept.get('locationIndex')?.touched" class="invalid-feedback">
+              Please select a location for this category
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header mb-3">Category Information</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Category Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="departmentName" 
+              placeholder="e.g., Hardware Supply, Software Services" 
+              [class.is-invalid]="dept.get('departmentName')?.invalid && dept.get('departmentName')?.touched"/>
+            <div *ngIf="dept.get('departmentName')?.invalid && dept.get('departmentName')?.touched" class="invalid-feedback">
+              Category name is required
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Category Type</label>
+            <select 
+              class="form-control" 
+              formControlName="categoryOfProducts"
+              (change)="onCategoryTypeChange($event, i)">
+              <option value="">Select Type</option>
+              <option *ngFor="let category of categoryOfProducts" [value]="category">{{ category }}</option>
+            </select>
+          </div>
+
+          <!-- Show "Specify Category Type" when "Others" selected -->
+          <div class="col-md-6 mb-3" *ngIf="dept.get('categoryOfProducts')?.value === 'Others'">
+            <label class="form-label">Specify Category Type <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="otherCategoryType" 
+              placeholder="e.g., Specialized Machinery, Custom Software"
+              [class.is-invalid]="dept.get('otherCategoryType')?.invalid && dept.get('otherCategoryType')?.touched"
+            />
+            <div *ngIf="dept.get('otherCategoryType')?.invalid && dept.get('otherCategoryType')?.touched" class="invalid-feedback">
+              Please specify the category type.
+            </div>
+          </div>
+          
+          <div class="col-12 mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" formControlName="departmentDescription" 
+              placeholder="Brief description of the category" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-lg w-100 mt-3" (click)="addDepartment()">
+      <i class="bi bi-plus-circle"></i> Add Category
+    </button>
+  </div>
+</div>
+
+    <!-- ========== STEP 4: CONTACTS/USERS ========== -->
+  <div *ngIf="currentStep === 4" class="step-content fade-in">
+  <div class="step-title mb-4">
+    <h4>Add Supplier Contacts</h4>
+    <p class="text-muted">Add contact persons and assign them to categories</p>
+  </div>
+
+  <div formArrayName="users">
+    <div *ngFor="let user of users.controls; let i = index" [formGroupName]="i" class="card mb-4">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Contact {{ i + 1 }}</h6>
+        <button type="button" class="btn btn-sm btn-outline-danger" 
+          (click)="removeUser(i)" *ngIf="users.length > 1">
+          <i class="bi bi-trash"></i> Remove
+        </button>
+      </div>
+      <div class="card-body">
+        
+        <!-- NEW: Department Selection with Location Info -->
+        <div class="section-header mb-3">Department Assignment</div>
+        <div class="row">
+          <div class="col-12 mb-3">
+            <label class="form-label">Select Category <span class="text-danger">*</span></label>
+            <select 
+              class="form-control" 
+              formControlName="departmentIndex"
+              [class.is-invalid]="user.get('departmentIndex')?.invalid && user.get('departmentIndex')?.touched">
+              <option value="">Choose a category</option>
+              <option *ngFor="let dept of departments.controls; let idx = index" [value]="idx">
+                {{ dept.get('departmentName')?.value || 'Category ' + (idx + 1) }}
+                <ng-container *ngIf="getLocationNameForDepartment(idx)">
+                  - {{ getLocationNameForDepartment(idx) }}
+                </ng-container>
+              </option>
+            </select>
+            <div *ngIf="user.get('departmentIndex')?.invalid && user.get('departmentIndex')?.touched" class="invalid-feedback">
+              Please select a category for this contact
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Info -->
+        <div class="section-header mb-3">Personal Information</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">First Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="firstName" 
+              placeholder="First name" [class.is-invalid]="user.get('firstName')?.invalid && user.get('firstName')?.touched"/>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="lastName" 
+              placeholder="Last name" [class.is-invalid]="user.get('lastName')?.invalid && user.get('lastName')?.touched"/>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Gender</label>
+            <select class="form-control" formControlName="gender">
+              <option value="">Select</option>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-control" formControlName="dateOfBirth"/>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="section-header mb-3">Contact Information</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" formControlName="email" 
+              placeholder="contact@supplier.com" [class.is-invalid]="user.get('email')?.invalid && user.get('email')?.touched"/>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Phone <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" formControlName="phone" 
+              placeholder="10 digit number" maxlength="10" [class.is-invalid]="user.get('phone')?.invalid && user.get('phone')?.touched"/>
+          </div>
+        </div>
+
+        <!-- Employment -->
+    <!-- Employment -->
+        <div class="section-header mb-3">Employment Details</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Designation <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="designation" 
+              placeholder="Job title" [class.is-invalid]="user.get('designation')?.invalid && user.get('designation')?.touched"/>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Employee ID <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="employeeId" 
+              placeholder="e.g., SUP001" 
+              [class.is-invalid]="user.get('employeeId')?.invalid && user.get('employeeId')?.touched"/>
+          
+          </div>
+        </div>
+
+        <!-- Address (Optional) -->
+        <div class="section-header mb-3">Residential Address (Optional)</div>
+        <div class="row">
+          <div class="col-12 mb-3">
+            <label class="form-label">Address Line 1</label>
+            <input type="text" class="form-control" formControlName="addressLine1" placeholder="Street address"/>
+          </div>
+          <div class="col-12 mb-3">
+            <label class="form-label">Address Line 2</label>
+            <input type="text" class="form-control" formControlName="addressLine2" placeholder="Apt, Suite, etc."/>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">City</label>
+            <input type="text" class="form-control" formControlName="city" placeholder="City"/>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">State</label>
+            <select class="form-control" formControlName="state">
+              <option value="">Select</option>
+              <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Postal Code</label>
+            <input type="text" class="form-control" formControlName="postalCode" 
+              placeholder="Postal code" maxlength="6"/>
+          </div>
+        </div>
+
+        <!-- Security -->
+        <div class="section-header mb-3">Security</div>
+        <div class="row">
+          <div class="col-12 mb-3">
+            <label class="form-label">Password <span class="text-danger">*</span></label>
+            <input type="password" class="form-control" formControlName="password" 
+              placeholder="Strong password" [class.is-invalid]="user.get('password')?.invalid && user.get('password')?.touched"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-success btn-lg w-100 mt-3" (click)="addUser()">
+      <i class="bi bi-person-plus"></i> Add Contact
+    </button>
+  </div>
+</div>
+
+    <!-- Navigation Buttons -->
+   <!-- Navigation Buttons Section - Replace the existing navigation buttons -->
+<div class="step-navigation mt-5 pt-4 border-top">
+  <div class="d-flex gap-3 justify-content-between align-items-center">
+    
+    <!-- Previous Button -->
+    <button 
+      type="button" 
+      class="btn btn-outline-secondary btn-lg" 
+      (click)="prevStep()" 
+      [disabled]="currentStep === 1">
+      <i class="bi bi-chevron-left"></i> Previous
+    </button>
+
+    <!-- Step Indicator -->
+    <span class="text-muted">Step {{ currentStep }} of {{ maxStep }}</span>
+
+    <!-- Button Group for Current Step -->
+    <div class="d-flex gap-2">
+      
+      <!-- Save & Next Button (Steps 1-3) -->
+      <button 
+        type="button" 
+        class="btn btn-success btn-lg" 
+        (click)="saveStep()"
+        *ngIf="currentStep < maxStep">
+        <i class="bi bi-floppy"></i> Save & Next
+      </button>
+
+      <!-- Next Button (All Steps) - Allows navigation without validation -->
+      <!-- <button 
+        type="button" 
+        class="btn btn-primary btn-lg" 
+        (click)="nextStep()" 
+        [disabled]="currentStep === maxStep"
+        *ngIf="currentStep < maxStep">
+        Next <i class="bi bi-chevron-right"></i>
+      </button> -->
+
+      <!-- Submit Button (Last Step Only) -->
+      <button 
+        type="button" 
+        class="btn btn-success btn-lg px-5" 
+        (click)="onSubmit()" 
+        [disabled]="isSubmitting || supplierForm.invalid"
+        *ngIf="currentStep === maxStep">
+        <i class="bi bi-check-circle"></i>
+        {{ mode === 'create' ? 'Create Supplier' : 'Update Supplier' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+  </form>
+</div>

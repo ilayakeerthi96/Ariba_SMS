@@ -1,0 +1,1673 @@
+<!-- Header -->
+<div class="row mb-4">
+  <div class="col-12">
+    <h2 class="fw-bold text-dark">
+      <i class="bi bi-file-earmark-plus"></i>
+      {{ mode === 'create' ? 'Create New RFQ' : (mode === 'edit' ? 'Edit RFQ' : 'View RFQ') }}
+    </h2>
+    <p class="text-muted small">Complete the form below to create or manage your RFQ</p>
+  </div>
+</div>
+<!-- Main Form Card -->
+<div class="row">
+  <div class="col-lg-12">
+      <!-- Card Body -->
+      <div class="card-body p-4">
+        <form [formGroup]="rfqForm" (ngSubmit)="submitRFQ()">
+<!-- ==================== SECTION 1: LOGGED-IN BUYER & LOCATION (DASHBOARD STYLE) ==================== -->
+<div class="mb-4" *ngIf="loggedInBuyer">
+  <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+    <div class="gradient-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem;">
+      <div class="row align-items-center">
+        <!-- Avatar and Name -->
+        <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+          <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+            <div class="avatar-circle-large me-3" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); border: 3px solid rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; color: white;">
+              {{ getInitials(loggedInBuyer.contactPersonName) }}
+            </div>
+            <div class="text-white">
+              <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
+              <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem; color: white;">
+                <i class="bi bi-briefcase-fill me-1"></i>
+                {{ loggedInBuyer.companyType }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="col-12 col-lg-9">
+          <div class="row g-2">
+            <!-- Company Name -->
+            <div class="col-12 col-md-3">
+              <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; height: 100%;  display: flex;
+    align-items: center;
+    gap: 12px;">
+                <div style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.9;">
+                  <i class="bi bi-building-fill"></i>
+                </div>
+                <div style="color: white;">
+                  <div style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 0.25rem; text-transform: uppercase;">Company Name</div>
+                  <div style="font-size: 0.95rem; font-weight: 500; line-height: 1.3; word-wrap: break-word;">{{ loggedInBuyer.companyName }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="col-12 col-md-3">
+              <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; height: 100%;  display: flex;
+    align-items: center;
+    gap: 12px;">
+                <div style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.9;">
+                  <i class="bi bi-envelope-fill"></i>
+                </div>
+                <div style="color: white;">
+                  <div style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 0.25rem; text-transform: uppercase;">Email</div>
+                  <div style="font-size: 0.95rem; font-weight: 500; line-height: 1.3; word-wrap: break-word;">{{ loggedInBuyer.email }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="col-12 col-md-3">
+              <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; height: 100%; display: flex;
+    align-items: center;
+    gap: 12px;">
+                <div style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.9;">
+                  <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div style="color: white;">
+                  <div style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 0.25rem; text-transform: uppercase;">Phone</div>
+                  <div style="font-size: 0.95rem; font-weight: 500; line-height: 1.3; word-wrap: break-word;">{{ loggedInBuyer.contactPersonPhone }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="col-12 col-md-3">
+              <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; height: 100%;  display: flex;
+    align-items: center;
+    gap: 12px;">
+                <div style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.9;">
+                  <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div style="color: white;">
+                  <div style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 0.25rem; text-transform: uppercase;">Location</div>
+                  <div style="font-size: 0.95rem; font-weight: 500; line-height: 1.3; word-wrap: break-word;">
+                    <span *ngIf="userLocation">
+                      {{ userLocation.city || 'N/A' }}<span *ngIf="userLocation.city && userLocation.state">, {{ userLocation.state }}</span>
+                    </span>
+                    <span *ngIf="!userLocation">N/A</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden location ID field (for form submission) -->
+  <input type="hidden" formControlName="locationId" />
+</div>
+          <!-- ==================== SECTION 2: RFQ DETAILS ==================== -->
+          <div class="section-card mb-4">
+            <div class="section-title">
+              <h5 class="fw-bold text-dark">
+                <i class="bi bi-file-text"></i> RFQ Details
+              </h5>
+              <p class="text-muted small mb-0">Enter RFQ basic information</p>
+            </div>
+
+            <div class="row g-3">
+              <!-- RFQ Title -->
+              <div class="col-md-8">
+                <label class="form-label fw-bold text-dark">
+                  RFQ Title <span class="text-danger">*</span>
+                </label>
+                <input 
+                  type="text"
+                  class="form-control form-control-lg"
+                  placeholder="e.g., Q1 2024 Office Supplies"
+                  formControlName="rfqTitle"
+                  [class.is-invalid]="rfqForm.get('rfqTitle')?.invalid && rfqForm.get('rfqTitle')?.touched"
+                  [readonly]="mode === 'view'"
+                />
+                <small class="form-text text-danger" *ngIf="rfqForm.get('rfqTitle')?.invalid && rfqForm.get('rfqTitle')?.touched">
+                  Title must be at least 5 characters
+                </small>
+              </div>
+
+              <!-- Priority -->
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-dark">
+                  Priority <span class="text-danger">*</span>
+                </label>
+                <select 
+                  class="form-select form-select-lg"
+                  formControlName="priority"
+                  [disabled]="mode === 'view'"
+                >
+                  <option *ngFor="let p of priorities" [value]="p">
+                    {{ p | titlecase }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Due Date -->
+              <!-- <div class="col-md-6">
+                <label class="form-label fw-bold text-dark">
+                  Due Date for RFQ Submission <span class="text-danger">*</span>
+                </label>
+                <input 
+                  type="date"
+                  class="form-control form-control-lg"
+                  formControlName="dueDate"
+                  [class.is-invalid]="rfqForm.get('dueDate')?.invalid && rfqForm.get('dueDate')?.touched"
+                  [readonly]="mode === 'view'"
+                />
+                <small class="form-text text-danger" *ngIf="rfqForm.get('dueDate')?.invalid && rfqForm.get('dueDate')?.touched">
+                  Due date is required
+                </small>
+              </div> -->
+
+              <!-- Item Required Date -->
+              <!-- <div class="col-md-6">
+                <label class="form-label fw-bold text-dark">
+                  Expected Delivery Date <span class="text-danger">*</span>
+                </label>
+                <input 
+                  type="date"
+                  class="form-control form-control-lg"
+                  formControlName="itemRequiredDate"
+                  [readonly]="mode === 'view'"
+                />
+              </div> -->
+
+              <!-- Description -->
+              <div class="col-12">
+                <label class="form-label fw-bold text-dark">
+                  Description
+                </label>
+                <textarea 
+                  class="form-control"
+                  rows="3"
+                  placeholder="Enter RFQ description..."
+                  formControlName="rfqDescription"
+                  [readonly]="mode === 'view'"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <!-- ==================== SECTION 3: LINE ITEMS (UPDATED WITH ADD MORE FIELDS) ==================== -->
+          <div class="section-card mb-4">
+            <div class="section-title d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="fw-bold text-dark mb-0">
+                  <i class="bi bi-list-check"></i> Line Items
+                </h5>
+                <p class="text-muted small mb-0">
+                  <strong>{{ buyerCompanyType }}</strong> Category - Add products/services to your RFQ
+                </p>
+              </div>
+              <span class="badge bg-primary">{{ itemsArray.length }} Item(s)</span>
+            </div>
+
+            <div formArrayName="itemsArray">
+              <div *ngFor="let item of itemsArray.controls; let i = index" [formGroupName]="i" class="mb-3">
+                <div class="card border-light bg-light">
+                  <div class="card-body p-3">
+                    <!-- Basic Fields -->
+                    <div class="row g-2">
+                      <div class="col-md-2">
+                        <label class="form-label fw-bold text-dark">
+                          Sl. No <span class="text-danger">*</span>
+                        </label>
+                        <div class="form-control form-control-sm bg-white border-0" style="pointer-events: none;">
+                          <strong>{{ i + 1 }}</strong>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label fw-bold text-dark">
+                          Description <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                          type="text"
+                          class="form-control form-control-sm"
+                          placeholder="Product/Service"
+                          formControlName="itemDescription"
+                          [readonly]="mode === 'view'"
+                        />
+                      </div>
+
+                      <div class="col-md-2">
+                        <label class="form-label fw-bold text-dark">
+                          Qty <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                          type="number"
+                          class="form-control form-control-sm"
+                          min="1"
+                          formControlName="quantity"
+                          [readonly]="mode === 'view'"
+                        />
+                      </div>
+
+                      <div class="col-md-2">
+                        <label class="form-label fw-bold text-dark">
+                          UOM <span class="text-danger">*</span>
+                        </label>
+                        <select 
+                          class="form-select form-select-sm"
+                          formControlName="uom"
+                          [disabled]="mode === 'view'"
+                        >
+                          <option *ngFor="let u of uoms" [value]="u">{{ u }}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Specifications -->
+                    <div class="row g-2 mt-2">
+                      <div class="col-12">
+                        <label class="form-label small fw-bold">Specifications</label>
+                        <textarea 
+                          class="form-control form-control-sm"
+                          rows="2"
+                          placeholder="Technical specifications, quality standards, etc."
+                          formControlName="specifications"
+                          [readonly]="mode === 'view'"
+                        ></textarea>
+                      </div>
+                    </div>
+
+                    <!-- ==================== ATTACHMENTS SECTION (Add after Specifications field) ==================== -->
+
+<!-- This goes inside the *ngFor="let item of itemsArray.controls; let i = index" loop -->
+
+<div class="form-group mb-4 mt-3">
+  <label class="form-label d-flex align-items-center mb-3">
+    <i class="bi bi-paperclip me-2"></i>
+    <strong>Attachments</strong>
+    <span class="badge bg-primary ms-2" *ngIf="hasSelectedFiles(i)">
+      {{ getSelectedFiles(i).length }} file(s) selected
+    </span>
+    <span class="badge bg-success ms-2" *ngIf="getItemAttachmentsArray(i).length > 0">
+      {{ getItemAttachmentsArray(i).length }} uploaded
+    </span>
+  </label>
+
+  <!-- File Input (Hidden) -->
+  <input 
+    type="file" 
+    #fileInput
+    [id]="'fileInput_' + i"
+    class="d-none" 
+    (change)="onFileSelect($event, i)"
+    [disabled]="mode === 'view'"
+    multiple
+    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip">
+  
+  <!-- Choose Files Button -->
+  <button 
+    type="button" 
+    class="btn btn-primary mb-2"
+    (click)="fileInput.click()"
+    [disabled]="mode === 'view'">
+    <i class="bi bi-file-earmark-plus me-2"></i>
+    Choose Files
+  </button>
+  
+  <div class="text-muted small">
+    <i class="bi bi-info-circle me-1"></i>
+    Allowed: PDF, DOC, XLS, ZIP, JPEG, PNG  (Max 10MB per file). Files will be uploaded when you save the RFQ.
+  </div>
+
+  <!-- Selected Files Preview (Ready to Upload) -->
+  <div *ngIf="hasSelectedFiles(i)" class="selected-files-container mt-3 mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="mb-0 text-primary">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        Ready to upload ({{ getSelectedFiles(i).length }})
+      </h6>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="selectedFiles.delete(i); cdr.markForCheck()"
+        title="Remove all selected files">
+        <i class="bi bi-x-circle me-1"></i>Clear All
+      </button>
+    </div>
+    
+    <div class="selected-files-list">
+      <div *ngFor="let file of getSelectedFiles(i); let fileIdx = index" 
+           class="selected-file-item">
+        <div class="d-flex align-items-center">
+          <i [class]="getFileIcon(file.type) + ' me-3'"></i>
+          <div class="flex-grow-1 file-info">
+            <div class="file-name">{{ file.name }}</div>
+            <div class="file-size text-muted">{{ formatFileSize(file.size) }}</div>
+          </div>
+          <button 
+            type="button"
+            class="btn btn-sm btn-link text-danger"
+            (click)="removeSelectedFile(i, fileIdx)"
+            title="Remove this file">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info mt-3 mb-0">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Note:</strong> These files will be automatically uploaded when you click "Save RFQ".
+    </div>
+  </div>
+
+  <!-- Existing Attachments List (Only shown in Edit/View mode) -->
+  <div *ngIf="getItemAttachmentsArray(i).length > 0" class="uploaded-files-container mt-3">
+    <h6 class="text-success mb-2">
+      <i class="bi bi-cloud-check-fill me-2"></i>
+      Uploaded Files ({{ getItemAttachmentsArray(i).length }})
+    </h6>
+
+    <div class="uploaded-files-list">
+      <div 
+        *ngFor="let attachment of getItemAttachmentsArray(i); trackBy: trackByAttachmentId"
+        class="uploaded-file-item">
+        
+        <div class="d-flex align-items-center">
+          <!-- File Icon -->
+          <i [class]="getFileIcon(attachment.fileType) + ' me-3 file-icon-large'"></i>
+          
+          <!-- File Info -->
+          <div class="flex-grow-1 file-info">
+            <div class="file-name fw-bold">{{ attachment.fileName }}</div>
+            <div class="file-meta text-muted small">
+              <span>{{ formatFileSize(attachment.fileSize) }}</span>
+              <span *ngIf="attachment.uploadedBy" class="ms-2">
+                • {{ attachment.uploadedBy }}
+              </span>
+              <span *ngIf="attachment.createdAt" class="ms-2">
+                • {{ attachment.createdAt | date: 'MMM d, y' }}
+              </span>
+            </div>
+            <div *ngIf="attachment.description" class="file-description text-muted small mt-1">
+              {{ attachment.description }}
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="btn-group-vertical btn-group-sm ms-3" role="group">
+            <!-- Download Button -->
+            <button 
+              type="button"
+              class="btn btn-outline-primary"
+              (click)="downloadAttachment(attachment.id, attachment.fileName)"
+              title="Download">
+              <i class="bi bi-download me-1"></i>Download
+            </button>
+
+            <!-- Preview Button (for images and PDFs) -->
+            <button 
+              *ngIf="attachment.fileType.includes('image') || attachment.fileType.includes('pdf')"
+              type="button"
+              class="btn btn-outline-info"
+              (click)="previewAttachment(attachment)"
+              title="Preview">
+              <i class="bi bi-eye me-1"></i>Preview
+            </button>
+
+            <!-- Delete Button -->
+            <button 
+              *ngIf="mode !== 'view'"
+              type="button"
+              class="btn btn-outline-danger"
+              (click)="deleteAttachment(i, itemsArray.at(i).get('id')?.value, attachment.id)"
+              title="Delete">
+              <i class="bi bi-trash me-1"></i>Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div 
+    *ngIf="getItemAttachmentsArray(i).length === 0 && !hasSelectedFiles(i)" 
+    class="empty-state">
+    <!-- <i class="bi bi-inbox"></i>
+    <p class="mb-1">No attachments selected</p>
+    <small class="text-muted">Click "Choose Files" above to select files</small> -->
+  </div>
+</div>
+
+<!-- ==================== PREVIEW MODAL (Add at the end of your template, outside item loop) ==================== -->
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-eye me-2"></i>
+          {{ previewFile?.fileName }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <!-- Image Preview -->
+        <div *ngIf="previewFile?.fileType.includes('image')" class="text-center p-3">
+          <img 
+            [src]="previewUrl" 
+            class="img-fluid"
+            alt="Preview"
+            style="max-height: 75vh; max-width: 100%;">
+        </div>
+        
+        <!-- PDF Preview -->
+        <iframe 
+          *ngIf="previewFile?.fileType.includes('pdf')"
+          [src]="previewUrl"
+          style="width: 100%; height: 75vh; border: none;">
+        </iframe>
+
+        <!-- Other file types -->
+        <div *ngIf="!previewFile?.fileType.includes('image') && !previewFile?.fileType.includes('pdf')" 
+             class="text-center py-5">
+          <i class="bi bi-file-earmark display-1 text-muted"></i>
+          <p class="text-muted mt-3 mb-3">Preview not available for this file type</p>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="downloadAttachment(previewFile?.id, previewFile?.fileName)">
+            <i class="bi bi-download me-2"></i>
+            Download File
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-lg me-2"></i>Close
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="downloadAttachment(previewFile?.id, previewFile?.fileName)">
+          <i class="bi bi-download me-2"></i>
+          Download
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+                    <!-- ==================== DYNAMIC FIELDS SECTION (UPDATED) ==================== -->
+                    <div class="row g-2 mt-3" *ngIf="getAllFieldsForItem(i).length > 0">
+                      <div class="col-12">
+                        <div class="dynamic-fields-header d-flex justify-content-between align-items-center" 
+                             style="padding: 0.75rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 4px;">
+                          <small class="fw-bold" style="color: white;">
+                            <i class="bi bi-lightning-fill"></i> 
+                            {{ buyerCompanyType }} Specific Fields ({{ getAllFieldsForItem(i).length }})
+                          </small>
+                          <!-- Add More Fields Button -->
+                          <button 
+                            type="button"
+                            class="btn btn-sm btn-light"
+                            (click)="openAddFieldModal(i)"
+                            *ngIf="mode !== 'view'"
+                            style="font-size: 0.8rem; padding: 0.3rem 0.6rem;"
+                          >
+                            <i class="bi bi-plus-circle"></i> Add Field
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Render All Fields (Predefined + Custom) -->
+                      <ng-container *ngFor="let dynamicField of getAllFieldsForItem(i); let fieldIdx = index">
+                        
+                        <!-- TEXT INPUT FIELD -->
+                        <div 
+                          *ngIf="dynamicField.fieldType === 'text'"
+                          [ngClass]="getAllFieldsForItem(i).length > 1 ? 'col-md-6' : 'col-12'"
+                          class="mt-2 position-relative"
+                        >
+                          <label class="form-label small fw-bold text-dark">
+                            {{ dynamicField.fieldLabel }}
+                            <!-- <span *ngIf="dynamicField.isCustom" class="badge bg-info ms-2" style="font-size: 0.7rem;">Custom</span> -->
+                          </label>
+                          <input 
+                            type="text"
+                            class="form-control form-control-sm"
+                            [placeholder]="dynamicField.placeholder || 'Enter ' + dynamicField.fieldLabel"
+                            [formControl]="itemsArray.at(i).get('dynamicFields.' + dynamicField.fieldName)"
+                            [readonly]="mode === 'view'"
+                            [maxlength]="dynamicField.maxLength || 255"
+                          />
+                          <small class="form-text text-muted" *ngIf="dynamicField.maxLength">
+                            Max {{ dynamicField.maxLength }} characters
+                          </small>
+                          <!-- Remove Button for Custom Fields -->
+                          <button 
+                            *ngIf="dynamicField.isCustom && mode !== 'view'"
+                            type="button"
+                            class="btn btn-link btn-sm text-danger p-0"
+                            (click)="removeCustomField(i, dynamicField.fieldName)"
+                            style="position: absolute; right: 10px; top: 5px; font-size: 1.2rem;"
+                            title="Remove custom field"
+                          >
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        </div>
+
+                        <!-- NUMBER INPUT FIELD -->
+                        <div 
+                          *ngIf="dynamicField.fieldType === 'number'"
+                          [ngClass]="getAllFieldsForItem(i).length > 1 ? 'col-md-6' : 'col-12'"
+                          class="mt-2 position-relative"
+                        >
+                          <label class="form-label small fw-bold text-dark">
+                            {{ dynamicField.fieldLabel }}
+                            <span *ngIf="dynamicField.isCustom" class="badge bg-info ms-2" style="font-size: 0.7rem;">Custom</span>
+                          </label>
+                          <input 
+                            type="number"
+                            class="form-control form-control-sm"
+                            [placeholder]="dynamicField.placeholder || 'Enter ' + dynamicField.fieldLabel"
+                            [formControl]="itemsArray.at(i).get('dynamicFields.' + dynamicField.fieldName)"
+                            [readonly]="mode === 'view'"
+                            step="0.01"
+                          />
+                          <button 
+                            *ngIf="dynamicField.isCustom && mode !== 'view'"
+                            type="button"
+                            class="btn btn-link btn-sm text-danger p-0"
+                            (click)="removeCustomField(i, dynamicField.fieldName)"
+                            style="position: absolute; right: 10px; top: 5px; font-size: 1.2rem;"
+                            title="Remove custom field"
+                          >
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        </div>
+
+                        <!-- SELECT FIELD -->
+                        <div 
+                          *ngIf="dynamicField.fieldType === 'select'"
+                          [ngClass]="getAllFieldsForItem(i).length > 1 ? 'col-md-6' : 'col-12'"
+                          class="mt-2 position-relative"
+                        >
+                          <label class="form-label small fw-bold text-dark">
+                            {{ dynamicField.fieldLabel }}
+                            <span *ngIf="dynamicField.isCustom" class="badge bg-info ms-2" style="font-size: 0.7rem;">Custom</span>
+                          </label>
+                          <select 
+                            class="form-select form-select-sm"
+                            [formControl]="itemsArray.at(i).get('dynamicFields.' + dynamicField.fieldName)"
+                            [disabled]="mode === 'view'"
+                          >
+                            <option value="">-- Select {{ dynamicField.fieldLabel }} --</option>
+                            <option *ngFor="let option of getFieldOptions(dynamicField)" [value]="option">
+                              {{ option }}
+                            </option>
+                          </select>
+                          <button 
+                            *ngIf="dynamicField.isCustom && mode !== 'view'"
+                            type="button"
+                            class="btn btn-link btn-sm text-danger p-0"
+                            (click)="removeCustomField(i, dynamicField.fieldName)"
+                            style="position: absolute; right: 10px; top: 5px; font-size: 1.2rem;"
+                            title="Remove custom field"
+                          >
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        </div>
+
+                        <!-- DATE INPUT FIELD -->
+                        <div 
+                          *ngIf="dynamicField.fieldType === 'date'"
+                          [ngClass]="getAllFieldsForItem(i).length > 1 ? 'col-md-6' : 'col-12'"
+                          class="mt-2 position-relative"
+                        >
+                          <label class="form-label small fw-bold text-dark">
+                            {{ dynamicField.fieldLabel }}
+                            <span *ngIf="dynamicField.isCustom" class="badge bg-info ms-2" style="font-size: 0.7rem;">Custom</span>
+                          </label>
+                          <input 
+                            type="date"
+                            class="form-control form-control-sm"
+                            [formControl]="itemsArray.at(i).get('dynamicFields.' + dynamicField.fieldName)"
+                            [readonly]="mode === 'view'"
+                          />
+                          <button 
+                            *ngIf="dynamicField.isCustom && mode !== 'view'"
+                            type="button"
+                            class="btn btn-link btn-sm text-danger p-0"
+                            (click)="removeCustomField(i, dynamicField.fieldName)"
+                            style="position: absolute; right: 10px; top: 5px; font-size: 1.2rem;"
+                            title="Remove custom field"
+                          >
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        </div>
+
+                        <!-- TEXTAREA FIELD -->
+                        <div 
+                          *ngIf="dynamicField.fieldType === 'textarea'"
+                          class="col-12 mt-2 position-relative"
+                        >
+                          <label class="form-label small fw-bold text-dark">
+                            {{ dynamicField.fieldLabel }}
+                            <span *ngIf="dynamicField.isCustom" class="badge bg-info ms-2" style="font-size: 0.7rem;">Custom</span>
+                          </label>
+                          <textarea 
+                            class="form-control form-control-sm"
+                            rows="2"
+                            [placeholder]="dynamicField.placeholder || 'Enter ' + dynamicField.fieldLabel"
+                            [formControl]="itemsArray.at(i).get('dynamicFields.' + dynamicField.fieldName)"
+                            [readonly]="mode === 'view'"
+                            [maxlength]="dynamicField.maxLength || 500"
+                          ></textarea>
+                          <small class="form-text text-muted" *ngIf="dynamicField.maxLength">
+                            Max {{ dynamicField.maxLength }} characters
+                          </small>
+                          <button 
+                            *ngIf="dynamicField.isCustom && mode !== 'view'"
+                            type="button"
+                            class="btn btn-link btn-sm text-danger p-0"
+                            (click)="removeCustomField(i, dynamicField.fieldName)"
+                            style="position: absolute; right: 10px; top: 5px; font-size: 1.2rem;"
+                            title="Remove custom field"
+                          >
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        </div>
+
+                      </ng-container>
+                    </div>
+
+                    <!-- Remove Item Button -->
+                    <div class="mt-3" *ngIf="mode !== 'view'">
+                      <button 
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="removeItem(i)"
+                        [disabled]="itemsArray.length === 1"
+                      >
+                        <i class="bi bi-trash"></i> Remove Item
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ==================== ADD CUSTOM FIELD MODAL (UPDATED) ==================== -->
+                <div 
+                  class="modal fade" 
+                  id="addFieldModal{{ i }}"
+                  [class.show]="showAddFieldForm[i]"
+                  [style.display]="showAddFieldForm[i] ? 'block' : 'none'"
+                  tabindex="-1"
+                  style="background-color: rgba(0,0,0,0.5);"
+                >
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);">
+                        <h5 class="modal-title text-white fw-bold">
+                          <i class="bi bi-plus-circle"></i> Add Custom Field - Item {{ i + 1 }}
+                        </h5>
+                        <button 
+                          type="button"
+                          class="btn-close btn-close-white"
+                          (click)="closeAddFieldModal(i)"
+                        ></button>
+                      </div>
+
+                      <div class="modal-body p-4" *ngIf="addFieldForm[i]" [formGroup]="addFieldForm[i]">
+                        <div class="row g-3">
+                          <!-- Field Label -->
+                          <div class="col-12">
+                            <label class="form-label fw-bold">Field Label <span class="text-danger">*</span></label>
+                            <input 
+                              type="text"
+                              class="form-control form-control-lg"
+                              placeholder="e.g., Brand Color, Certification Code, etc."
+                              formControlName="fieldLabel"
+                            />
+                            <small class="text-muted d-block mt-1">
+                              This is the label that will appear on the form
+                            </small>
+                          </div>
+
+                          <!-- Field Type -->
+                          <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold">Field Type <span class="text-danger">*</span></label>
+                            <select 
+                              class="form-select form-select-lg"
+                              formControlName="fieldType"
+                            >
+                              <option value="text">Text Input</option>
+                              <option value="number">Number Input</option>
+                              <option value="textarea">Text Area (Long Text)</option>
+                              <option value="date">Date Picker</option>
+                              <option value="select">Dropdown (Select)</option>
+                            </select>
+                          </div>
+
+                          <!-- Max Length (for text types) -->
+                          <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold">Max Characters</label>
+                            <input 
+                              type="number"
+                              class="form-control form-control-lg"
+                              formControlName="maxLength"
+                              min="10"
+                              max="1000"
+                            />
+                            <small class="text-muted d-block mt-1">Default: 255 for text, 500 for textarea</small>
+                          </div>
+
+                          <!-- Placeholder -->
+                          <div class="col-12">
+                            <label class="form-label fw-bold">Placeholder Text (Optional)</label>
+                            <input 
+                              type="text"
+                              class="form-control form-control-lg"
+                              placeholder="e.g., Enter brand color..."
+                              formControlName="placeholder"
+                            />
+                            <small class="text-muted d-block mt-1">
+                              This appears as hint text in the field
+                            </small>
+                          </div>
+
+                          <!-- Options for Select Type -->
+                          <div class="col-12" *ngIf="addFieldForm[i].get('fieldType')?.value === 'select'">
+                            <div class="alert alert-info">
+                              <strong>Add Options for Dropdown:</strong> Enter options below (at least 1 required)
+                            </div>
+                            
+                            <div class="row g-2">
+                              <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold small">Option 1</label>
+                                <input 
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="e.g., Red"
+                                  formControlName="option1"
+                                />
+                              </div>
+                              <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold small">Option 2</label>
+                                <input 
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="e.g., Blue"
+                                  formControlName="option2"
+                                />
+                              </div>
+                              <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold small">Option 3</label>
+                                <input 
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="e.g., Green"
+                                  formControlName="option3"
+                                />
+                              </div>
+                              <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold small">Option 4</label>
+                                <input 
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="e.g., Yellow"
+                                  formControlName="option4"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="modal-footer">
+                        <button 
+                          type="button"
+                          class="btn btn-secondary"
+                          (click)="closeAddFieldModal(i)"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          type="button"
+                          class="btn btn-primary"
+                          (click)="addCustomFieldToItem(i)"
+                          [disabled]="addFieldForm[i] && !addFieldForm[i].valid"
+                        >
+                          <i class="bi bi-plus-circle"></i> Add Field
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Backdrop -->
+                <div 
+                  class="modal-backdrop fade"
+                  [class.show]="showAddFieldForm[i]"
+                  *ngIf="showAddFieldForm[i]"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Add Item Button -->
+            <button 
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="addItem()"
+              *ngIf="mode !== 'view'"
+            >
+              <i class="bi bi-plus-circle"></i> Add Item
+            </button>
+          </div>
+          <!-- ==================== SECTION 4: SUPPLIERS ==================== -->
+<div class="section-card mb-4">
+  <div class="section-title">
+    <h5 class="fw-bold text-dark mb-0">
+      <i class="bi bi-shop"></i> Suppliers
+    </h5>
+    <p class="text-muted small mb-0">Select category and choose multiple suppliers efficiently</p>
+  </div>
+
+  <!-- Step 1 & 2: Category Selection and Multi-Select Suppliers -->
+  <div class="supplier-step mb-4">
+    <div class="row g-3">
+      <!-- LEFT: Category Selection -->
+      <div class="col-md-6">
+        <div class="step-header-inline">
+          <span class="step-number">1</span>
+          <h6 class="step-title">Select Category/Department</h6>
+        </div>
+        <div class="step-content">
+          <select 
+            class="form-select form-select-lg"
+            [(ngModel)]="selectedCategory"
+            (change)="onCategoryChange($event)"
+            [ngModelOptions]="{standalone: true}"
+            [disabled]="mode === 'view' || filteredDepartmentsByBuyerCategory.length === 0"
+          >
+            <option value="">-- Choose a Category --</option>
+            <option *ngFor="let dept of filteredDepartmentsByBuyerCategory" [value]="dept">
+              {{ dept }}
+            </option>
+          </select>
+
+          <small class="form-text text-muted mt-2 d-block" *ngIf="filteredDepartmentsByBuyerCategory.length === 0">
+            <i class="bi bi-exclamation-triangle text-warning"></i> 
+            No matching categories
+          </small>
+
+          <small class="form-text text-muted mt-2 d-block" *ngIf="filteredDepartmentsByBuyerCategory.length > 0">
+            <i class="bi bi-filter"></i> 
+            {{ filteredDepartmentsByBuyerCategory.length }} 
+            {{ filteredDepartmentsByBuyerCategory.length === 1 ? 'category' : 'categories' }} available
+          </small>
+        </div>
+      </div>
+
+      <!-- RIGHT: Multi-Select Supplier Dropdown -->
+      <div class="col-md-6" *ngIf="selectedCategory">
+        <div class="step-header-inline">
+          <span class="step-number">2</span>
+          <h6 class="step-title">Add Suppliers</h6>
+          <span class="available-count-inline ms-auto">
+            {{ getFilteredSuppliers().length }} Available
+          </span>
+        </div>
+        <div class="step-content">
+          <!-- Multi-Select Dropdown Container -->
+          <div class="multi-select-dropdown" [class.disabled]="mode === 'view'">
+            <!-- Dropdown Toggle Button -->
+            <button 
+              type="button"
+              class="multi-select-toggle"
+              (click)="toggleSupplierDropdown()"
+              [disabled]="mode === 'view' || getFilteredSuppliers().length === 0"
+            >
+              <span class="toggle-text">
+                <i class="bi bi-list-check"></i>
+                {{ getDropdownPlaceholderText() }}
+              </span>
+              <i class="bi" [ngClass]="supplierDropdownOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div class="multi-select-menu" *ngIf="supplierDropdownOpen" [@dropdownAnimation]>
+              <!-- Search Input -->
+              <div class="dropdown-search">
+                <i class="bi bi-search search-icon"></i>
+                <input 
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="Search suppliers..."
+                  [(ngModel)]="supplierDropdownSearch"
+                  (ngModelChange)="onSupplierDropdownSearch()"
+                  [ngModelOptions]="{standalone: true}"
+                  (click)="$event.stopPropagation()"
+                />
+                <button 
+                  type="button"
+                  class="btn-clear-search"
+                  *ngIf="supplierDropdownSearch"
+                  (click)="clearSupplierSearch()"
+                >
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+              </div>
+
+              <!-- Select All / Deselect All -->
+              <div class="dropdown-actions">
+                <button 
+                  type="button"
+                  class="btn-action"
+                  (click)="selectAllSuppliers()"
+                  [disabled]="getFilteredSuppliersForDropdown().length === 0"
+                >
+                  <i class="bi bi-check-all"></i> Select All
+                  <span class="action-count">({{ getFilteredSuppliersForDropdown().length }})</span>
+                </button>
+                <button 
+                  type="button"
+                  class="btn-action"
+                  (click)="deselectAllSuppliers()"
+                  [disabled]="getSelectedFromFiltered().length === 0"
+                >
+                  <i class="bi bi-x-circle"></i> Deselect All
+                  <span class="action-count">({{ getSelectedFromFiltered().length }})</span>
+                </button>
+              </div>
+
+              <!-- Supplier List -->
+              <div class="dropdown-list" #supplierList>
+                <div 
+                  *ngFor="let supplier of getFilteredSuppliersForDropdown(); trackBy: trackBySupplier"
+                  class="dropdown-item-custom"
+                  [class.selected]="isSupplierSelected(supplier.id)"
+                  (click)="toggleSupplierInDropdown(supplier.id)"
+                >
+                  <div class="checkbox-wrapper">
+                    <input 
+                      type="checkbox"
+                      [id]="'supplier-check-' + supplier.id"
+                      [checked]="isSupplierSelected(supplier.id)"
+                      (click)="$event.stopPropagation()"
+                      (change)="toggleSupplierInDropdown(supplier.id)"
+                    />
+                    <label [for]="'supplier-check-' + supplier.id" class="checkbox-label"></label>
+                  </div>
+                  <div class="supplier-info">
+                    <div class="supplier-name">{{ supplier.companyName }}</div>
+                    <div class="supplier-contact">{{ supplier.contactPersonName }}</div>
+                  </div>
+                  <i class="bi bi-check-circle-fill selected-icon" *ngIf="isSupplierSelected(supplier.id)"></i>
+                </div>
+
+                <!-- No Results -->
+                <div class="no-results" *ngIf="getFilteredSuppliersForDropdown().length === 0">
+                  <i class="bi bi-inbox"></i>
+                  <p>No suppliers found</p>
+                  <small *ngIf="supplierDropdownSearch">Try adjusting your search</small>
+                </div>
+              </div>
+
+              <!-- Footer with selected count -->
+              <div class="dropdown-footer">
+                <div class="footer-info">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <strong>{{ getSelectedSuppliersCount() }}</strong> selected
+                </div>
+                <button 
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  (click)="closeSupplierDropdown()"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Helper Text -->
+          <small class="form-text text-muted mt-2 d-block" *ngIf="getFilteredSuppliers().length === 0">
+            <i class="bi bi-info-circle"></i> No suppliers available for this category
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Selected Suppliers Display (Compact Grid) -->
+  <div class="supplier-step" *ngIf="selectedCategory && getSelectedSuppliersCount() > 0">
+    <div class="step-header">
+      <span class="step-number">3</span>
+      <h6 class="step-title">Selected Suppliers</h6>
+      <span class="badge bg-success ms-auto" style="font-size: 0.9rem; padding: 0.4rem 0.7rem;">
+        {{ getSelectedSuppliersCount() }} Selected
+      </span>
+    </div>
+    <div class="step-content">
+      <div class="selected-suppliers-compact">
+        <div 
+          *ngFor="let supplierId of selectedSupplierIds; trackBy: trackBySupplierId"
+          class="supplier-chip"
+        >
+          <div class="supplier-chip-icon">
+            <i class="bi bi-building-fill"></i>
+          </div>
+          <div class="supplier-chip-info">
+            <span class="supplier-chip-name">
+              {{ getSupplierById(supplierId)?.companyName || 'Unknown' }}
+            </span>
+            <span class="supplier-chip-contact">
+              {{ getSupplierById(supplierId)?.contactPersonName }}
+            </span>
+          </div>
+          <button 
+            type="button"
+            class="btn-remove-chip"
+            (click)="removeSupplierFromSelection(supplierId)"
+            [disabled]="mode === 'view'"
+            title="Remove supplier"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning Messages -->
+  <div class="alert alert-warning mt-3 mb-0" *ngIf="!selectedCategory">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Step 1:</strong> Please select a category first
+  </div>
+
+  <div 
+    class="alert alert-danger mt-3 mb-0" 
+    *ngIf="getSelectedSuppliersCount() === 0 && rfqForm.get('selectedSupplierIds')?.touched && selectedCategory"
+  >
+    <i class="bi bi-exclamation-circle"></i>
+    <strong>Required:</strong> At least one supplier must be selected
+  </div>
+</div>
+
+          <!-- ==================== SECTION 5: ADDITIONAL SETTINGS ==================== -->
+          <div class="section-card mb-4">
+            <div class="section-title">
+              <h5 class="fw-bold text-dark">
+                <i class="bi bi-gear"></i> Additional Settings
+              </h5>
+              <p class="text-muted small mb-0">Configure additional RFQ parameters</p>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark">Payment Terms</label>
+                <input 
+                  type="text"
+                  class="form-control"
+                  placeholder="e.g., 30 Days from Invoice Date"
+                  formControlName="paymentTerms"
+                  [readonly]="mode === 'view'"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-dark">Delivery Terms</label>
+                <input 
+                  type="text"
+                  class="form-control"
+                  placeholder="e.g."
+                  formControlName="deliveryTerms"
+                  [readonly]="mode === 'view'"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold text-dark">Justification</label>
+                <textarea 
+                  class="form-control"
+                  rows="2"
+                  placeholder="Business justification for this RFQ..."
+                  formControlName="justification"
+                  [readonly]="mode === 'view'"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== ACTION BUTTONS ==================== -->
+          <div class="action-footer mt-5 pt-4 border-top">
+            <div class="row g-3">
+              <div class="col-md-2 ms-auto" *ngIf="mode !== 'view'">
+                <button 
+                  type="submit"
+                  class="btn btn-primary btn-lg w-100"
+                  [disabled]="isSubmitting || !isFormValid()"
+                >
+                  <span *ngIf="!isSubmitting">
+                    <i class="bi bi-send"></i> Submit RFQ
+                  </span>
+                  <span *ngIf="isSubmitting">
+                    <i class="spinner-border spinner-border-sm me-2"></i> Submitting...
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+<style>
+
+
+.supplier-step {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.supplier-step:hover {
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  border-color: #667eea;
+}
+
+/* Step Header - Inline (for Step 1 & 2) */
+.step-header-inline {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
+/* Step Header - Full Width (for Step 3) */
+.step-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.step-title {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.available-count-inline {
+  background-color: #e7f3ff;
+  color: #0066cc;
+  padding: 0.3rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Selected Suppliers - Compact Chip Layout */
+.selected-suppliers-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.supplier-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  max-width: 320px;
+  min-width: 240px;
+}
+
+.supplier-chip:hover {
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
+}
+
+.supplier-chip-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.supplier-chip-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.supplier-chip-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.supplier-chip-contact {
+  font-size: 0.8rem;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-remove-chip {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.1rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.btn-remove-chip:hover:not(:disabled) {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #c82333;
+}
+
+.btn-remove-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-remove-chip:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
+}
+
+/* Alerts */
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.alert i {
+  font-size: 1.25rem;
+}
+
+/* Button Styling */
+.btn-primary {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .supplier-chip {
+    min-width: 200px;
+    max-width: 100%;
+  }
+
+  .step-header-inline {
+    flex-wrap: wrap;
+  }
+
+  .available-count-inline {
+    width: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .supplier-step {
+    padding: 1rem;
+  }
+
+  .step-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .step-title {
+    font-size: 0.95rem;
+  }
+
+  .supplier-chip {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .supplier-chip-name {
+    font-size: 0.9rem;
+  }
+
+  .supplier-chip-contact {
+    font-size: 0.75rem;
+  }
+
+  .d-flex.gap-2 {
+    flex-direction: column;
+  }
+
+  .d-flex.gap-2 button {
+    width: 100%;
+  }
+}
+
+  .supplier-selection-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .supplier-selection-item {
+    position: relative;
+  }
+
+  .supplier-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .supplier-label {
+    display: block;
+    padding: 1.25rem;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background-color: #ffffff;
+    margin: 0;
+    height: 100%;
+  }
+
+  .supplier-label:hover {
+    border-color: #667eea;
+    background-color: #f8f9fc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  }
+
+  .supplier-selection-item.selected .supplier-label {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+  }
+
+  .supplier-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .supplier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .supplier-name {
+    font-size: 1.05rem;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .supplier-badge {
+    color: #28a745;
+    font-size: 1.25rem;
+  }
+
+  .supplier-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .supplier-contact,
+  .supplier-email {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .supplier-category-select {
+    max-width: 500px;
+    border: 2px solid #dee2e6;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .supplier-category-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+  }
+
+  .badge-lg {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .supplier-selection-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .supplier-search-bar,
+    .supplier-category-select {
+      max-width: 100%;
+    }
+  }
+  .section-card {
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+  }
+
+  .section-title {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #667eea;
+  }
+
+  .section-title h5 {
+    color: #333;
+  }
+
+  .info-item {
+    padding: 0.5rem 0;
+  }
+
+  .info-card {
+    border-left: 4px solid #667eea;
+    background-color: #f0f4ff;
+  }
+
+  .action-footer {
+    background-color: #f8f9fa;
+    margin: 0 -1rem -1rem -1rem;
+    padding: 1.5rem 1rem;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .form-control:disabled,
+  .form-select:disabled,
+  textarea:disabled {
+    background-color: #e9ecef;
+    color: #495057;
+  }
+
+  .dynamic-fields-header {
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+  }
+
+  /* Supplier Styles */
+  .supplier-step {
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  .supplier-step:hover {
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    gap: 1rem;
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .available-count {
+    background-color: #e7f3ff;
+    color: #0066cc;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+ .supplier-selection-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .supplier-label {
+    display: block;
+    padding: 1.25rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    margin: 0;
+  }
+
+  .supplier-selection-item.selected .supplier-label {
+    border-color: #667eea;
+    background-color: #f0f4ff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  }
+
+  .supplier-label:hover {
+    border-color: #667eea;
+    background-color: #f0f4ff;
+  }
+
+  .badge-lg {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .supplier-selection-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

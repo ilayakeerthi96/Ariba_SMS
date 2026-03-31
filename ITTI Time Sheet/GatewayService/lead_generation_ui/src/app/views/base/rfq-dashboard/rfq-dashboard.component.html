@@ -1,0 +1,257 @@
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark mb-0">
+      <i class="bi bi-file-earmark-text"></i> RFQ Management
+    </h3>
+    <!-- <button class="btn btn-primary shadow-sm" (click)="router.navigate(['/create-rfq'])">
+      <i class="bi bi-plus-circle"></i> Create New RFQ
+    </button> -->
+  </div>
+
+  <!-- RFQ Table Card -->
+  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+    
+    <!-- Card Header -->
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-3">All RFQs</h5>
+      
+      <!-- Filters Section -->
+      <div class="row g-3 mb-4">
+        <!-- Search -->
+        <div class="col-lg-4">
+          <input 
+            type="text"
+            class="form-control form-control-sm bg-light border-0"
+            placeholder="Search RFQ number, title, or buyer..."
+            [(ngModel)]="searchText"
+            (ngModelChange)="applyFiltersAndPagination()"
+            style="padding: 10px;"
+          />
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-lg-2">
+          <select 
+            class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="statusFilter"
+            (change)="applyFiltersAndPagination()"
+            style="padding: 10px;"
+          >
+            <option value="">All Status</option>
+            <option *ngFor="let status of statuses" [value]="status">
+              {{ status | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="col-lg-2">
+          <select 
+            class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="priorityFilter"
+            (change)="applyFiltersAndPagination()"
+            style="padding: 10px;"
+          >
+            <option value="">All Priority</option>
+            <option *ngFor="let priority of priorities" [value]="priority">
+              {{ priority | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Page Size -->
+        <div class="col-lg-2">
+          <select 
+            class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="pageSize"
+            (change)="onPageSizeChange(pageSize)"
+            style="padding: 10px;"
+          >
+            <option [value]="5">5 per page</option>
+            <option [value]="10">10 per page</option>
+            <option [value]="25">25 per page</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <!-- <div class="col-lg-2">
+          <button 
+            class="btn btn-outline-secondary btn-sm w-100"
+            (click)="resetFilters()"
+          >
+            <i class="bi bi-arrow-clockwise"></i> Reset
+          </button>
+        </div> -->
+      </div>
+
+      <!-- Results Info -->
+      <div class="d-flex justify-content-between mb-3 align-items-center">
+        <div class="text-muted small fw-bold">
+          Showing {{ pagedRFQs.length }} of {{ filteredRFQs.length }} RFQs
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Body - Table -->
+    <div class="card-body p-4">
+      <div class="table-responsive">
+        <table class="table align-middle" style="font-size: 0.9rem;">
+          <thead>
+            <tr style="background-color: #f9fafb;">
+              <th class="ps-4 text-uppercase text-muted small fw-bold">RFQ Number</th>
+              <th class="text-uppercase text-muted small fw-bold">Title</th>
+              <th class="text-uppercase text-muted small fw-bold">Buyer</th>
+              <th class="text-uppercase text-muted small fw-bold">Status</th>
+              <th class="text-uppercase text-muted small fw-bold">Priority</th>
+              <!-- <th class="text-uppercase text-muted small fw-bold">Items</th> -->
+              <!-- <th class="text-uppercase text-muted small fw-bold">Suppliers</th> -->
+              <th class="text-uppercase text-muted small fw-bold">Due Date</th>
+              <th class="text-end pe-4 text-uppercase text-muted small fw-bold">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Data Rows -->
+            <tr *ngFor="let rfq of pagedRFQs" style="border-bottom: 1px solid #e9ecef;">
+              <!-- RFQ Number -->
+              <td class="ps-4">
+                <div class="fw-bold text-primary cursor-pointer" (click)="viewRFQ(rfq)">
+                  {{ rfq.rfqNumber }}
+                </div>
+              </td>
+
+              <!-- Title -->
+              <td>
+                <span class="text-dark" title="{{ rfq.rfqTitle }}">
+                  {{ rfq.rfqTitle.substring(0, 30) }}{{ rfq.rfqTitle.length > 30 ? '...' : '' }}
+                </span>
+              </td>
+
+              <!-- Buyer -->
+              <td>
+                <span class="badge bg-light text-dark">
+                  {{ rfq.buyerName }}
+                </span>
+              </td>
+
+              <!-- Status Badge -->
+              <td>
+                <span [class]="'badge ' + getStatusClass(rfq.status)">
+                  {{ getStatusLabel(rfq.status) }}
+                </span>
+              </td>
+
+              <!-- Priority Badge -->
+              <td>
+                <span [class]="'badge ' + getPriorityClass(rfq.priority)">
+                  {{ rfq.priority | titlecase }}
+                </span>
+              </td>
+
+              <!-- Items Count -->
+              <!-- <td>
+                <span class="badge bg-info">{{ rfq.itemsCount }}</span>
+              </td> -->
+
+              <!-- Suppliers Count -->
+              <!-- <td>
+                <span class="badge bg-secondary">{{ rfq.suppliersCount }}</span>
+              </td> -->
+
+              <!-- Due Date -->
+              <td>
+                <span class="text-muted small">{{ rfq.dueDate }}</span>
+              </td>
+
+              <!-- Actions -->
+              <td class="text-end pe-4">
+                <!-- View Button -->
+                <button 
+                  class="btn btn-sm btn-light text-info me-2 shadow-sm"
+                  (click)="viewRFQ(rfq)"
+                  title="View Details"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+
+                <!-- Edit Button (Only for DRAFT) -->
+                <button 
+                  *ngIf="canEdit(rfq)"
+                  class="btn btn-sm btn-light text-primary me-2 shadow-sm"
+                  (click)="editRFQ(rfq)"
+                  title="Edit RFQ"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+
+                <!-- Publish Button (Only for DRAFT) -->
+                <button 
+                  *ngIf="canPublish(rfq)"
+                  class="btn btn-sm btn-light text-success me-2 shadow-sm"
+                  (click)="publishRFQ(rfq)"
+                  title="Submit for Approval"
+                >
+                  <i class="bi bi-send"></i>
+                </button>
+
+                <!-- Close Button -->
+                <button 
+                  *ngIf="canClose(rfq)"
+                  class="btn btn-sm btn-light text-warning me-2 shadow-sm"
+                  (click)="closeRFQ(rfq)"
+                  title="Close RFQ"
+                >
+                  <i class="bi bi-lock"></i>
+                </button>
+
+                <!-- Delete Button -->
+                <button 
+                  class="btn btn-sm btn-light text-danger shadow-sm"
+                  (click)="deleteRFQ(rfq)"
+                  title="Delete RFQ"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="pagedRFQs.length === 0">
+              <!-- <td colspan="9" class="text-center text-muted py-5">
+                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                <p class="mb-0">No RFQs found. <a (click)="router.navigate(['/create-rfq'])" class="text-primary cursor-pointer">Create one now!</a></p>
+              </td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between mt-4 align-items-center">
+        <div class="text-muted small fw-bold">
+          Page {{ currentPage }} / {{ totalPages || 1 }}
+        </div>
+        <div class="d-flex gap-2">
+          <button 
+            class="btn btn-sm btn-outline-secondary"
+            [disabled]="currentPage === 1"
+            (click)="onPageChange(currentPage - 1)"
+          >
+            <i class="bi bi-chevron-left"></i> Previous
+          </button>
+          <button 
+            class="btn btn-sm btn-outline-secondary"
+            [disabled]="currentPage >= totalPages"
+            (click)="onPageChange(currentPage + 1)"
+          >
+            Next <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pipe to replace underscore with space -->
+<ng-container></ng-container>

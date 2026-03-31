@@ -1,0 +1,430 @@
+<div class="container mt-4">
+
+  <!-- API RESPONSE MESSAGE - Enhanced with Refresh -->
+  <div *ngIf="apiMessage" 
+       class="alert alert-dismissible fade show d-flex align-items-center justify-content-between" 
+       [ngClass]="{
+         'alert-success': apiMessageType === 'success',
+         'alert-danger': apiMessageType === 'error'
+       }"
+       role="alert">
+    <div class="d-flex align-items-center">
+      <i class="me-2" [ngClass]="{
+        'cil-check-circle': apiMessageType === 'success',
+        'cil-warning': apiMessageType === 'error'
+      }"></i>
+      <span>{{ apiMessage }}</span>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" 
+              class="btn btn-sm" 
+              [ngClass]="{
+                'btn-outline-success': apiMessageType === 'success',
+                'btn-outline-danger': apiMessageType === 'error'
+              }"
+              (click)="refreshTestApiMessage()"
+              [disabled]="isLoadingTestApi">
+        <c-spinner *ngIf="isLoadingTestApi" size="sm"></c-spinner>
+        <i *ngIf="!isLoadingTestApi" class="cil-reload"></i>
+        Refresh
+      </button>
+      <button type="button" 
+              class="btn-close" 
+              (click)="closeApiMessage()"
+              aria-label="Close"></button>
+    </div>
+  </div>
+
+  <!-- Loading indicator for initial API fetch -->
+  <div *ngIf="isLoadingTestApi && !apiMessage" class="alert alert-info d-flex align-items-center">
+    <c-spinner size="sm" class="me-2"></c-spinner>
+    <span>Loading API message...</span>
+  </div>
+
+  <c-card class="p-3">
+
+    <h4 *ngIf="mode === 'create'">Create New Lead</h4>
+    <h4 *ngIf="mode === 'edit'">Edit Lead</h4>
+    <h4 *ngIf="mode === 'view'">View Lead</h4>
+
+    <p class="text-muted" *ngIf="mode !== 'view'">
+      Enter details for the lead
+    </p>
+    <p class="text-muted" *ngIf="mode === 'view'">
+      Lead details
+    </p>
+
+    <p *ngIf="mode !== 'view'">
+      <span class="required-star">*</span> Required fields
+    </p>
+
+    <form [formGroup]="leadForm" (ngSubmit)="submitLead()">
+
+      <div class="row g-3">
+
+        <div class="col-md-12">
+          <label class="form-label">
+            Company Name <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <input type="text" formControlName="companyName" class="form-control" [readonly]="mode === 'view'" [ngClass]="{
+              'is-invalid': mode !== 'view' && f('companyName')?.invalid && (f('companyName')?.touched || formSubmitted)
+            }" />
+          <div *ngIf="mode !== 'view' && f('companyName')?.invalid && (f('companyName')?.touched || formSubmitted)"
+            class="error-text">
+            Company name is required.
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">
+            First Name <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <input type="text" formControlName="firstName" class="form-control" [readonly]="mode === 'view'" [ngClass]="{
+              'is-invalid': mode !== 'view' && f('firstName')?.invalid && (f('firstName')?.touched || formSubmitted)
+            }" />
+          <div *ngIf="mode !== 'view' && f('firstName')?.invalid && (f('firstName')?.touched || formSubmitted)"
+            class="error-text">
+            First name is required.
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Middle Name</label>
+          <input type="text" formControlName="middleName" class="form-control" [readonly]="mode === 'view'" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">
+            Last Name <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <input type="text" formControlName="lastName" class="form-control" [readonly]="mode === 'view'" [ngClass]="{
+              'is-invalid': mode !== 'view' && f('lastName')?.invalid && (f('lastName')?.touched || formSubmitted)
+            }" />
+          <div *ngIf="mode !== 'view' && f('lastName')?.invalid && (f('lastName')?.touched || formSubmitted)"
+            class="error-text">
+            Last name is required.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Job Title</label>
+          <input type="text" class="form-control" formControlName="jobTitle" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            Email <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <input type="email" class="form-control" formControlName="email" [readonly]="mode === 'view'" [ngClass]="{
+              'is-invalid': mode !== 'view' && f('email')?.invalid && (f('email')?.touched || formSubmitted)
+            }" />
+          <div *ngIf="mode !== 'view' && f('email')?.errors?.['required'] && (f('email')?.touched || formSubmitted)"
+            class="error-text">
+            Email is required.
+          </div>
+          <div *ngIf="mode !== 'view' && f('email')?.errors?.['email'] && (f('email')?.touched || formSubmitted)"
+            class="error-text">
+            Invalid email.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Alternate Email</label>
+          <input type="email" class="form-control" formControlName="email1" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-control" formControlName="phone" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Alternate Phone</label>
+          <input type="text" class="form-control" formControlName="phone1" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Mobile</label>
+          <input type="text" class="form-control" formControlName="mobile" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Website</label>
+          <input type="text" class="form-control" formControlName="website" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Country / Region</label>
+          <input type="text" class="form-control" formControlName="countryRegion" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Address</label>
+          <textarea rows="2" class="form-control" formControlName="address" [readonly]="mode === 'view'"></textarea>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            Lead Source <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <select class="form-select" formControlName="source" [attr.disabled]="mode === 'view' ? true : null"
+            [ngClass]="{
+              'is-invalid': mode !== 'view' && f('source')?.invalid && (f('source')?.touched || formSubmitted)
+            }">
+            <option value="">Select...</option>
+            <option>Website</option>
+            <option>LinkedIn</option>
+            <option>Referral</option>
+            <option>Event</option>
+            <option>Email Outreach</option>
+            <option>Other</option>
+          </select>
+
+          <div class="mt-2" *ngIf="leadForm.get('source')?.value === 'Other'">
+            <label class="form-label">
+              Specify Lead Source <span class="required-star" *ngIf="mode !== 'view'">*</span>
+            </label>
+            <input type="text" class="form-control" formControlName="otherSource" [readonly]="mode === 'view'"
+              [ngClass]="{
+                'is-invalid': mode !== 'view' && f('otherSource')?.invalid && (f('otherSource')?.touched || formSubmitted)
+              }" />
+            <div
+              *ngIf="mode !== 'view' && f('otherSource')?.invalid && (f('otherSource')?.touched || formSubmitted)"
+              class="error-text">
+              Please specify the lead source.
+            </div>
+          </div>
+
+          <div *ngIf="mode !== 'view' && f('source')?.invalid && (f('source')?.touched || formSubmitted)"
+            class="error-text">
+            Lead source is required.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            Stage <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <select class="form-select" formControlName="stage" [attr.disabled]="mode === 'view' ? true : null" [ngClass]="{
+              'is-invalid': mode !== 'view' && f('stage')?.invalid && (f('stage')?.touched || formSubmitted)
+            }">
+            <option value="">Select...</option>
+            <option>Contact</option> 
+            <option>Prospecting</option>
+            <option>Qualified</option>
+            <option>Proposal Sent</option>
+            <option>Negotiation</option>
+            <option>Closed Won</option>
+            <option>Closed Lost</option>
+          </select>
+          <div *ngIf="mode !== 'view' && f('stage')?.invalid && (f('stage')?.touched || formSubmitted)"
+            class="error-text">
+            Stage is required.
+          </div>
+        </div>
+
+        <div class="col-md-6" *ngIf="leadForm.get('stage')?.value === 'Contact'">
+          <label class="form-label">
+            Contact Status <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <select class="form-select" formControlName="contactType" [attr.disabled]="mode === 'view' ? true : null"
+            [ngClass]="{
+              'is-invalid': mode !== 'view' && f('contactType')?.invalid && (f('contactType')?.touched || formSubmitted)
+            }">
+            <option value="">Select Status...</option>
+            <option value="Hot">Hot</option>
+            <option value="Warm">Warm</option>
+            <option value="Cold">Cold</option>
+          </select>
+          
+          <div *ngIf="mode !== 'view' && f('contactType')?.invalid && (f('contactType')?.touched || formSubmitted)"
+            class="error-text">
+            Please select if the contact is Hot, Warm, or Cold.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            Expected Value <span class="required-star" *ngIf="mode !== 'view'"></span>
+          </label>
+          <input type="number" class="form-control" formControlName="expectedValue" [readonly]="mode === 'view'"
+            [ngClass]="{
+              'is-invalid': mode !== 'view' && f('expectedValue')?.invalid && (f('expectedValue')?.touched || formSubmitted)
+            }" />
+          <div *ngIf="mode !== 'view' && f('expectedValue')?.invalid && (f('expectedValue')?.touched || formSubmitted)"
+            class="error-text">
+            Expected value is required and must be greater than 0.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Currency</label>
+          <select class="form-select" formControlName="expectedCurrencyValue"
+                  [attr.disabled]="mode === 'view' ? true : null"
+                  [ngClass]="{
+                    'is-invalid':
+                      mode !== 'view' &&
+                      f('expectedCurrencyValue')?.invalid &&
+                      (f('expectedCurrencyValue')?.touched || formSubmitted)
+                  }">
+            <option value="">Select...</option>
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="AED">AED</option>
+            <option value="SAR">SAR</option>
+          </select>
+
+          <div *ngIf="
+              mode !== 'view' &&
+              f('expectedCurrencyValue')?.invalid &&
+              (f('expectedCurrencyValue')?.touched || formSubmitted)
+            " class="error-text">
+            Currency is required when Expected Value is entered.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Expected Close Date</label>
+          <input type="date" class="form-control" formControlName="expectedCloseDate" [readonly]="mode === 'view'"
+            [ngClass]="{
+              'is-invalid': mode !== 'view' && f('expectedCloseDate')?.invalid && (f('expectedCloseDate')?.touched || formSubmitted)
+            }" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            Probability (%) <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <input type="number" class="form-control" formControlName="probability" min="0" max="100"
+            [readonly]="mode === 'view'" [ngClass]="{
+              'is-invalid': mode !== 'view' && f('probability')?.invalid && (f('probability')?.touched || formSubmitted)
+            }" />
+          <div *ngIf="mode !== 'view' && f('probability')?.invalid && (f('probability')?.touched || formSubmitted)"
+            class="error-text">
+            Probability must be between 0 and 100.
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Technology</label>
+          <select class="form-select" formControlName="technology" [attr.disabled]="mode === 'view' ? true : null">
+            <option value="">Select Technology...</option>
+            <option *ngFor="let tech of technologyOptions" [value]="tech">
+              {{ tech }}
+            </option>
+          </select>
+        
+          <div class="mt-2" *ngIf="leadForm.get('technology')?.value === 'Other'">
+             <label class="form-label small text-muted">Specify Technology:</label>
+             <input type="text" class="form-control" formControlName="otherTechnology" 
+                    [readonly]="mode === 'view'"
+                    placeholder="Enter custom technology name">
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Requirement</label>
+          <select class="form-select" formControlName="requirementType" [attr.disabled]="mode === 'view' ? true : null">
+            <option value="">Select Requirement...</option>
+            <option *ngFor="let req of requirementOptions" [value]="req">
+              {{ req }}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Domain</label>
+          <input type="text" class="form-control" formControlName="domain" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Technical Skills</label>
+          <input type="text" class="form-control" formControlName="technicalSkills" [readonly]="mode === 'view'">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            Assigned To <span class="required-star" *ngIf="mode !== 'view'">*</span>
+          </label>
+          <select class="form-select" formControlName="assignedTo" [attr.disabled]="mode === 'view' ? true : null"
+            [ngClass]="{
+              'is-invalid': mode !== 'view' && f('assignedTo')?.invalid && (f('assignedTo')?.touched || formSubmitted)
+            }">
+            <option value="">Select...</option>
+            <ng-container *ngFor="let t of filteredAssignedToList">
+              <optgroup [label]="t.teamName">
+                <option *ngFor="let m of t.members" [value]="m.employeeCode">
+                  {{ m.name }} ({{ m.employeeCode }})
+                </option>
+              </optgroup>
+            </ng-container>
+          </select>
+          <div *ngIf="mode !== 'view' && f('assignedTo')?.invalid && (f('assignedTo')?.touched || formSubmitted)"
+            class="error-text">
+            Assigned user is required.
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Remarks History</label>
+          <textarea rows="4" class="form-control bg-light text-muted" 
+                    formControlName="remarks" 
+                    readonly 
+                    style="font-size: 0.85rem; resize: none;"></textarea>
+        </div>
+
+        <div class="col-md-12" *ngIf="mode !== 'view' && !leadForm.disabled">
+           <label class="form-label fw-bold text-primary">Add New Remark</label>
+           <div class="input-group">
+             <textarea rows="2" class="form-control" 
+                       formControlName="newRemark" 
+                       placeholder="Type your note here... (It will be appended with your name and time)"></textarea>
+           </div>
+           <div class="form-text text-muted small">
+             Your note will be automatically tagged with your name and timestamp.
+           </div>
+        </div>
+
+      </div>
+
+      <div class="mt-4 d-flex justify-content-end align-items-center gap-2">
+
+        <ng-container *ngIf="mode === 'view'">
+          <button class="btn btn-secondary" (click)="closeView()">Close</button>
+          <app-download-excel [dataSource]="leadData ? [leadData] : []"
+            [fileName]="'Lead_' + (leadData?.companyName || 'Details') + '.xlsx'">
+            <button class="btn btn-success me-2 d-flex align-items-center">
+              <i class="cil-cloud-download me-1"></i> Download Excel
+            </button>
+          </app-download-excel>
+        </ng-container>
+
+        <ng-container *ngIf="mode === 'edit'">
+          <button class="btn btn-secondary me-2" type="button" (click)="cancel()">Cancel</button>
+          
+          <button class="btn btn-primary" type="submit" 
+                  [disabled]="isSubmitting"
+                  *ngIf="!leadForm.disabled">
+            <span *ngIf="!isSubmitting">Update Lead</span>
+            <c-spinner *ngIf="isSubmitting" size="sm"></c-spinner>
+          </button>
+
+          <span *ngIf="leadForm.disabled" class="text-danger small fw-bold ms-2">
+            <i class="cil-lock-locked"></i> Lead is Closed and cannot be edited.
+          </span>
+        </ng-container>
+
+        <ng-container *ngIf="mode === 'create'">
+          <button class="btn btn-secondary me-2" type="button" (click)="cancel()">Cancel</button>
+          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">Create Lead</span>
+            <c-spinner *ngIf="isSubmitting" size="sm"></c-spinner>
+          </button>
+        </ng-container>
+
+      </div>
+
+    </form>
+  </c-card>
+</div>

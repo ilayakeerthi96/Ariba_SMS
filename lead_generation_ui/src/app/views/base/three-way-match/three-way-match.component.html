@@ -1,0 +1,746 @@
+<div class="twm-shell">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="twm-page-header">
+    <div class="twm-header-left">
+      <button class="twm-back-btn" (click)="goBack()">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </button>
+      <div class="twm-header-icon"><i class="bi bi-check2-all"></i></div>
+      <div>
+        <h3 class="twm-header-title">3-Way Match</h3>
+        <p class="twm-header-sub">Validate PO → GRN → Invoice alignment before payment</p>
+      </div>
+    </div>
+    <div class="twm-tolerance-badge">
+      <i class="bi bi-sliders me-1"></i>
+      Tolerance: <strong>{{ tolerancePercentage }}%</strong>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="twm-alerts-wrap">
+    <div *ngIf="successMessage" class="twm-alert twm-alert-success">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>{{ successMessage }}</span>
+      <button class="twm-alert-close" (click)="dismissAlert()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div *ngIf="errorMessage" class="twm-alert twm-alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{ errorMessage }}</span>
+      <button class="twm-alert-close" (click)="dismissAlert()"><i class="bi bi-x-lg"></i></button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TAB NAV
+  ══════════════════════════════════════════════════ -->
+  <div class="twm-tabs">
+    <button class="twm-tab" [class.active]="activeTab==='perform'" (click)="setTab('perform')">
+      <i class="bi bi-play-circle"></i><span>Perform Match</span>
+    </button>
+    <button class="twm-tab" [class.active]="activeTab==='pending'" (click)="setTab('pending')">
+      <i class="bi bi-hourglass-split"></i><span>Pending Resolutions</span>
+      <span *ngIf="pendingMatches.length > 0" class="twm-tab-badge">{{ pendingMatches.length }}</span>
+    </button>
+    <button class="twm-tab" [class.active]="activeTab==='history'" (click)="setTab('history')">
+      <i class="bi bi-clock-history"></i><span>Match History</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TAB: PERFORM MATCH
+  ══════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='perform'" class="twm-tab-body">
+
+    <div *ngIf="preSelectedGrnId || selectedGRN" class="twm-preselect-notice">
+      <i class="bi bi-link-45deg me-2"></i>
+      <span *ngIf="selectedGRN">
+        GRN <strong>{{ selectedGRN.grnNumber }}</strong> pre-selected. Now select the matching invoice below.
+      </span>
+      <span *ngIf="!selectedGRN && preSelectedGrnId">
+        Loading GRN — select the invoice first to continue.
+      </span>
+    </div>
+
+    <div class="twm-match-grid">
+
+      <!-- ─── STEP 1: SELECT INVOICE ─── -->
+      <div class="twm-step-card">
+        <div class="twm-step-card-header indigo">
+          <div class="twm-step-num">1</div>
+          <div class="twm-step-card-title"><i class="bi bi-file-invoice me-2"></i>Select Invoice</div>
+        </div>
+        <div class="twm-step-card-body">
+          <div class="twm-step-info-hint">
+            <i class="bi bi-info-circle me-1"></i>
+            Showing <strong>SUBMITTED</strong> invoices awaiting match
+          </div>
+          <div class="twm-inner-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Search invoice or supplier..."
+                   [(ngModel)]="invoiceSearch" (input)="filterInvoices()">
+          </div>
+          <div *ngIf="invoiceLoading" class="twm-inner-loading">
+            <div class="spinner-border spinner-border-sm text-primary"></div>
+            <span>Loading invoices...</span>
+          </div>
+          <div class="twm-scroll-list" *ngIf="!invoiceLoading">
+            <div *ngFor="let inv of filteredInvoices"
+                 class="twm-list-item"
+                 [class.selected]="selectedInvoice?.id === inv.id"
+                 (click)="selectInvoice(inv)">
+              <div class="twm-list-item-top">
+                <span class="twm-item-number">{{ inv.invoiceNumber }}</span>
+                <span class="twm-item-status-badge">{{ inv.status }}</span>
+              </div>
+              <div class="twm-item-supplier">
+                <i class="bi bi-building me-1"></i>{{ inv.supplierName || inv.supplier?.name }}
+              </div>
+              <div class="twm-item-meta">
+                <!-- ✅ Use buyer's currency from each invoice -->
+                <span>
+                  <i class="bi bi-globe2 me-1" style="font-size:0.7rem;"></i>
+                  {{ formatCurrency(inv.grandTotal || inv.totalAmount || 0, inv.currencyCode) }}
+                </span>
+                <span><i class="bi bi-calendar3 me-1"></i>{{ inv.invoiceDate | date:'dd MMM yyyy' }}</span>
+              </div>
+              <div class="twm-item-check" *ngIf="selectedInvoice?.id === inv.id">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+            </div>
+            <div *ngIf="filteredInvoices.length === 0 && !invoiceLoading" class="twm-inner-empty">
+              <i class="bi bi-inbox"></i>
+              <span>No SUBMITTED invoices found</span>
+              <small class="mt-1" style="color:#94a3b8">Invoices must be SUBMITTED before matching</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── STEP 2: SELECT GRN ─── -->
+      <div class="twm-step-card">
+        <div class="twm-step-card-header green">
+          <div class="twm-step-num">2</div>
+          <div class="twm-step-card-title"><i class="bi bi-truck me-2"></i>Select GRN</div>
+        </div>
+        <div class="twm-step-card-body">
+          <div *ngIf="!selectedInvoice" class="twm-inner-placeholder">
+            <div class="twm-placeholder-icon"><i class="bi bi-arrow-left-circle"></i></div>
+            <div class="twm-placeholder-text">Select an invoice first</div>
+          </div>
+          <div *ngIf="grnLoading" class="twm-inner-loading">
+            <div class="spinner-border spinner-border-sm text-success"></div>
+            <span>Loading GRNs...</span>
+          </div>
+          <div *ngIf="selectedInvoice && !grnLoading">
+            <div class="twm-context-pill mb-3">
+              <i class="bi bi-link-45deg me-1"></i>
+              PO: <strong>{{ selectedInvoice.purchaseOrder?.poNumber || selectedInvoice.poNumber || ('PO-' + (selectedInvoice.purchaseOrderId || selectedInvoice.poId)) }}</strong>
+              <!-- ✅ Show active currency badge -->
+              <span class="ms-2 badge" style="background:#1565c0;font-size:0.7rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ activeCurrencyCode }}
+              </span>
+            </div>
+            <div class="twm-scroll-list">
+              <div *ngFor="let grn of poGRNs"
+                   class="twm-list-item"
+                   [class.selected]="selectedGRN?.id === grn.id"
+                   (click)="selectedGRN = grn">
+                <div class="twm-list-item-top">
+                  <span class="twm-item-number green">{{ grn.grnNumber }}</span>
+                  <span class="twm-item-status-badge" style="background:#dcfce7;color:#15803d">APPROVED</span>
+                </div>
+                <div class="twm-item-meta">
+                  <span><i class="bi bi-calendar3 me-1"></i>{{ grn.receivedDate | date:'dd MMM yyyy' }}</span>
+                  <span *ngIf="grn.supplierName"><i class="bi bi-building me-1"></i>{{ grn.supplierName }}</span>
+                </div>
+                <div class="twm-item-qty">
+                  <span class="twm-qty-pill accepted">✓ {{ grn.totalAcceptedQuantity || 0 }} accepted</span>
+                  <span class="twm-qty-pill total">{{ grn.totalOrderedQuantity || 0 }} ordered</span>
+                </div>
+                <div class="twm-item-check" *ngIf="selectedGRN?.id === grn.id">
+                  <i class="bi bi-check-circle-fill"></i>
+                </div>
+              </div>
+              <div *ngIf="poGRNs.length === 0 && !grnLoading" class="twm-inner-empty">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                <span>No APPROVED GRNs found for this PO</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── STEP 3: RUN MATCH ─── -->
+      <div class="twm-step-card">
+        <div class="twm-step-card-header amber">
+          <div class="twm-step-num">3</div>
+          <div class="twm-step-card-title"><i class="bi bi-gear me-2"></i>Run Match</div>
+        </div>
+        <div class="twm-step-card-body d-flex flex-column">
+          <div class="twm-summary-block">
+            <div class="twm-summary-row">
+              <div class="twm-summary-dot" [class.active]="selectedInvoice"></div>
+              <div class="twm-summary-content">
+                <div class="twm-summary-label">Invoice</div>
+                <div class="twm-summary-value" [class.placeholder]="!selectedInvoice">
+                  {{ selectedInvoice?.invoiceNumber || 'Not selected' }}
+                </div>
+              </div>
+              <i class="bi bi-check-circle-fill twm-done-icon" *ngIf="selectedInvoice"></i>
+            </div>
+            <div class="twm-summary-connector"></div>
+            <div class="twm-summary-row">
+              <div class="twm-summary-dot" [class.active]="selectedGRN"></div>
+              <div class="twm-summary-content">
+                <div class="twm-summary-label">GRN</div>
+                <div class="twm-summary-value" [class.placeholder]="!selectedGRN">
+                  {{ selectedGRN?.grnNumber || 'Not selected' }}
+                </div>
+              </div>
+              <i class="bi bi-check-circle-fill twm-done-icon" *ngIf="selectedGRN"></i>
+            </div>
+
+            <!-- ✅ Preview values use active currency -->
+            <div *ngIf="selectedGRN && selectedInvoice" class="twm-match-preview mt-3">
+              <div class="twm-match-preview-row">
+                <span class="twm-match-preview-label">GRN Accepted</span>
+                <span class="twm-match-preview-value green">
+                  {{ formatCurrency(selectedGRN.totalAcceptedValue || selectedGRN.totalReceivedValue || 0) }}
+                </span>
+              </div>
+              <div class="twm-match-preview-row">
+                <span class="twm-match-preview-label">Invoice Total</span>
+                <span class="twm-match-preview-value">
+                  {{ formatCurrency(selectedInvoice.grandTotal || selectedInvoice.totalAmount || 0) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="twm-tolerance-field">
+            <label class="twm-field-label"><i class="bi bi-sliders me-1"></i>Tolerance %</label>
+            <div class="twm-tolerance-input-wrap">
+              <input type="number" class="twm-tolerance-input"
+                     [(ngModel)]="tolerancePercentage" [min]="0" [max]="20" step="0.5">
+              <span class="twm-tolerance-unit">%</span>
+            </div>
+            <div class="twm-field-hint">Variance within this % = MATCHED</div>
+          </div>
+
+          <button class="twm-run-btn mt-auto"
+                  (click)="performMatch()"
+                  [disabled]="!selectedInvoice || !selectedGRN || performLoading"
+                  [class.ready]="selectedInvoice && selectedGRN && !performLoading">
+            <span *ngIf="performLoading" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!performLoading" class="bi bi-play-circle-fill me-2"></i>
+            {{ performLoading ? 'Running Match...' : 'Run 3-Way Match' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TAB: PENDING RESOLUTIONS
+  ══════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='pending'" class="twm-tab-body">
+    <div class="twm-card">
+      <div class="twm-card-header">
+        <div class="twm-card-header-left">
+          <div class="twm-card-header-icon amber-icon"><i class="bi bi-hourglass-split"></i></div>
+          <div>
+            <div class="twm-card-title">Matches Pending Resolution</div>
+            <div class="twm-card-sub">{{ pendingMatches.length }} item(s) require your attention</div>
+          </div>
+        </div>
+        <button class="twm-refresh-btn" (click)="loadPendingMatches()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+        </button>
+      </div>
+
+      <div *ngIf="pendingLoading" class="twm-empty-state">
+        <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem;"></div>
+        <p class="mt-3 text-muted">Loading pending matches...</p>
+      </div>
+
+      <div *ngIf="!pendingLoading && pendingMatches.length === 0" class="twm-empty-state">
+        <div class="twm-empty-icon green-icon"><i class="bi bi-check-circle"></i></div>
+        <div class="twm-empty-title">All Clear!</div>
+        <div class="twm-empty-sub">No pending resolutions. All matches are resolved.</div>
+      </div>
+
+      <div class="table-responsive" *ngIf="!pendingLoading && pendingMatches.length > 0">
+        <table class="table twm-table mb-0">
+          <thead class="twm-thead">
+            <tr>
+              <th>#</th><th>Invoice</th><th>GRN</th><th>PO</th>
+              <th class="text-center">Match Status</th>
+              <th class="text-end">Variance</th>
+              <th>Flags</th><th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of pendingMatches; let i=index" class="twm-tbody-row">
+              <td class="twm-td-num">{{ i + 1 }}</td>
+              <td>
+                <span class="twm-ref-number">{{ m.invoiceNumber }}</span>
+                <div style="font-size:0.72rem;color:#94a3b8">#{{ m.invoiceId }}</div>
+              </td>
+              <td>
+                <span class="twm-ref-number green">{{ m.grnNumber }}</span>
+                <div style="font-size:0.72rem;color:#94a3b8">#{{ m.grnId }}</div>
+              </td>
+              <td><span class="twm-ref-number">{{ m.poNumber }}</span></td>
+              <td class="text-center">
+                <span [class]="getOverallStatusBadgeClass(m.matchStatus)">{{ m.matchStatus }}</span>
+              </td>
+              <td class="text-end">
+                <span class="twm-variance"
+                      [class.danger]="Math.abs(m.variancePercentage || 0) > tolerancePercentage"
+                      [class.success]="Math.abs(m.variancePercentage || 0) <= tolerancePercentage">
+                  {{ (m.variancePercentage || 0) | number:'1.2-2' }}%
+                </span>
+                <!-- ✅ Variance amount uses buyer's currency from match record -->
+                <div style="font-size:0.72rem;color:#94a3b8">
+                  {{ formatCurrency(m.varianceAmount || 0, m.currencyCode) }}
+                </div>
+              </td>
+              <td>
+                <div class="twm-mismatch-flags">
+                  <span *ngIf="m.hasQuantityMismatch" class="twm-flag qty">Qty</span>
+                  <span *ngIf="m.hasPriceMismatch"    class="twm-flag price">Price</span>
+                  <span *ngIf="m.hasItemMismatch"     class="twm-flag item">Item</span>
+                  <span *ngIf="m.hasExcessDelivery"   class="twm-flag excess">Excess</span>
+                </div>
+              </td>
+              <td class="text-center">
+                <button class="twm-resolve-btn" (click)="openResolve(m)">
+                  <i class="bi bi-check2-square me-1"></i>Resolve
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TAB: MATCH HISTORY
+  ══════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='history'" class="twm-tab-body">
+    <div class="twm-card">
+      <div class="twm-card-header">
+        <div class="twm-card-header-left">
+          <div class="twm-card-header-icon indigo-icon"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <div class="twm-card-title">Match History</div>
+            <div class="twm-card-sub">View all historical 3-way match records by invoice</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="twm-history-search-bar">
+        <div class="twm-history-select-wrap">
+          <i class="bi bi-file-invoice twm-select-icon"></i>
+          <select class="twm-history-select" [(ngModel)]="historyInvoiceId">
+            <option [ngValue]="null">— Select an Invoice —</option>
+            <option *ngFor="let inv of historySearchInvoices" [ngValue]="inv.id">
+              {{ inv.invoiceNumber }} — {{ inv.supplierName || inv.supplier?.name }}
+              <span *ngIf="inv.status !== 'SUBMITTED'"> ({{ inv.status }})</span>
+            </option>
+          </select>
+        </div>
+        <button class="twm-load-btn" (click)="loadHistory()"
+                [disabled]="historyLoading || !historyInvoiceId">
+          <span *ngIf="historyLoading" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!historyLoading" class="bi bi-search me-2"></i>
+          Load History
+        </button>
+      </div>
+
+      <div *ngIf="historyMatches.length === 0 && !historyLoading" class="twm-empty-state">
+        <div class="twm-empty-icon indigo-icon"><i class="bi bi-clock-history"></i></div>
+        <div class="twm-empty-title">No History Loaded</div>
+        <div class="twm-empty-sub">Select an invoice above and click Load History.</div>
+      </div>
+
+      <div *ngIf="historyMatches.length > 0" class="twm-timeline">
+        <div *ngFor="let m of historyMatches; let i=index" class="twm-timeline-item">
+          <div class="twm-timeline-track">
+            <div class="twm-timeline-dot" [class.matched]="m.matchStatus === 'MATCHED' || m.matchStatus === 'OVERRIDDEN_APPROVED'"></div>
+            <div class="twm-timeline-line" *ngIf="i < historyMatches.length - 1"></div>
+          </div>
+          <div class="twm-timeline-card">
+            <div class="twm-timeline-card-top">
+              <div class="twm-tl-badges">
+                <span class="twm-version-badge">v{{ m.matchVersion }}</span>
+                <span [class]="getOverallStatusBadgeClass(m.matchStatus)">{{ m.matchStatus }}</span>
+              </div>
+              <span [class]="getResolutionBadgeClass(m.resolution)">{{ m.resolution || 'PENDING_RESOLUTION' }}</span>
+            </div>
+            <div class="twm-timeline-card-body">
+              <div class="twm-tl-stat">
+                <span class="twm-tl-label">GRN</span>
+                <span class="twm-tl-value green">{{ m.grnNumber }}</span>
+              </div>
+              <div class="twm-tl-stat">
+                <span class="twm-tl-label">Variance</span>
+                <span class="twm-tl-value"
+                      [class.text-danger]="Math.abs(m.variancePercentage || 0) > 2"
+                      [class.text-success]="Math.abs(m.variancePercentage || 0) <= 2">
+                  {{ (m.variancePercentage || 0) | number:'1.2-2' }}%
+                </span>
+              </div>
+              <div class="twm-tl-stat">
+                <span class="twm-tl-label">PO Value</span>
+                <!-- ✅ History values use active currency (set when invoice is selected) -->
+                <span class="twm-tl-value">{{ formatCurrency(m.poTotalValue || 0, m.currencyCode) }}</span>
+              </div>
+              <div class="twm-tl-stat">
+                <span class="twm-tl-label">Inv Value</span>
+                <span class="twm-tl-value">{{ formatCurrency(m.invoiceTotalValue || 0, m.currencyCode) }}</span>
+              </div>
+            </div>
+            <div class="twm-timeline-card-body mt-2" style="grid-template-columns: repeat(3,1fr)">
+              <div class="twm-tl-stat">
+                <span class="twm-tl-label">Matched Lines</span>
+                <span class="twm-tl-value green">{{ m.totalMatchedLines }}</span>
+              </div>
+              <div class="twm-tl-stat">
+                <span class="twm-tl-label">Mismatch Lines</span>
+                <span class="twm-tl-value" [class.text-danger]="m.totalMismatchLines > 0">{{ m.totalMismatchLines }}</span>
+              </div>
+              <div class="twm-tl-stat" *ngIf="m.approvedPaymentAmount">
+                <span class="twm-tl-label">Approved Amt</span>
+                <span class="twm-tl-value green">{{ formatCurrency(m.approvedPaymentAmount, m.currencyCode) }}</span>
+              </div>
+            </div>
+            <div *ngIf="m.resolutionRemarks" class="twm-tl-notes">
+              <i class="bi bi-chat-left-quote me-1"></i>{{ m.resolutionRemarks }}
+            </div>
+            <div *ngIf="m.resolvedByName" style="font-size:0.72rem;color:#94a3b8;margin-top:6px">
+              <i class="bi bi-person me-1"></i>Resolved by {{ m.resolvedByName }}
+              <span *ngIf="m.resolvedAt"> · {{ m.resolvedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     MATCH RESULT MODAL
+════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showResultModal"
+     style="background:rgba(0,0,0,0.55); z-index:1050;">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content twm-modal-content">
+
+      <div class="modal-header twm-modal-header border-0"
+           [class.matched]="matchResult?.matchStatus === 'MATCHED'"
+           [class.mismatched]="matchResult?.matchStatus !== 'MATCHED'">
+        <div class="d-flex align-items-center gap-3">
+          <div class="twm-modal-header-icon">
+            <i [class]="matchResult?.matchStatus === 'MATCHED' ? 'bi bi-check2-all' : 'bi bi-exclamation-triangle'"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">3-Way Match Result</h5>
+            <div class="twm-modal-header-sub">
+              Match ID #{{ matchResult?.id }} &nbsp;·&nbsp; Version {{ matchResult?.matchVersion }}
+              <!-- ✅ Currency badge in modal header -->
+              &nbsp;·&nbsp;
+              <span class="badge" style="background:rgba(255,255,255,0.25);font-size:0.72rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ activeCurrencyCode }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-close btn-close-white" (click)="closeResultModal()"></button>
+      </div>
+
+      <div class="modal-body p-4" *ngIf="matchResult">
+
+        <!-- Overall status banner -->
+        <div class="twm-result-banner" [class.matched]="matchResult.matchStatus === 'MATCHED'">
+          <span [class]="getOverallStatusBadgeClass(matchResult.matchStatus)"
+                style="font-size:1rem;padding:.45rem 1.2rem">
+            {{ matchResult.matchStatus }}
+          </span>
+          <div class="twm-result-banner-meta">
+            Tolerance: <strong>{{ matchResult.tolerancePercentage }}%</strong>
+            &nbsp;·&nbsp; Variance:
+            <strong [class]="Math.abs(matchResult.variancePercentage || 0) > matchResult.tolerancePercentage ? 'text-danger' : 'text-success'">
+              {{ (matchResult.variancePercentage || 0) | number:'1.2-2' }}%
+            </strong>
+            <!-- ✅ Variance amount uses active currency -->
+            ({{ formatCurrency(matchResult.varianceAmount || 0) }})
+            &nbsp;·&nbsp;
+            Lines: <strong class="text-success">{{ matchResult.totalMatchedLines }} matched</strong>
+            / <strong [class.text-danger]="matchResult.totalMismatchLines > 0">{{ matchResult.totalMismatchLines }} mismatch</strong>
+          </div>
+        </div>
+
+        <!-- Auto-approval notice -->
+        <div *ngIf="matchResult.matchStatus === 'MATCHED'" class="twm-info-note mb-4"
+             style="background:#f0fdf4;border-left-color:#22c55e;color:#16a34a">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <strong>Invoice Auto-Approved!</strong>
+          All values match within tolerance. The invoice has been automatically approved and is ready for payment.
+        </div>
+
+        <!-- Mismatch flags -->
+        <div class="twm-flag-row mb-4" *ngIf="matchResult.matchStatus !== 'MATCHED'">
+          <div class="twm-flag-card warning" *ngIf="matchResult.hasQuantityMismatch">
+            <i class="bi bi-123"></i><span>Quantity Mismatch</span>
+          </div>
+          <div class="twm-flag-card warning" *ngIf="matchResult.hasPriceMismatch">
+            <i class="bi bi-tag"></i><span>Price Mismatch</span>
+          </div>
+          <div class="twm-flag-card danger" *ngIf="matchResult.hasItemMismatch">
+            <i class="bi bi-box-seam"></i><span>Item Mismatch</span>
+          </div>
+          <div class="twm-flag-card neutral" *ngIf="matchResult.hasExcessDelivery">
+            <i class="bi bi-arrow-up-circle"></i><span>Excess Delivery</span>
+          </div>
+        </div>
+
+        <!-- ✅ Value cards use active currency -->
+        <div class="twm-value-row mb-4">
+          <div class="twm-value-card purple">
+            <div class="twm-value-icon"><i class="bi bi-file-earmark-text"></i></div>
+            <div class="twm-value-label">PO Total Value</div>
+            <div class="twm-value-amount">{{ formatCurrency(matchResult.poTotalValue || 0) }}</div>
+          </div>
+          <div class="twm-value-arrow"><i class="bi bi-arrow-right"></i></div>
+          <div class="twm-value-card teal">
+            <div class="twm-value-icon"><i class="bi bi-truck"></i></div>
+            <div class="twm-value-label">GRN Accepted Value</div>
+            <div class="twm-value-amount">{{ formatCurrency(matchResult.grnAcceptedValue || 0) }}</div>
+          </div>
+          <div class="twm-value-arrow"><i class="bi bi-arrow-right"></i></div>
+          <div class="twm-value-card amber">
+            <div class="twm-value-icon"><i class="bi bi-file-invoice"></i></div>
+            <div class="twm-value-label">Invoice Total Value</div>
+            <div class="twm-value-amount">{{ formatCurrency(matchResult.invoiceTotalValue || 0) }}</div>
+          </div>
+        </div>
+
+        <!-- Line results table -->
+        <h6 class="fw-bold mb-3">Line Item Match Results</h6>
+        <div class="table-responsive">
+          <table class="table twm-table mb-0">
+            <thead class="twm-thead">
+              <tr>
+                <th>#</th><th>Item</th>
+                <th class="text-center">PO Qty</th>
+                <th class="text-center">GRN Accepted</th>
+                <th class="text-center">Inv Qty</th>
+                <!-- ✅ Rate columns show buyer's currency code -->
+                <th class="text-end">PO Rate ({{ activeCurrencyCode }})</th>
+                <th class="text-end">Inv Price ({{ activeCurrencyCode }})</th>
+                <th class="text-end">Price Var%</th>
+                <th class="text-center">Status</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let lr of matchResult.lineResults; let i=index"
+                  class="twm-tbody-row"
+                  [class.row-matched]="lr.lineMatchStatus === 'MATCHED' || lr.lineMatchStatus === 'PARTIALLY_MATCHED'"
+                  [class.row-warn]="lr.lineMatchStatus === 'QTY_SHORT' || lr.lineMatchStatus === 'PRICE_VARIANCE' || lr.lineMatchStatus === 'QTY_EXCESS'"
+                  [class.row-danger]="lr.lineMatchStatus === 'NOT_IN_PO' || lr.lineMatchStatus === 'NOT_RECEIVED'">
+                <td class="twm-td-num">{{ i+1 }}</td>
+                <td>
+                  <div class="fw-semibold">{{ lr.itemDescription || '—' }}</div>
+                  <div *ngIf="lr.itemCode" style="font-size:0.72rem;color:#94a3b8">{{ lr.itemCode }}</div>
+                </td>
+                <td class="text-center"><span class="twm-qty-chip">{{ lr.poOrderedQuantity ?? '—' }}</span></td>
+                <td class="text-center"><span class="twm-qty-chip accepted">{{ lr.grnAcceptedQuantity ?? '—' }}</span></td>
+                <td class="text-center"><span class="twm-qty-chip">{{ lr.invoiceQuantity ?? '—' }}</span></td>
+                <!-- ✅ PO rate and invoice price use active currency -->
+                <td class="text-end fw-semibold">{{ formatCurrency(lr.poUnitRate || 0) }}</td>
+                <td class="text-end fw-semibold">{{ formatCurrency(lr.invoiceUnitPrice || 0) }}</td>
+                <td class="text-end">
+                  <span [class.text-danger]="(lr.priceVariancePct || 0) > matchResult.tolerancePercentage"
+                        [class.text-success]="(lr.priceVariancePct || 0) <= matchResult.tolerancePercentage"
+                        class="fw-semibold">
+                    {{ (lr.priceVariancePct || 0) | number:'1.2-2' }}%
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span [class]="getLineStatusBadgeClass(lr.lineMatchStatus)" style="font-size:.72rem">
+                    {{ lr.lineMatchStatus }}
+                  </span>
+                </td>
+                <td style="font-size:0.76rem;color:#6b7280;max-width:180px">
+                  <span *ngIf="lr.mismatchNotes" [title]="lr.mismatchNotes">
+                    {{ lr.mismatchNotes | slice:0:60 }}{{ (lr.mismatchNotes?.length || 0) > 60 ? '…' : '' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="matchResult.matchSummary" class="twm-info-note mt-3"
+             [style.background]="matchResult.matchStatus === 'MATCHED' ? '#f0fdf4' : '#eff6ff'"
+             [style.borderLeftColor]="matchResult.matchStatus === 'MATCHED' ? '#22c55e' : '#3b82f6'"
+             [style.color]="matchResult.matchStatus === 'MATCHED' ? '#16a34a' : '#1e40af'">
+          {{ matchResult.matchSummary }}
+        </div>
+
+        <div *ngIf="matchResult.matchStatus !== 'MATCHED'" class="twm-info-note mt-3">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          This match has discrepancies. Go to <strong>Pending Resolutions</strong> tab to resolve.
+        </div>
+
+      </div>
+
+      <div class="modal-footer border-0 pt-0">
+        <button class="twm-modal-btn secondary" (click)="closeResultModal()">
+          <i class="bi bi-x me-1"></i>Close
+        </button>
+        <button *ngIf="matchResult?.matchStatus !== 'MATCHED'"
+                class="twm-modal-btn primary"
+                (click)="closeResultModal(); setTab('pending')">
+          <i class="bi bi-check2-square me-2"></i>Go to Resolve
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     RESOLVE MODAL
+════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showResolveModal"
+     style="background:rgba(0,0,0,0.55); z-index:1060;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content twm-modal-content">
+
+      <div class="modal-header twm-modal-header border-0 resolve-header">
+        <div class="d-flex align-items-center gap-3">
+          <div class="twm-modal-header-icon"><i class="bi bi-check2-square"></i></div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Resolve Match</h5>
+            <div class="twm-modal-header-sub">Match #{{ resolveTarget?.id }}</div>
+          </div>
+        </div>
+        <button class="btn-close btn-close-white" (click)="closeResolveModal()"
+                [disabled]="resolveLoading"></button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <div *ngIf="errorMessage" class="twm-alert twm-alert-danger mb-3">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ errorMessage }}</span>
+          <button class="twm-alert-close" (click)="dismissAlert()"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <!-- Recap bar -->
+        <div class="twm-resolve-recap">
+          <div class="twm-recap-item">
+            <div class="twm-recap-label">Invoice</div>
+            <div class="twm-recap-value">{{ resolveTarget?.invoiceNumber }}</div>
+          </div>
+          <div class="twm-recap-divider"></div>
+          <div class="twm-recap-item">
+            <div class="twm-recap-label">GRN</div>
+            <div class="twm-recap-value green">{{ resolveTarget?.grnNumber }}</div>
+          </div>
+          <div class="twm-recap-divider"></div>
+          <div class="twm-recap-item">
+            <div class="twm-recap-label">Invoice Total</div>
+            <!-- ✅ Resolve recap uses buyer's currency -->
+            <div class="twm-recap-value">
+              {{ formatCurrency(resolveTarget?.invoiceTotalValue || 0, resolveTarget?.currencyCode) }}
+            </div>
+          </div>
+          <div class="twm-recap-divider"></div>
+          <div class="twm-recap-item">
+            <div class="twm-recap-label">Status</div>
+            <div>
+              <span [class]="getOverallStatusBadgeClass(resolveTarget?.matchStatus)"
+                    style="font-size:.75rem">{{ resolveTarget?.matchStatus }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resolution options -->
+        <label class="twm-resolve-label">
+          Select Resolution Action <span class="text-danger">*</span>
+        </label>
+        <div class="twm-resolution-grid">
+          <div *ngFor="let opt of resolutionOptions"
+               class="twm-resolution-option"
+               [class.selected]="resolveForm.resolution === opt.value"
+               (click)="resolveForm.resolution = opt.value">
+            <div class="twm-res-opt-icon" [class]="'res-' + opt.color">
+              <i [class]="'bi ' + opt.icon"></i>
+            </div>
+            <span class="twm-res-opt-label">{{ opt.label }}</span>
+            <i class="bi bi-check-circle-fill twm-res-check"
+               *ngIf="resolveForm.resolution === opt.value"></i>
+          </div>
+        </div>
+
+        <!-- ✅ Payment amount input with dynamic currency symbol -->
+        <div *ngIf="needsPaymentAmount()" class="twm-payment-field mb-3">
+          <label class="twm-resolve-label">
+            Approved Payment Amount <span class="text-danger">*</span>
+          </label>
+          <div class="twm-amount-input-wrap">
+            <span class="twm-amount-prefix">{{ activeCurrencySymbol }}</span>
+            <input type="number" class="twm-amount-input"
+                   placeholder="Enter amount to approve for payment"
+                   [(ngModel)]="resolveForm.approvedPaymentAmount" [min]="0">
+          </div>
+          <div class="twm-field-hint mt-1">
+            <!-- ✅ Hint amounts use buyer's currency -->
+            Invoice total: <strong>{{ formatCurrency(resolveTarget?.invoiceTotalValue || 0, resolveTarget?.currencyCode) }}</strong>
+            &nbsp;·&nbsp;
+            GRN accepted: <strong>{{ formatCurrency(resolveTarget?.grnAcceptedValue || 0, resolveTarget?.currencyCode) }}</strong>
+          </div>
+        </div>
+
+        <!-- Resolution notes -->
+        <div class="mt-3">
+          <label class="twm-resolve-label">
+            Resolution Notes <span class="text-danger">*</span>
+          </label>
+          <textarea class="twm-notes-input" rows="3"
+                    placeholder="Explain the resolution decision — this is mandatory and saved for audit trail..."
+                    [(ngModel)]="resolveForm.resolutionRemarks"></textarea>
+          <div class="twm-field-hint mt-1"
+               [class.text-danger]="!resolveForm.resolutionRemarks?.trim() && resolveLoading">
+            This field is required before submitting.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer border-0 pt-0">
+        <button class="twm-modal-btn secondary" (click)="closeResolveModal()" [disabled]="resolveLoading">
+          Cancel
+        </button>
+        <button class="twm-modal-btn primary" (click)="submitResolution()"
+                [disabled]="resolveLoading || !resolveForm.resolution || !resolveForm.resolutionRemarks?.trim()">
+          <span *ngIf="resolveLoading" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!resolveLoading" class="bi bi-check2 me-2"></i>
+          Submit Resolution
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

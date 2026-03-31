@@ -1,0 +1,460 @@
+
+
+<div class="container-fluid p-4">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">
+        <i class="bi bi-clipboard-check"></i> Pending Approvals
+      </h3>
+      <p class="text-muted small mb-0">
+        <strong>{{ hierarchyLevelName }}</strong> - Review and approve RFQs assigned to you
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button 
+        class="btn btn-outline-secondary"
+        (click)="router.navigate(['/hierarchy-dashboard'])"
+      >
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+      </button>
+      <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="isLoading">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+        <input 
+          type="text"
+          class="form-control border-start-0 ps-0"
+          placeholder="Search by RFQ number or title..."
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearch()"
+        />
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="alert alert-info mb-0 py-2">
+        <i class="bi bi-info-circle"></i>
+        <strong>{{ filteredApprovals.length }}</strong> RFQ(s) pending your approval
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted mt-3">Loading pending approvals...</p>
+  </div>
+
+  <!-- Approvals Table -->
+  <div *ngIf="!isLoading" class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+    
+    <!-- Card Header -->
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+      <h5 class="fw-bold text-dark mb-0">Approval Queue</h5>
+      <p class="text-muted small mb-0">RFQs requiring your approval at {{ hierarchyLevelName }} level</p>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0" style="font-size: 0.9rem;">
+          <thead style="background-color: #f9fafb;">
+            <tr>
+              <th class="ps-4 text-uppercase text-muted small fw-bold">Sl No</th>
+              <th class="text-uppercase text-muted small fw-bold">RFQ Number</th>
+              <th class="text-uppercase text-muted small fw-bold">RFQ Title</th>
+              <th class="text-uppercase text-muted small fw-bold">Buyer</th>
+              <th class="text-uppercase text-muted small fw-bold">Approval Level</th>
+              <th class="text-uppercase text-muted small fw-bold">Status</th>
+              <th class="text-uppercase text-muted small fw-bold">Created Date</th>
+              <th class="pe-4 text-uppercase text-muted small fw-bold">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Data Rows -->
+            <tr *ngFor="let approval of filteredApprovals; let i = index" style="border-bottom: 1px solid #e9ecef;">
+              <!-- Sl No -->
+              <td class="ps-4">
+                <strong>{{ i + 1 }}</strong>
+              </td>
+
+              <!-- RFQ Number -->
+              <td>
+                <div class="fw-bold text-primary cursor-pointer" (click)="viewRFQDetails(approval)">
+                  {{ approval.rfqNumber }}
+                </div>
+              </td>
+
+              <!-- RFQ Title -->
+              <td style="max-width: 300px;">
+                <div class="text-dark fw-bold">{{ approval.rfqTitle }}</div>
+                <small class="text-muted" *ngIf="approval.rfqDescription">
+                  {{ approval.rfqDescription?.substring(0, 60) }}{{ approval.rfqDescription?.length > 60 ? '...' : '' }}
+                </small>
+              </td>
+
+              <!-- Buyer -->
+              <td>
+                <span class="badge bg-light text-dark">
+                  {{ approval.buyerName || 'N/A' }}
+                </span>
+              </td>
+
+              <!-- Approval Level -->
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-layers text-primary"></i>
+                  <div>
+                    <div class="fw-bold text-primary small">{{ approval.hierarchyLevelName }}</div>
+                    <!-- <small class="text-muted">Order: {{ approval.hierarchyLevelOrder }}</small> -->
+                  </div>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span [class]="'badge ' + getStatusBadgeClass(approval.status)">
+                  {{ approval.status }}
+                </span>
+              </td>
+
+              <!-- Created Date -->
+              <td>
+                <span class="text-muted small">{{ formatDate(approval.createdAt) }}</span>
+              </td>
+
+              <!-- Actions -->
+              <td class="pe-4">
+                <div class="btn-group" role="group">
+                  <!-- View Details -->
+                  <button 
+                    class="btn btn-sm btn-light text-info shadow-sm"
+                    (click)="viewRFQDetails(approval)"
+                    title="View Details"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+
+                  
+
+                  <!-- Approve -->
+                  <button 
+                    class="btn btn-sm btn-light text-success shadow-sm"
+                    (click)="openApprovalModal(approval, 'approve')"
+                    title="Approve"
+                  >
+                    <i class="bi bi-check-circle"></i>
+                  </button>
+
+                  <!-- Reject -->
+                  <button 
+                    class="btn btn-sm btn-light text-danger shadow-sm"
+                    (click)="openApprovalModal(approval, 'reject')"
+                    title="Reject"
+                  >
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="filteredApprovals.length === 0">
+              <td colspan="8" class="text-center text-muted py-5">
+                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                <h5 class="text-muted">No Pending Approvals</h5>
+                <p class="mb-0">You're all caught up! There are no RFQs pending your approval.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APPROVAL ACTION MODAL ==================== -->
+<div 
+  class="modal fade" 
+  [class.show]="showApprovalModal"
+  [style.display]="showApprovalModal ? 'block' : 'none'"
+  tabindex="-1"
+  style="background-color: rgba(0,0,0,0.5);"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+      <!-- Modal Header -->
+      <div 
+        class="modal-header border-0" 
+        [ngClass]="{
+          'bg-success': actionType === 'approve',
+          'bg-danger': actionType === 'reject',
+          'bg-primary': actionType === 'resubmit'
+        }" 
+        style="padding: 1.5rem; border-radius: 12px 12px 0 0;"
+      >
+        <h5 class="modal-title text-white fw-bold mb-0">
+          <i class="bi" [ngClass]="{
+            'bi-check-circle': actionType === 'approve',
+            'bi-x-circle': actionType === 'reject',
+            'bi-arrow-repeat': actionType === 'resubmit'
+          }"></i>
+          {{ actionType === 'approve' ? 'Approve RFQ' : (actionType === 'reject' ? 'Reject RFQ' : 'Resubmit RFQ') }}
+        </h5>
+        <button 
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeApprovalModal()"
+          [disabled]="isSubmitting"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <!-- RFQ Info Card -->
+        <div class="alert alert-light border mb-4" style="background-color: #f8f9fa;">
+          <div class="row g-3">
+            <div class="col-12">
+              <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.7rem; letter-spacing: 0.5px;">RFQ Number</small>
+              <h6 class="mb-0 fw-bold text-primary">{{ selectedRFQ?.rfqNumber }}</h6>
+            </div>
+            <div class="col-12">
+              <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.7rem; letter-spacing: 0.5px;">Title</small>
+              <p class="mb-0">{{ selectedRFQ?.rfqTitle }}</p>
+            </div>
+            <div class="col-6">
+              <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.7rem; letter-spacing: 0.5px;">Your Level</small>
+              <p class="mb-0 fw-bold text-primary">{{ hierarchyLevelName }}</p>
+            </div>
+            <div class="col-6">
+              <small class="text-muted fw-bold text-uppercase d-block" style="font-size: 0.7rem; letter-spacing: 0.5px;">Level Order</small>
+              <p class="mb-0">{{ hierarchyLevelOrder }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments Input -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            Comments
+            <span *ngIf="actionType === 'reject'" class="text-danger">*</span>
+          </label>
+          <textarea 
+            class="form-control"
+            rows="4"
+            [(ngModel)]="actionComments"
+            [placeholder]="actionType === 'approve' ? 'Optional: Add approval comments...' : 'Required: Please provide reason for rejection...'"
+            [disabled]="isSubmitting"
+            style="border: 2px solid #e2e8f0; border-radius: 8px;"
+          ></textarea>
+          <small class="form-text text-muted" *ngIf="actionType === 'reject'">
+            <i class="bi bi-exclamation-circle"></i> Comments are required for rejection
+          </small>
+        </div>
+
+        <!-- Info Alerts -->
+        <div class="alert alert-info mb-0" *ngIf="actionType === 'approve'" style="border-left: 4px solid #3182ce;">
+          <i class="bi bi-info-circle"></i>
+          <strong>Note:</strong> Approving will move this RFQ to the next approval level or publish it if all approvals are complete.
+        </div>
+
+        <div class="alert alert-warning mb-0" *ngIf="actionType === 'reject'" style="border-left: 4px solid #ed8936;">
+          <i class="bi bi-exclamation-triangle"></i>
+          <strong>Warning:</strong> Rejecting will return this RFQ to DRAFT status for the creator to revise and resubmit.
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer border-0 p-4 pt-0">
+        <button 
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="closeApprovalModal()"
+          [disabled]="isSubmitting"
+        >
+          Cancel
+        </button>
+        <button 
+          type="button"
+          [class]="'btn ' + getActionButtonClass()"
+          (click)="submitApprovalAction()"
+          [disabled]="isSubmitting || (actionType === 'reject' && !actionComments.trim())"
+        >
+          <span *ngIf="!isSubmitting">
+            <i class="bi" [ngClass]="{
+              'bi-check-circle': actionType === 'approve',
+              'bi-x-circle': actionType === 'reject',
+              'bi-arrow-repeat': actionType === 'resubmit'
+            }"></i>
+            {{ getActionButtonText() }}
+          </span>
+          <span *ngIf="isSubmitting">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Processing...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RFQ DETAILS MODAL ==================== -->
+<div 
+  class="modal fade" 
+  [class.show]="showRFQDetails"
+  [style.display]="showRFQDetails ? 'block' : 'none'"
+  tabindex="-1"
+  style="background-color: rgba(0,0,0,0.5);"
+>
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+      <!-- Modal Header -->
+      <div class="modal-header text-white border-0" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 12px 12px 0 0;">
+        <h5 class="modal-title fw-bold mb-0">
+          <i class="bi bi-file-earmark-text"></i> RFQ Details & Approval History
+        </h5>
+        <button 
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeRFQDetails()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4" *ngIf="rfqDetails">
+        <!-- RFQ Basic Info -->
+        <div class="card border-0 mb-4" style="background-color: #f8f9fa;">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 text-dark">
+              <i class="bi bi-info-circle"></i> Basic Information
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">RFQ Number</small>
+                <strong class="text-primary">{{ rfqDetails.rfqNumber }}</strong>
+              </div>
+              <div class="col-md-6">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Status</small>
+                <span [class]="'badge ' + getStatusBadgeClass(rfqDetails.status)">
+                  {{ rfqDetails.status }}
+                </span>
+              </div>
+              <div class="col-12">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Title</small>
+                <strong>{{ rfqDetails.rfqTitle }}</strong>
+              </div>
+              <div class="col-12" *ngIf="rfqDetails.rfqDescription">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Description</small>
+                <p class="mb-0 text-dark">{{ rfqDetails.rfqDescription }}</p>
+              </div>
+              <div class="col-md-4">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Buyer</small>
+                <p class="mb-0">{{ rfqDetails.buyer?.companyName || 'N/A' }}</p>
+              </div>
+              <div class="col-md-4">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Items Count</small>
+                <p class="mb-0">{{ rfqDetails.itemsCount || 0 }}</p>
+              </div>
+              <div class="col-md-4">
+                <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.7rem;">Suppliers Count</small>
+                <p class="mb-0">{{ rfqDetails.suppliersCount || 0 }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approval History -->
+        <div class="card border-0" style="background-color: #f8f9fa;">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 text-dark">
+              <i class="bi bi-clock-history"></i> Approval History
+            </h6>
+
+            <div class="approval-timeline">
+              <div 
+                *ngFor="let history of approvalHistory; let i = index"
+                class="timeline-item"
+                [class.completed]="history.status === 'APPROVED'"
+                [class.rejected]="history.status === 'REJECTED'"
+                [class.pending]="history.status === 'PENDING'"
+              >
+                <div class="timeline-marker">
+                  <div class="timeline-marker-circle">
+                    <i class="bi" [ngClass]="{
+                      'bi-check-circle-fill text-success': history.status === 'APPROVED',
+                      'bi-x-circle-fill text-danger': history.status === 'REJECTED',
+                      'bi-clock-fill text-warning': history.status === 'PENDING'
+                    }"></i>
+                  </div>
+                  <div class="timeline-line" *ngIf="i < approvalHistory.length - 1"></div>
+                </div>
+                
+                <div class="timeline-content">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <strong class="text-dark">{{ history.hierarchyLevelName }}</strong>
+                      <span class="text-muted small ms-2">(Order: {{ history.hierarchyLevelOrder }})</span>
+                      <span [class]="'badge ms-2 ' + getStatusBadgeClass(history.status)">
+                        {{ history.status }}
+                      </span>
+                    </div>
+                    <small class="text-muted">
+                      {{ formatDate(history.actionDate) }}
+                    </small>
+                  </div>
+                  
+                  <div *ngIf="history.approver">
+                    <small class="text-muted d-block">
+                      <i class="bi bi-person"></i> {{ history.approver.fullName }} ({{ history.approver.email }})
+                    </small>
+                  </div>
+                  
+                  <div *ngIf="history.comments" class="mt-2">
+                    <small class="text-muted fw-bold">Comments:</small>
+                    <p class="mb-0 small bg-white p-2 rounded border">{{ history.comments }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="approvalHistory.length === 0" class="text-center py-3">
+                <i class="bi bi-inbox text-muted opacity-25" style="font-size: 2rem;"></i>
+                <p class="text-muted small mb-0">No approval history yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer border-0">
+        <button 
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeRFQDetails()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div 
+  class="modal-backdrop fade"
+  [class.show]="showApprovalModal || showRFQDetails"
+  *ngIf="showApprovalModal || showRFQDetails"
+></div>

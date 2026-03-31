@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .container { max-width:600px; margin:30px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    .header { background:#1a73e8; color:#fff; padding:28px 32px; }
+    .header h1 { margin:0; font-size:22px; }
+    .body { padding:28px 32px; color:#333; line-height:1.6; }
+    .info-box { background:#f0f7ff; border-left:4px solid #1a73e8; padding:16px 20px; border-radius:4px; margin:20px 0; }
+    .info-box p { margin:4px 0; font-size:14px; }
+    .btn { display:inline-block; margin-top:20px; padding:12px 28px; background:#1a73e8; color:#fff; text-decoration:none; border-radius:5px; font-weight:bold; }
+    .footer { background:#f4f4f4; color:#999; font-size:12px; padding:16px 32px; text-align:center; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📄 New Invoice Submitted</h1>
+  </div>
+  <div class="body">
+    <p>Hello <strong th:text="${rfqCreatorName}">Buyer</strong>,</p>
+    <p>A supplier has submitted an invoice for your review.</p>
+    <div class="info-box">
+      <p><strong>Invoice Number:</strong> <span th:text="${invoiceNumber}"></span></p>
+      <p><strong>Supplier:</strong> <span th:text="${supplierName}"></span></p>
+      <p><strong>PO Number:</strong> <span th:text="${poNumber}"></span></p>
+      <p><strong>Amount:</strong> <span th:text="${currency + ' ' + totalAmount}"></span></p>
+      <p><strong>Submitted At:</strong> <span th:text="${submittedAt}"></span></p>
+    </div>
+    <p>Please review the invoice and take appropriate action.</p>
+    <a th:href="${reviewLink}" class="btn">Review Invoice</a>
+  </div>
+  <div class="footer">This is an automated notification. Please do not reply to this email.</div>
+</div>
+</body>
+</html>

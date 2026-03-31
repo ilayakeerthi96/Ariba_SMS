@@ -1,0 +1,1043 @@
+<c-container fluid class="mt-4">
+
+  <!-- ==================== HEADER SECTION ==================== -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow-sm">
+        <c-card-header class="bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="mb-1">
+                <i class="bi bi-trophy-fill me-2"></i>
+                Supplier Evaluation System
+              </h4>
+              <p class="mb-0 opacity-90" *ngIf="rfqDetails">
+                {{ rfqDetails.rfqNumber }} - {{ rfqDetails.rfqTitle }}
+              </p>
+            </div>
+            <button cButton color="light" size="sm" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i>
+              Back to Quote Comparison
+            </button>
+          </div>
+        </c-card-header>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <!-- ==================== PROGRESS STEPPER ==================== -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow-sm">
+        <c-card-body class="p-4">
+          <div class="stepper-wrapper">
+            
+            <div class="stepper-item" 
+                 [class.active]="currentStep === 'weightages'" 
+                 [class.completed]="currentStep === 'score' || currentStep === 'results'">
+              <div class="step-counter">
+                <i *ngIf="currentStep === 'weightages'" class="bi bi-percent"></i>
+                <i *ngIf="currentStep !== 'weightages'" class="bi bi-check-circle-fill"></i>
+              </div>
+              <div class="step-name">Assign Weightages</div>
+            </div>
+
+            <div class="stepper-item" 
+                 [class.active]="currentStep === 'score'" 
+                 [class.completed]="currentStep === 'results'">
+              <div class="step-counter">
+                <i *ngIf="currentStep === 'score'" class="bi bi-clipboard-check"></i>
+                <i *ngIf="currentStep === 'results'" class="bi bi-check-circle-fill"></i>
+                <i *ngIf="currentStep === 'weightages'" class="bi bi-circle"></i>
+              </div>
+              <div class="step-name">Score Suppliers</div>
+            </div>
+
+            <div class="stepper-item" [class.active]="currentStep === 'results'">
+              <div class="step-counter">
+                <i *ngIf="currentStep === 'results'" class="bi bi-trophy-fill"></i>
+                <i *ngIf="currentStep !== 'results'" class="bi bi-circle"></i>
+              </div>
+              <div class="step-name">View Results</div>
+            </div>
+
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <!-- ==================== LOADING STATE ==================== -->
+  <div *ngIf="isLoading || isLoadingCriteria" class="text-center py-5">
+    <c-spinner color="primary" style="width: 3rem; height: 3rem;"></c-spinner>
+    <p class="mt-3 text-muted">Loading evaluation data...</p>
+  </div>
+
+  <!-- ==================== STEP 1: ASSIGN WEIGHTAGES ==================== -->
+  <div *ngIf="!isLoading && !isLoadingCriteria && currentStep === 'weightages'">
+    <c-row>
+      <c-col xs="12" lg="8" class="mx-auto">
+        <c-card class="border-0 shadow">
+          <c-card-header class="bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-0">
+                  <i class="bi bi-percent me-2 text-primary"></i>
+                  Assign Weightages to Criteria
+                </h5>
+                <p class="text-muted mb-0 small mt-2">
+                  Distribute 100% weight across criteria. Integers only (1-99).
+                </p>
+              </div>
+              
+              <button cButton color="success" size="sm" (click)="openAddCriteriaModal()">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add RFQ-Specific Criterion
+              </button>
+            </div>
+          </c-card-header>
+
+          <c-card-body class="p-4">
+            
+            <c-alert 
+              [color]="getTotalWeightage() === 100 ? 'success' : 'warning'" 
+              class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <i [class]="getTotalWeightage() === 100 ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+                <strong>Total Weightage: {{ getTotalWeightage() }}%</strong>
+              </div>
+              <c-badge [color]="getTotalWeightage() === 100 ? 'success' : 'danger'" class="fs-6 px-3 py-2">
+                <i [class]="getTotalWeightage() === 100 ? 'bi bi-check-circle' : 'bi bi-x-circle'" class="me-1"></i>
+                {{ getTotalWeightage() === 100 ? 'Valid' : 'Must = 100%' }}
+              </c-badge>
+            </c-alert>
+
+            <div *ngFor="let criterion of availableCriteria; let i = index" class="criterion-weightage-card mb-3">
+              <div class="d-flex align-items-center justify-content-between p-3 border rounded bg-light">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center mb-2">
+                    <strong class="text-dark">{{ criterion.criterionName }}</strong>
+                    
+                    <c-badge *ngIf="criterion.isRfqSpecific" color="warning" class="ms-2">
+                      <i class="bi bi-star-fill me-1"></i>
+                      RFQ-Specific
+                    </c-badge>
+                    
+                    <c-badge *ngIf="!criterion.isRfqSpecific" color="info" class="ms-2">
+                      <i class="bi bi-building me-1"></i>
+                      Organization-Wide
+                    </c-badge>
+                  </div>
+                  <small class="text-muted d-block">{{ criterion.description || 'No description' }}</small>
+                  <small class="text-muted d-block mt-1">Max Score: {{ criterion.maxScore }}</small>
+                </div>
+                
+                <div class="weightage-input-wrapper ms-3">
+                  <div class="input-group" style="width: 150px;">
+                    <input 
+                      type="number" 
+                      class="form-control text-center fw-bold"
+                      [(ngModel)]="criterion.weightage"
+                      (input)="validateWeightageInput($event, criterion)"
+                      min="1"
+                      max="99"
+                      step="1"
+                      placeholder="0"
+                    />
+                    <span class="input-group-text bg-primary text-white">%</span>
+                  </div>
+                </div>
+                
+                <div class="action-buttons ms-3">
+                  <button 
+                    cButton 
+                    color="info" 
+                    size="sm"
+                    class="me-2"
+                    (click)="openEditCriteriaModal(criterion)"
+                    title="Edit Weightage">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  
+                  <button 
+                    cButton 
+                    color="danger" 
+                    size="sm"
+                    (click)="confirmDeleteCriterion(criterion)"
+                    [title]="criterion.isRfqSpecific ? 'Delete Criterion' : 'Remove from This RFQ'">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="availableCriteria.length === 0" class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              No criteria configured. Please add criteria above.
+            </div>
+
+          </c-card-body>
+
+          <c-card-footer class="bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <button cButton color="secondary" (click)="goBack()" [disabled]="isAssigningCriteria">
+                <i class="bi bi-arrow-left me-1"></i>
+                Cancel
+              </button>
+              
+              <button 
+                cButton 
+                color="success" 
+                size="lg"
+                (click)="assignWeightagesAndProceed()"
+                [disabled]="isAssigningCriteria || getTotalWeightage() !== 100 || availableCriteria.length === 0">
+                <c-spinner *ngIf="isAssigningCriteria" size="sm" class="me-1"></c-spinner>
+                <i *ngIf="!isAssigningCriteria" class="bi bi-check-circle me-1"></i>
+                {{ isAssigningCriteria ? 'Saving...' : 'Save & Continue' }}
+              </button>
+            </div>
+          </c-card-footer>
+
+        </c-card>
+      </c-col>
+    </c-row>
+  </div>
+
+  <!-- ==================== STEP 2: SCORE SUPPLIERS ==================== -->
+  <div *ngIf="currentStep === 'score'" class="scoring-section">
+    <c-card>
+      <c-card-header class="bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">
+              <i class="bi bi-clipboard-check me-2 text-primary"></i>
+              Step 2: Score Suppliers
+            </h5>
+            <p class="text-muted mb-0 small mt-1">
+              Select a supplier and rate them (1-5, integers only). Score all suppliers to proceed.
+            </p>
+          </div>
+          <c-badge 
+            [color]="getScoredSuppliersCount() === quotedSuppliers.length ? 'success' : 'warning'" 
+            class="fs-6 px-3 py-2">
+            <i [class]="getScoredSuppliersCount() === quotedSuppliers.length ? 'bi bi-check-circle-fill' : 'bi bi-hourglass-split'" class="me-1"></i>
+            {{ getScoredSuppliersCount() }} / {{ quotedSuppliers.length }} Scored
+          </c-badge>
+        </div>
+      </c-card-header>
+      
+      <c-card-body class="p-4">
+
+        <!-- Scoring Progress Alert -->
+        <c-alert 
+          [color]="getScoredSuppliersCount() === quotedSuppliers.length ? 'success' : 'info'" 
+          class="mb-4">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-info-circle-fill me-3" style="font-size: 1.5rem;"></i>
+            <div class="flex-grow-1">
+              <strong>📋 Scoring Progress:</strong>
+              <ul class="mb-0 mt-2">
+                <li>Select a supplier from the dropdown below</li>
+                <li>Rate them on each criterion (1-5, integers only)</li>
+                <li>Click "Save Scores" to save their ratings</li>
+                <li>Repeat for all {{ quotedSuppliers.length }} suppliers</li>
+                <li *ngIf="getScoredSuppliersCount() < quotedSuppliers.length" class="text-danger">
+                  <strong>{{ quotedSuppliers.length - getScoredSuppliersCount() }} supplier(s) remaining</strong>
+                </li>
+                <li *ngIf="getScoredSuppliersCount() === quotedSuppliers.length" class="text-success">
+                  <strong>✅ All suppliers scored! Review below and click "Calculate Rankings".</strong>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </c-alert>
+
+        <!-- ✅ FIXED: Supplier Selection Dropdown - Name First -->
+        <div class="supplier-selection-card mb-4 p-4 border rounded bg-light">
+          <div class="row align-items-center mb-3">
+            <div class="col-md-12">
+              <h6 class="mb-3">
+                <i class="bi bi-person-check-fill me-2 text-primary"></i>
+                Select Supplier to Score
+              </h6>
+              
+              <select 
+                class="form-select form-select-lg"
+                [(ngModel)]="selectedSupplierId"
+                (change)="onSupplierChange()">
+                <option [value]="null">-- Choose a supplier to rate --</option>
+                <option 
+                  *ngFor="let supplier of quotedSuppliers" 
+                  [value]="supplier.supplierId">
+                  {{ supplier.supplierName || supplier.companyName }} - {{ isSupplierScored(supplier.supplierId) ? '✅' : '⏳' }}
+                </option>
+              </select>
+              
+              <small class="text-muted d-block mt-2">
+                <i class="bi bi-info-circle me-1"></i>
+                {{ getScoredSuppliersCount() }} / {{ quotedSuppliers.length }} completed
+                <span *ngIf="getScoredSuppliersCount() < quotedSuppliers.length" class="text-danger fw-bold">
+                  • {{ quotedSuppliers.length - getScoredSuppliersCount() }} remaining
+                </span>
+                <span *ngIf="getScoredSuppliersCount() === quotedSuppliers.length" class="text-success fw-bold">
+                  • All done! ✅
+                </span>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ FIXED: Criteria Scoring Section with Clear Supplier Details -->
+        <div *ngIf="selectedSupplierId && getSelectedSupplier()" class="criteria-scoring-section p-4 border rounded mb-4">
+          
+          <!-- ✅ ENHANCED: Supplier Information Header -->
+          <div class="supplier-info-header mb-4 p-4 rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <div class="supplier-avatar-large me-3" style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; border: 3px solid white;">
+                    {{ (getSelectedSupplier()!.supplierName || getSelectedSupplier()!.companyName)?.charAt(0) || 'S' }}
+                  </div>
+                  <div>
+                    <h4 class="mb-1 fw-bold">{{ getSelectedSupplier()!.supplierName || getSelectedSupplier()!.companyName }}</h4>
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="bi bi-envelope-fill me-2"></i>
+                      <span>{{ getSelectedSupplier()!.contactEmail || getSelectedSupplier()!.supplierEmail || 'No email' }}</span>
+                    </div>
+                    <div *ngIf="getSelectedSupplier()!.contactPhone" class="d-flex align-items-center">
+                      <i class="bi bi-telephone-fill me-2"></i>
+                      <span>{{ getSelectedSupplier()!.contactPhone }}</span>
+                    </div>
+                
+                  </div>
+                </div>
+              </div>
+               <div class="col-md-4 text-end">
+                <!-- <div class="p-3 rounded" style="background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);"> -->
+                      <c-badge 
+                      [color]="isSupplierScored(getSelectedSupplier()!.supplierId) ? 'success' : 'warning'"
+                      class="mt-2"
+                      style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white;">
+                      {{ isSupplierScored(getSelectedSupplier()!.supplierId) ? '✅ Review Mode - Already Scored' : '📝 New Rating' }}
+                    </c-badge>
+                  <!-- <small class="d-block opacity-75">Quote Amount</small>
+                  <h3 class="mb-0 fw-bold">₹{{ getSelectedSupplier()!.totalQuoteAmount | number:'1.2-2' }}</h3> -->
+                <!-- </div> -->
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="isSupplierScored(selectedSupplierId)" class="alert alert-success mb-3">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Review Mode:</strong> This supplier has already been scored. You can review or update their scores below.
+          </div>
+          
+          <h6 class="mb-4">
+            <i class="bi bi-star-fill me-2 text-warning"></i>
+            Rate on Evaluation Criteria
+          </h6>
+
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let rfqCriterion of getManualCriteria(); trackBy: trackByCriterion">
+              <div class="criterion-score-card p-3 border rounded bg-white h-100">
+                <div class="mb-3">
+                  <strong class="d-block text-dark mb-1">{{ rfqCriterion.criterion.criterionName }}</strong>
+                  <small class="text-muted d-block">
+                    <i class="bi bi-percent me-1"></i>
+                    Weightage: {{ rfqCriterion.weightage }}% | Max Score: {{ MAX_SCORE }}
+                  </small>
+                </div>
+
+                <div class="score-input-wrapper">
+                  <label class="form-label small mb-2 fw-bold">
+                    Enter Score (1-{{ MAX_SCORE }})
+                  </label>
+                  <div class="row g-2 align-items-center">
+                    <div class="col-5">
+                      <input 
+                        type="number" 
+                        class="form-control form-control-lg text-center fw-bold"
+                        [ngModel]="getSupplierScore(selectedSupplierId, rfqCriterion.criterion.id) || null"
+                        (ngModelChange)="updateSupplierScore(selectedSupplierId, rfqCriterion.criterion.id, $event)"
+                        min="1"
+                        [max]="MAX_SCORE"
+                        step="1"
+                        placeholder="-"
+                      />
+                    </div>
+                    <div class="col-7">
+                      <div class="score-display-box p-2 text-center">
+                        <span class="score-value">
+                          {{ getSupplierScore(selectedSupplierId, rfqCriterion.criterion.id) || '-' }}
+                        </span>
+                        <span class="score-max"> / {{ MAX_SCORE }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <small class="form-text text-muted d-block mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Integers only (no decimals)
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+            <button 
+              cButton 
+              color="secondary" 
+              variant="outline"
+              size="sm"
+              (click)="selectedSupplierId = null"
+              [disabled]="isSavingScores">
+              <i class="bi bi-x-circle me-1"></i>
+              Cancel
+            </button>
+            
+            <button 
+              cButton 
+              color="success"
+              size="lg"
+              (click)="saveCurrentSupplierScores()"
+              [disabled]="isSavingScores">
+              <c-spinner size="sm" *ngIf="isSavingScores" class="me-2"></c-spinner>
+              <i *ngIf="!isSavingScores" class="bi bi-check-circle me-2"></i>
+              {{ isSavingScores ? 'Saving...' : 'Save Scores' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- ✅ FIXED: ACCORDION - Real-time Update After Saving -->
+        <div *ngIf="getScoredSuppliersCount() > 0" class="saved-ratings-section mt-5 p-4 rounded" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 3px solid #4caf50;">
+          <div class="alert alert-success mb-4 border-0" style="background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill display-6 me-3 text-success"></i>
+              <div class="flex-grow-1">
+                <h5 class="mb-1 text-success">✅ Progress: {{ getScoredSuppliersCount() }} / {{ quotedSuppliers.length }} Suppliers Scored</h5>
+                <p class="mb-0 text-dark">
+                  <span *ngIf="getScoredSuppliersCount() < quotedSuppliers.length">
+                    <strong>{{ quotedSuppliers.length - getScoredSuppliersCount() }}</strong> more to go! Select next supplier from dropdown above.
+                  </span>
+                  <span *ngIf="getScoredSuppliersCount() === quotedSuppliers.length" class="fw-bold text-success">
+                    🎉 All suppliers scored! Click "Save & Calculate Rankings" button below.
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 text-success">
+              <i class="bi bi-list-check me-2"></i>
+              Completed Supplier Ratings
+            </h5>
+          </div>
+
+          <!-- ✅ COMPLETED SUPPLIERS LIST -->
+          <div class="completed-suppliers-list">
+            <div 
+              *ngFor="let supplier of quotedSuppliers" 
+              class="mb-4">
+              
+              <!-- Only show if supplier is scored -->
+              <div *ngIf="isSupplierScored(supplier.supplierId)" class="supplier-rating-card border rounded shadow-sm">
+                <!-- Card Header -->
+                <div class="card-header-custom p-3" style="background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white;">
+                  <div class="row align-items-center">
+                    <div class="col-md-8">
+                      <div class="d-flex align-items-center">
+                        <div class="supplier-avatar-small me-3" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.3); border: 2px solid white; display: flex; align-items:center; justify-content: center; font-weight: bold; font-size: 20px;">
+                          {{ (supplier.supplierName || supplier.companyName)?.charAt(0) || 'S' }}
+                        </div>
+                        <div>
+                          <h5 class="mb-1 fw-bold">{{ supplier.supplierName || supplier.companyName }}</h5>
+                          <small class="opacity-90">
+                            <i class="bi bi-envelope me-1"></i>
+                            {{ supplier.contactEmail || supplier.supplierEmail || 'No email' }}
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                      <div class="d-flex flex-column align-items-end">
+                        <c-badge style="background: rgba(255,255,255,0.3); color: white; border: 1px solid white;" class="mb-2">
+                          <i class="bi bi-check-circle-fill me-1"></i>
+                          {{ getSupplierScoredCriteriaCount(supplier.supplierId) }}/{{ getManualCriteria().length }} Criteria Scored
+                        </c-badge>
+                        <!-- <small class="opacity-90">Quote: ₹{{ supplier.totalQuoteAmount | number:'1.2-2' }}</small> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card Body - Ratings Table -->
+                <div class="card-body p-4 bg-white">
+                  <h6 class="mb-3 text-success">
+                    <i class="bi bi-star-fill me-2"></i>
+                    Ratings Given
+                  </h6>
+                  <div class="table-responsive">
+                    <table class="table table-hover table-bordered mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th style="width: 40%;">Criterion</th>
+                          <th class="text-center" style="width: 20%;">Weightage</th>
+                          <th class="text-center" style="width: 20%;">Your Rating</th>
+                          <th class="text-center" style="width: 20%;">Max Score</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let criterion of getManualCriteria()">
+                          <td>
+                            <strong>{{ criterion.criterion.criterionName }}</strong>
+                            <div class="text-muted small">{{ criterion.criterion.description }}</div>
+                          </td>
+                          <td class="text-center">
+                            <c-badge color="primary">{{ criterion.weightage }}%</c-badge>
+                          </td>
+                          <td class="text-center">
+                            <span 
+                              class="fs-5 fw-bold" 
+                              [class.text-success]="getSupplierScore(supplier.supplierId, criterion.criterion.id) > 0"
+                              [class.text-muted]="getSupplierScore(supplier.supplierId, criterion.criterion.id) === 0">
+                              {{ getSupplierScore(supplier.supplierId, criterion.criterion.id) || '-' }}
+                            </span>
+                          </td>
+                          <td class="text-center text-muted">
+                            {{ MAX_SCORE }}
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot class="table-light">
+                        <tr>
+                          <td colspan="2" class="text-end"><strong>Criteria Filled:</strong></td>
+                          <td colspan="2" class="text-center">
+                            <c-badge color="success" class="fs-6">
+                              {{ getSupplierScoredCriteriaCount(supplier.supplierId) }} / {{ getManualCriteria().length }}
+                            </c-badge>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message when no supplier selected and none scored yet -->
+        <div *ngIf="!selectedSupplierId && getScoredSuppliersCount() === 0" class="text-center py-5 border rounded bg-light">
+          <i class="bi bi-arrow-up-circle display-1 text-muted mb-3"></i>
+          <h5 class="text-muted">Select a supplier from the dropdown above to start rating</h5>
+          <p class="text-muted">Choose which supplier you want to rate first</p>
+        </div>
+
+        <!-- Bottom Action Buttons -->
+        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+          <button 
+            cButton 
+            color="secondary" 
+            variant="outline"
+            (click)="currentStep = 'weightages'">
+            <i class="bi bi-chevron-left me-1"></i>
+            Back to Weightages
+          </button>
+
+          <button 
+            cButton 
+            color="success"
+            size="lg"
+            (click)="saveAllScoresAndCalculateRankings()"
+            [disabled]="isSavingScores || isCalculatingRankings || getScoredSuppliersCount() < quotedSuppliers.length">
+            <c-spinner size="sm" *ngIf="isSavingScores || isCalculatingRankings" class="me-2"></c-spinner>
+            <i *ngIf="!isSavingScores && !isCalculatingRankings" class="bi bi-calculator me-2"></i>
+            {{ (isSavingScores || isCalculatingRankings) ? 'Calculating Rankings...' : 'Save & Calculate Rankings' }}
+          </button>
+        </div>
+
+      </c-card-body>
+    </c-card>
+  </div>
+
+  <!-- ==================== STEP 3: VIEW RESULTS ==================== -->
+  <div *ngIf="!isLoading && !isLoadingCriteria && currentStep === 'results'">
+    <c-row>
+      <c-col xs="12">
+
+        <div *ngIf="isLoadingRankings || isCalculatingRankings" class="text-center py-5">
+          <c-spinner color="primary" style="width: 3rem; height: 3rem;"></c-spinner>
+          <p class="mt-3 text-muted">
+            {{ isCalculatingRankings ? 'Calculating automatic rankings...' : 'Loading rankings...' }}
+          </p>
+        </div>
+
+        <!-- Top Recommended Supplier -->
+        <div *ngIf="!isLoadingRankings && !isCalculatingRankings && recommendedSupplier" class="mb-4">
+          <c-card class="border-0 shadow-lg bg-success text-white">
+            <c-card-body class="p-5 text-center">
+              <h2 class="fw-bold mb-3">🏆 Recommended Supplier</h2>
+              <h3 class="mb-3">{{ recommendedSupplier.supplierName }}</h3>
+              <div class="display-4 fw-bold mb-3">
+                {{ recommendedSupplier.finalScore }}<small class="fs-5">/{{ quotedSuppliers.length * 10 + 100 }}</small>
+              </div>
+              <p class="mb-4 opacity-90">
+                Calculated based on criteria scores and price ranking
+              </p>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <div class="bg-white bg-opacity-25 rounded p-3">
+                    <div class="small opacity-75">Criteria Score</div>
+                    <div class="h4 mb-0">{{ recommendedSupplier.totalScore }}/100</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="bg-white bg-opacity-25 rounded p-3">
+                    <div class="small opacity-75">Quote Weightage</div>
+                    <div class="h4 mb-0">+{{ recommendedSupplier.quoteWeightage }}</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="bg-white bg-opacity-25 rounded p-3">
+                    <div class="small opacity-75">Quote Amount</div>
+                    <div class="h4 mb-0">₹{{ recommendedSupplier.quoteAmount | number:'1.2-2' }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-center gap-3">
+                <button cButton color="warning" size="lg" (click)="goToQuoteComparison()">
+                  <i class="bi bi-check-circle me-2"></i>
+                  Select in Quote Comparison
+                </button>
+              </div>
+            </c-card-body>
+          </c-card>
+        </div>
+
+        <!-- All Rankings -->
+        <c-card class="border-0 shadow" *ngIf="!isLoadingRankings && !isCalculatingRankings && rankings.length > 0">
+          <c-card-header class="bg-white border-bottom">
+            <h5 class="mb-0">
+              <i class="bi bi-list-ol me-2 text-primary"></i>
+              All Supplier Rankings 
+            </h5>
+          </c-card-header>
+
+          <c-card-body class="p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 80px;">Rank</th>
+                    <th>Supplier</th>
+                    <th class="text-end" style="width: 150px;">Quote Amount</th>
+                    <th class="text-center" style="width: 120px;">Criteria Score</th>
+                    <th class="text-center" style="width: 120px;">Quote Weight</th>
+                    <th class="text-center" style="width: 120px;">Final Score</th>
+                    <th class="text-center" style="width: 150px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let ranking of rankings" [class.table-success]="ranking.rank === 1">
+                    
+                    <td class="text-center">
+                      <div class="avatar-circle-sm me-2">
+                        {{ ranking.rank }}
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <strong>{{ ranking.supplierName }}</strong>
+                      </div>
+                    </td>
+
+                    <td class="text-end">
+                      <strong class="text-dark">₹{{ ranking.quoteAmount | number:'1.2-2' }}</strong>
+                    </td>
+
+                    <td class="text-center">
+                      <div class="fw-bold text-primary">{{ ranking.totalScore }}</div>
+                    </td>
+
+                    <td class="text-center">
+                      <c-badge color="info" class="fs-6">+{{ ranking.quoteWeightage }}</c-badge>
+                    </td>
+
+                    <td class="text-center">
+                      <div class="fs-4 fw-bold text-success">{{ ranking.finalScore }}</div>
+                    </td>
+
+                    <td class="text-center">
+                      <button 
+                        cButton 
+                        color="info" 
+                        size="sm"
+                        (click)="viewScorecard(ranking)">
+                        <i class="bi bi-file-text me-1"></i>
+                        Scorecard
+                      </button>
+                    </td>
+
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </c-card-body>
+
+        </c-card>
+
+      </c-col>
+    </c-row>
+  </div>
+
+</c-container>
+
+<!-- ==================== ADD CRITERIA MODAL ==================== -->
+<c-modal
+  [(visible)]="showAddCriteriaModal"
+  size="md">
+  <c-modal-header>
+    <h5 cModalTitle>
+      <i class="bi bi-plus-circle me-2"></i>
+      Add RFQ-Specific Criterion
+    </h5>
+    <button cButtonClose (click)="showAddCriteriaModal = false"></button>
+  </c-modal-header>
+  
+  <c-modal-body>
+    <c-alert color="info" class="mb-3">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Note:</strong> This criterion will only be used for this RFQ evaluation and won't affect admin's global criteria.
+    </c-alert>
+
+    <form [formGroup]="addCriteriaForm">
+      <div class="mb-3">
+        <label class="form-label fw-bold">Criterion Name *</label>
+        <input 
+          cFormControl 
+          formControlName="criterionName" 
+          placeholder="e.g., Project Timeline, Certifications"
+          class="form-control"
+          [class.is-invalid]="addCriteriaForm.get('criterionName')?.invalid && addCriteriaForm.get('criterionName')?.touched"/>
+        <div *ngIf="addCriteriaForm.get('criterionName')?.invalid && addCriteriaForm.get('criterionName')?.touched" class="invalid-feedback">
+          Criterion name is required
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Description</label>
+        <textarea 
+          cFormControl 
+          formControlName="description" 
+          rows="2"
+          placeholder="Optional description"
+          class="form-control"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Weightage (Integer 1-99) *</label>
+        <div class="input-group">
+          <input 
+            type="number" 
+            cFormControl 
+            formControlName="weightage" 
+            min="1"
+            max="99"
+            step="1"
+            class="form-control"
+            placeholder="20"/>
+          <span class="input-group-text">%</span>
+        </div>
+        <small class="text-muted">
+          Integer only. Will be added to total (must equal 100%).
+        </small>
+      </div>
+
+      <c-alert color="success" class="mb-0">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-check-circle me-3" style="font-size: 1.5rem;"></i>
+          <div>
+            <strong>Fixed Settings:</strong>
+            <ul class="mb-0 mt-2">
+              <li>Max Score: <strong>5</strong> (same as all criteria)</li>
+              <li>Type: <strong>Manual Rating</strong></li>
+              <li>Scope: <strong>This RFQ Only</strong></li>
+            </ul>
+          </div>
+        </div>
+      </c-alert>
+    </form>
+  </c-modal-body>
+  
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="showAddCriteriaModal = false">
+      Cancel
+    </button>
+    <button 
+      cButton 
+      color="success" 
+      (click)="addRFQSpecificCriterion()"
+      [disabled]="addCriteriaForm.invalid">
+      <i class="bi bi-plus-circle me-1"></i>
+      Add Criterion
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- ==================== EDIT CRITERIA MODAL ==================== -->
+<c-modal
+  [(visible)]="showEditCriteriaModal"
+  size="md">
+  <c-modal-header>
+    <h5 cModalTitle>
+      <i class="bi bi-pencil-fill me-2"></i>
+      Edit Criterion Weightage
+    </h5>
+    <button cButtonClose (click)="showEditCriteriaModal = false"></button>
+  </c-modal-header>
+  
+  <c-modal-body *ngIf="criterionToEdit">
+    <div class="mb-3">
+      <label class="form-label text-muted small">Criterion Name</label>
+      <h6 class="mb-0">{{ criterionToEdit.criterionName }}</h6>
+      
+      <c-badge *ngIf="criterionToEdit.isRfqSpecific" color="warning" class="mt-2">
+        <i class="bi bi-star-fill me-1"></i>
+        RFQ-Specific
+      </c-badge>
+    </div>
+
+    <c-alert color="info" class="mb-3">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Important:</strong> Total weightage must equal exactly 100% after editing.
+    </c-alert>
+
+    <form [formGroup]="editCriteriaForm">
+      <div class="mb-3">
+        <label class="form-label fw-bold">New Weightage (Integer 1-99) *</label>
+        <div class="input-group input-group-lg">
+          <input 
+            type="number" 
+            cFormControl 
+            formControlName="weightage" 
+            min="1"
+            max="99"
+            step="1"
+            class="form-control"
+            [class.is-invalid]="editCriteriaForm.get('weightage')?.invalid && editCriteriaForm.get('weightage')?.touched"/>
+          <span class="input-group-text bg-primary text-white">%</span>
+        </div>
+        <small class="text-muted">
+          Current: {{ criterionToEdit.weightage }}% | Must be integer (no decimals)
+        </small>
+      </div>
+
+      <c-alert color="warning" class="mb-0">
+        <strong>⚠️ Validation:</strong> If total ≠ 100% after saving, the change will be rejected.
+      </c-alert>
+    </form>
+  </c-modal-body>
+  
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="showEditCriteriaModal = false">
+      Cancel
+    </button>
+    <button 
+      cButton 
+      color="success" 
+      (click)="saveEditedWeightage()"
+      [disabled]="editCriteriaForm.invalid">
+      <i class="bi bi-check-circle me-1"></i>
+      Save Changes
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- ==================== DELETE CONFIRMATION MODAL ==================== -->
+<c-modal
+  [(visible)]="showDeleteConfirmModal"
+  size="md">
+  <c-modal-header>
+    <h5 cModalTitle class="text-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      Confirm Deletion
+    </h5>
+    <button cButtonClose (click)="showDeleteConfirmModal = false"></button>
+  </c-modal-header>
+  
+  <c-modal-body *ngIf="criterionToDelete">
+    <c-alert [color]="criterionToDelete.isRfqSpecific ? 'danger' : 'warning'" class="mb-3">
+      <strong *ngIf="criterionToDelete.isRfqSpecific">⚠️ Warning:</strong>
+      <strong *ngIf="!criterionToDelete.isRfqSpecific">ℹ️ Note:</strong>
+      
+      <p class="mb-0 mt-2" *ngIf="criterionToDelete.isRfqSpecific">
+        This will permanently delete this RFQ-specific criterion. This action cannot be undone!
+      </p>
+      
+      <p class="mb-0 mt-2" *ngIf="!criterionToDelete.isRfqSpecific">
+        This will remove the criterion from this RFQ evaluation only. The admin's global criterion will remain unchanged.
+      </p>
+    </c-alert>
+
+    <p class="mb-3">Are you sure you want to {{ criterionToDelete.isRfqSpecific ? 'delete' : 'remove' }} this criterion?</p>
+    
+    <div class="border rounded p-3 bg-light mb-3">
+      <strong>{{ criterionToDelete.criterionName }}</strong>
+      
+      <c-badge *ngIf="criterionToDelete.isRfqSpecific" color="warning" class="ms-2">
+        RFQ-Specific
+      </c-badge>
+      
+      <div class="text-muted small mt-1">
+        {{ criterionToDelete.description || 'No description' }}
+      </div>
+      <div class="text-muted small mt-2">
+        Current Weightage: {{ criterionToDelete.weightage }}%
+      </div>
+    </div>
+
+    <c-alert color="info" class="mb-0" *ngIf="criterionToDelete.isRfqSpecific">
+      <i class="bi bi-info-circle me-2"></i>
+      All existing ratings for this criterion will also be deleted.
+    </c-alert>
+  </c-modal-body>
+  
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="showDeleteConfirmModal = false">
+      Cancel
+    </button>
+    <button 
+      cButton 
+      [color]="criterionToDelete?.isRfqSpecific ? 'danger' : 'warning'"
+      (click)="deleteCriterion()">
+      <i class="bi bi-trash-fill me-1"></i>
+      {{ criterionToDelete?.isRfqSpecific ? 'Delete' : 'Remove' }} Criterion
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- ==================== SCORECARD MODAL ==================== -->
+<c-modal
+  [visible]="showScorecardModal"
+  (visibleChange)="showScorecardModal = $event"
+  size="lg"
+  scrollable>
+  <c-modal-header>
+    <h5 cModalTitle>
+      <i class="bi bi-clipboard-data me-2"></i>
+      Detailed Scorecard
+    </h5>
+    <button cButtonClose (click)="showScorecardModal = false"></button>
+  </c-modal-header>
+  
+  <c-modal-body *ngIf="selectedSupplierScorecard">
+    
+    <div class="text-center mb-4 p-4 bg-light rounded">
+      <h3 class="mb-2">{{ selectedSupplierScorecard.supplierName }}</h3>
+      
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <div class="border rounded p-3 bg-white">
+            <div class="text-muted small">Criteria Score</div>
+            <div class="h4 text-primary mb-0">{{ selectedSupplierScorecard.totalScore }}/100</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 bg-white">
+            <div class="text-muted small">Quote Weightage</div>
+            <div class="h4 text-info mb-0">+{{ selectedSupplierScorecard.quoteWeightage }}</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 bg-white">
+            <div class="text-muted small">Final Score</div>
+            <div class="h4 text-success mb-0">{{ selectedSupplierScorecard.finalScore }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedSupplierScorecard.rank" class="mb-2">
+        <c-badge [color]="selectedSupplierScorecard.rank === 1 ? 'success' : 'secondary'" class="fs-5 px-3 py-2">
+          <i class="bi bi-trophy-fill me-2" *ngIf="selectedSupplierScorecard.rank === 1"></i>
+          Rank #{{ selectedSupplierScorecard.rank }}
+        </c-badge>
+      </div>
+    </div>
+
+    <h6 class="mb-3">
+      <i class="bi bi-list-check me-2"></i>
+      Criteria Score Breakdown
+    </h6>
+    
+    <div class="table-responsive">
+      <table class="table table-sm table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Criterion</th>
+            <th class="text-center">Weightage</th>
+            <th class="text-center">Raw Score</th>
+            <th class="text-center">Weighted Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let criteria of selectedSupplierScorecard.criteriaScores">
+            <td>
+              <strong>{{ criteria.criterionName }}</strong>
+              <div *ngIf="criteria.comments" class="text-muted small mt-1">
+                <i class="bi bi-chat-square-text me-1"></i>
+                {{ criteria.comments }}
+              </div>
+            </td>
+            <td class="text-center">
+              <c-badge color="primary">{{ criteria.weightage }}%</c-badge>
+            </td>
+            <td class="text-center">
+              {{ criteria.rawScore }}<small class="text-muted">/{{ criteria.maxScore }}</small>
+            </td>
+            <td class="text-center">
+              <strong class="text-success">{{ criteria.weightedScore }}</strong>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot class="table-light">
+          <tr>
+            <td colspan="3" class="text-end"><strong>CRITERIA TOTAL:</strong></td>
+            <td class="text-center">
+              <strong class="fs-5 text-primary">{{ selectedSupplierScorecard.totalScore }}/100</strong>
+            </td>
+          </tr>
+          <tr class="table-info">
+            <td colspan="3" class="text-end"><strong>QUOTE WEIGHTAGE:</strong></td>
+            <td class="text-center">
+              <strong class="fs-5 text-info">+{{ selectedSupplierScorecard.quoteWeightage }}</strong>
+            </td>
+          </tr>
+          <tr class="table-success">
+            <td colspan="3" class="text-end"><strong>FINAL SCORE:</strong></td>
+            <td class="text-center">
+              <strong class="fs-4 text-success">{{ selectedSupplierScorecard.finalScore }}</strong>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <c-alert color="info" class="mt-3 mb-0">
+      <small>
+        <strong>Note:</strong> Quote weightage assigned automatically based on price ranking.
+        Lower price = Higher weightage.
+      </small>
+    </c-alert>
+
+  </c-modal-body>
+  
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="showScorecardModal = false">
+      Close
+    </button>
+  </c-modal-footer>
+</c-modal>

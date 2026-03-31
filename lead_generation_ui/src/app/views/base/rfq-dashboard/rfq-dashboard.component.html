@@ -1,0 +1,952 @@
+<!-- <div class="container-fluid p-4">
+
+ 
+  <div class="row mb-4" *ngIf="loggedInBuyer">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+        <div class="gradient-header">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+              <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <div class="avatar-circle-large me-3">
+                  {{ getInitials(loggedInBuyer.contactPersonName) }}
+                </div>
+                <div class="text-white">
+                  <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
+                  <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                    <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-9">
+              <div class="row g-2">
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Company Name</div>
+                      <div class="info-value">{{ loggedInBuyer.companyName }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Email</div>
+                      <div class="info-value">{{ loggedInBuyer.email }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Phone</div>
+                      <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Location</div>
+                      <div class="info-value">
+                        {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <h3 class="mb-0 fw-bold">
+                <i class="bi bi-file-earmark-text me-2 text-primary"></i>RFQ Dashboard
+              </h3>
+              <p class="text-muted mb-0 mt-1">Create and manage RFQs for your organization</p>
+            </div>
+          
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="row mb-4 g-3" *ngIf="!isLoading">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('ALL')">
+        <div class="stat-icon-wrap stat-purple">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ rfqs.length }}</div>
+          <div class="stat-label">Total RFQs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('DRAFT')">
+        <div class="stat-icon-wrap stat-orange-pink">
+          <i class="bi bi-pencil-square"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countRFQByStatus('DRAFT') }}</div>
+          <div class="stat-label">Draft</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('AWAITING_APPROVAL')">
+        <div class="stat-icon-wrap stat-pink">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countRFQByStatus('AWAITING_APPROVAL') }}</div>
+          <div class="stat-label">Awaiting Approval</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('PUBLISHED')">
+        <div class="stat-icon-wrap stat-teal">
+          <i class="bi bi-send-check"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countRFQByStatus('PUBLISHED') }}</div>
+          <div class="stat-label">Published</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('RETURNED_FOR_REVISION')">
+        <div class="stat-icon-wrap stat-hold">
+          <i class="bi bi-arrow-return-left"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countRFQByStatus('RETURNED_FOR_REVISION') }}</div>
+          <div class="stat-label">Returned for Revision</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('CLOSED')">
+        <div class="stat-icon-wrap stat-red">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countRFQByStatus('CLOSED') }}</div>
+          <div class="stat-label">Closed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('HOLD')">
+        <div class="stat-icon-wrap stat-blue">
+          <i class="bi bi-pause-circle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countRFQByStatus('HOLD') }}</div>
+          <div class="stat-label">On Hold</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+ 
+  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-table me-2 text-primary"></i>All RFQs
+      </h5>
+      <div class="row g-3 mb-3">
+        <div class="col-lg-4">
+          <input type="text" class="form-control form-control-sm bg-light border-0"
+            placeholder="Search RFQ number, title, or buyer..."
+            [(ngModel)]="searchText" (ngModelChange)="applyFiltersAndPagination()"
+            style="padding: 10px;"/>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="statusFilter" (change)="applyFiltersAndPagination()"
+            style="padding: 10px;">
+            <option value="">All Status</option>
+            <option value="DRAFT">Draft</option>
+            <option value="AWAITING_APPROVAL">Awaiting Approval</option>
+            <option value="RETURNED_FOR_REVISION">Returned for Revision</option>
+            <option value="HOLD">On HOLD</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="RESPONSES_RECEIVED">Responses Received</option>
+            <option value="CLOSED">Closed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="priorityFilter" (change)="applyFiltersAndPagination()"
+            style="padding: 10px;">
+            <option value="">All Priority</option>
+            <option *ngFor="let priority of priorities" [value]="priority">
+              {{ priority | titlecase }}
+            </option>
+          </select>
+        </div>
+
+<div class="col-lg-4 text-end">
+   <button class="btn btn-primary px-4 py-2 fw-semibold shadow-sm"
+            (click)="router.navigate(['/create-rfq'])">
+            <i class="bi bi-plus-circle-fill me-2"></i>Create RFQ
+          </button>
+</div>
+        
+
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+
+    
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading RFQs...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table rfq-table mb-0">
+          <thead class="table-header">
+            <tr>
+              <th class="ps-4">RFQ Number</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let rfq of pagedRFQs">
+              <tr class="rfq-main-row">
+                <td class="ps-4">
+                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewRFQ(rfq)">
+                    {{ rfq.rfqNumber }}
+                  </div>
+                  <small class="text-muted">{{ rfq.createdAt }}</small>
+
+                  <div *ngIf="rfq.status === 'RETURNED_FOR_REVISION' && rfq.returnDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-arrow-return-left me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Revision needed:</strong> {{ rfq.returnDetails.returnRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.returnDetails.returnedByUserName }}</strong>
+                          ({{ rfq.returnDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.returnDetails.returnDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="rfq.status === 'HOLD' && rfq.holdDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-pause-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>On HOLD:</strong> {{ rfq.holdDetails.holdRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.holdDetails.heldByUserName }}</strong>
+                          ({{ rfq.holdDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.holdDetails.holdDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="rfq.status === 'CLOSED' && rfq.approvalStatus === 'REJECTED' && rfq.rejectDetails"
+                       class="alert alert-danger mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #ef4444;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-x-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Rejected:</strong> {{ rfq.rejectDetails.rejectRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.rejectDetails.rejectedByUserName }}</strong>
+                          ({{ rfq.rejectDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.rejectDetails.rejectDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="text-dark" [title]="rfq.rfqTitle">
+                    {{ rfq.rfqTitle.substring(0,30) }}{{ rfq.rfqTitle.length > 30 ? '...' : '' }}
+                  </span>
+                </td>
+
+                <td>
+                  <span [class]="'badge ' + getStatusClass(rfq.status)">
+                    {{ getStatusLabel(rfq.status) }}
+                  </span>
+                </td>
+
+                <td>
+                  <span [class]="'badge ' + getPriorityClass(rfq.priority)">
+                    {{ rfq.priority | titlecase }}
+                  </span>
+                </td>
+
+                <td class="text-end pe-4">
+                  <button class="btn btn-sm btn-light text-info me-1 shadow-sm"
+                    (click)="viewRFQ(rfq)" title="View Details">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button *ngIf="canEdit(rfq)"
+                    class="btn btn-sm btn-light text-primary me-1 shadow-sm"
+                    (click)="editRFQ(rfq)" title="Edit RFQ">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button *ngIf="canResubmit(rfq)"
+                    class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                    (click)="resubmitRFQ(rfq)" title="Resubmit for Approval">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                  <button *ngIf="canPublish(rfq)"
+                    class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                    (click)="publishRFQ(rfq)" title="Submit for Approval">
+                    <i class="bi bi-send"></i>
+                  </button>
+                  <button *ngIf="canClose(rfq)"
+                    class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                    (click)="closeRFQ(rfq)" title="Close RFQ">
+                    <i class="bi bi-lock"></i>
+                  </button>
+                  <button *ngIf="canCompareQuotes(rfq)"
+                    class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                    (click)="compareQuotes(rfq)" title="Compare Supplier Quotes">
+                    <i class="bi bi-clipboard-data"></i>
+                  </button>
+                  <button class="btn btn-sm btn-light text-danger shadow-sm"
+                    (click)="deleteRFQ(rfq)" title="Delete RFQ">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+
+            <tr *ngIf="pagedRFQs.length === 0">
+              <td colspan="5" class="text-center py-5">
+                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                <p class="text-muted mb-0">No RFQs found.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        
+        <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
+             *ngIf="filteredRFQs.length > 0">
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="text-muted small">
+              Showing <strong>{{ startIndex }}–{{ endIndex }}</strong>
+              of <strong>{{ filteredRFQs.length }}</strong> RFQs
+            </span>
+            <div class="d-flex align-items-center gap-2">
+              <label class="text-muted small mb-0 text-nowrap">Rows per page:</label>
+              <div class="page-size-group">
+                <button *ngFor="let size of pageSizeOptions"
+                  class="page-size-btn"
+                  [class.active]="pageSize === size"
+                  (click)="onPageSizeChange(size)">{{ size }}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-1">
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+              (click)="goToPage(1)" title="First page">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+              (click)="goToPage(currentPage - 1)" title="Previous page">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <ng-container *ngFor="let page of pageNumbers">
+              <span *ngIf="page === -1" class="page-ellipsis">…</span>
+              <button *ngIf="page !== -1" class="page-num-btn"
+                [class.active]="currentPage === page"
+                (click)="goToPage(page)">{{ page }}</button>
+            </ng-container>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+              (click)="goToPage(currentPage + 1)" title="Next page">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+              (click)="goToPage(totalPages)" title="Last page">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div> -->
+
+
+<div class="container-fluid p-4">
+
+  <!-- BUYER INFORMATION CARD -->
+  <div class="row mb-4" *ngIf="loggedInBuyer">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+        <div class="gradient-header">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+              <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <div class="avatar-circle-large me-3">
+                  {{ getInitials(loggedInBuyer.contactPersonName) }}
+                </div>
+                <div class="text-white">
+                  <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
+                  <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                    <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-9">
+              <div class="row g-2">
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Company Name</div>
+                      <div class="info-value">{{ loggedInBuyer.companyName }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Email</div>
+                      <div class="info-value">{{ loggedInBuyer.email }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Phone</div>
+                      <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Location</div>
+                      <div class="info-value">
+                        {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE HEADER -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <h3 class="mb-0 fw-bold">
+                <i class="bi bi-file-earmark-text me-2 text-primary"></i>RFQ Dashboard
+              </h3>
+              <p class="text-muted mb-0 mt-1">Create and manage RFQs for your organization</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATE FILTER BAR -->
+<!-- ==================== DATE FILTER BAR ==================== -->
+<div class="date-filter-card mb-4">
+
+  <!-- Left accent strip -->
+  <div class="date-filter-accent"></div>
+
+  <div class="date-filter-inner">
+
+    <!-- Icon + Title -->
+    <div class="date-filter-title-wrap">
+      <div class="date-filter-icon-wrap">
+        <i class="bi bi-calendar3-range"></i>
+      </div>
+      <div>
+        <div class="date-filter-title">Date Range</div>
+        <div class="date-filter-subtitle">Filter RFQs by creation date</div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="date-filter-divider"></div>
+
+    <!-- Controls Row -->
+    <div class="date-filter-controls">
+
+      <!-- Financial Year Dropdown -->
+      <div class="date-filter-field">
+        <label class="date-filter-label">
+          <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+        </label>
+        <div class="date-filter-select-wrap">
+          <select class="date-filter-select"
+            [(ngModel)]="selectedFYOption"
+            (change)="onFYOptionChange()">
+            <option value="ALL">All Time</option>
+            <option *ngFor="let fy of financialYearOptions" [value]="fy.value">
+              {{ fy.label }}
+            </option>
+            <option value="CUSTOM">Custom Range</option>
+          </select>
+          <i class="bi bi-chevron-down date-filter-select-icon"></i>
+        </div>
+      </div>
+
+      <!-- Custom From Date -->
+      <div class="date-filter-field date-filter-custom-field"
+           [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+        <label class="date-filter-label">
+          <i class="bi bi-calendar-event me-1"></i>From Date
+        </label>
+        <div class="date-filter-input-wrap">
+          <input type="date"
+            class="date-filter-input"
+            [(ngModel)]="customFromDate"
+            (change)="applyFiltersAndPagination()" />
+        </div>
+      </div>
+
+      <!-- Custom To Date -->
+      <div class="date-filter-field date-filter-custom-field"
+           [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+        <label class="date-filter-label">
+          <i class="bi bi-calendar-event-fill me-1"></i>To Date
+        </label>
+        <div class="date-filter-input-wrap">
+          <input type="date"
+            class="date-filter-input"
+            [(ngModel)]="customToDate"
+            (change)="applyFiltersAndPagination()" />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Divider -->
+    <div class="date-filter-divider"></div>
+
+    <!-- Right side: badge + reset -->
+    <div class="date-filter-right">
+
+      <!-- Active Range Badge -->
+      <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+        <div class="date-filter-badge-icon">
+          <i class="bi bi-funnel-fill"></i>
+        </div>
+        <div>
+          <div class="date-filter-badge-label">Active Filter</div>
+          <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+        </div>
+      </div>
+
+      <!-- Reset Button -->
+      <button class="date-filter-reset-btn"
+        *ngIf="selectedFYOption !== getCurrentFYValue()"
+        (click)="resetDateFilter()"
+        title="Reset to current financial year">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+      </button>
+
+    </div>
+
+  </div>
+</div>
+<!-- ==================== END DATE FILTER BAR ==================== -->
+
+  <!-- STAT CARDS -->
+  <div class="row mb-4 g-3" *ngIf="!isLoading">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('ALL')">
+        <div class="stat-icon-wrap stat-purple">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ dateFilteredRFQs.length }}</div>
+          <div class="stat-label">Total RFQs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('DRAFT')">
+        <div class="stat-icon-wrap stat-orange-pink">
+          <i class="bi bi-pencil-square"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('DRAFT') }}</div>
+          <div class="stat-label">Draft</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('AWAITING_APPROVAL')">
+        <div class="stat-icon-wrap stat-pink">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('AWAITING_APPROVAL') }}</div>
+          <div class="stat-label">Awaiting Approval</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('PUBLISHED')">
+        <div class="stat-icon-wrap stat-teal">
+          <i class="bi bi-send-check"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('PUBLISHED') }}</div>
+          <div class="stat-label">Published</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('RETURNED_FOR_REVISION')">
+        <div class="stat-icon-wrap stat-hold">
+          <i class="bi bi-arrow-return-left"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('RETURNED_FOR_REVISION') }}</div>
+          <div class="stat-label">Returned for Revision</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('CLOSED')">
+        <div class="stat-icon-wrap stat-red">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('CLOSED') }}</div>
+          <div class="stat-label">Closed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('HOLD')">
+        <div class="stat-icon-wrap stat-blue">
+          <i class="bi bi-pause-circle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('HOLD') }}</div>
+          <div class="stat-label">On Hold</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RFQ TABLE CARD -->
+  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-table me-2 text-primary"></i>All RFQs
+        <span *ngIf="activeDateRangeLabel" class="text-muted fw-normal" style="font-size: 0.85rem;">
+          — {{ activeDateRangeLabel }}
+        </span>
+      </h5>
+      <div class="row g-3 mb-3">
+        <div class="col-lg-4">
+          <input type="text" class="form-control form-control-sm bg-light border-0"
+            placeholder="Search RFQ number, title, or buyer..."
+            [(ngModel)]="searchText" (ngModelChange)="applyFiltersAndPagination()"
+            style="padding: 10px;"/>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="statusFilter" (change)="applyFiltersAndPagination()"
+            style="padding: 10px;">
+            <option value="">All Status</option>
+            <option value="DRAFT">Draft</option>
+            <option value="AWAITING_APPROVAL">Awaiting Approval</option>
+            <option value="RETURNED_FOR_REVISION">Returned for Revision</option>
+            <option value="HOLD">On HOLD</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="RESPONSES_RECEIVED">Responses Received</option>
+            <option value="CLOSED">Closed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+            [(ngModel)]="priorityFilter" (change)="applyFiltersAndPagination()"
+            style="padding: 10px;">
+            <option value="">All Priority</option>
+            <option *ngFor="let priority of priorities" [value]="priority">
+              {{ priority | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-lg-4 text-end">
+          <button class="btn btn-primary px-4 py-2 fw-semibold shadow-sm"
+            (click)="router.navigate(['/create-rfq'])">
+            <i class="bi bi-plus-circle-fill me-2"></i>Create RFQ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading RFQs...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table rfq-table mb-0">
+          <thead class="table-header">
+            <tr>
+              <th class="ps-4">RFQ Number</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let rfq of pagedRFQs">
+              <tr class="rfq-main-row">
+                <td class="ps-4">
+                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewRFQ(rfq)">
+                    {{ rfq.rfqNumber }}
+                  </div>
+                  <small class="text-muted">{{ rfq.createdAt }}</small>
+
+                  <div *ngIf="rfq.status === 'RETURNED_FOR_REVISION' && rfq.returnDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-arrow-return-left me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Revision needed:</strong> {{ rfq.returnDetails.returnRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.returnDetails.returnedByUserName }}</strong>
+                          ({{ rfq.returnDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.returnDetails.returnDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="rfq.status === 'HOLD' && rfq.holdDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-pause-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>On HOLD:</strong> {{ rfq.holdDetails.holdRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.holdDetails.heldByUserName }}</strong>
+                          ({{ rfq.holdDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.holdDetails.holdDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="rfq.status === 'CLOSED' && rfq.approvalStatus === 'REJECTED' && rfq.rejectDetails"
+                       class="alert alert-danger mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #ef4444;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-x-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Rejected:</strong> {{ rfq.rejectDetails.rejectRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.rejectDetails.rejectedByUserName }}</strong>
+                          ({{ rfq.rejectDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.rejectDetails.rejectDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="text-dark" [title]="rfq.rfqTitle">
+                    {{ rfq.rfqTitle.substring(0,30) }}{{ rfq.rfqTitle.length > 30 ? '...' : '' }}
+                  </span>
+                </td>
+
+                <td>
+                  <span [class]="'badge ' + getStatusClass(rfq.status)">
+                    {{ getStatusLabel(rfq.status) }}
+                  </span>
+                </td>
+
+                <td>
+                  <span [class]="'badge ' + getPriorityClass(rfq.priority)">
+                    {{ rfq.priority | titlecase }}
+                  </span>
+                </td>
+
+                <td class="text-end pe-4">
+                  <button class="btn btn-sm btn-light text-info me-1 shadow-sm"
+                    (click)="viewRFQ(rfq)" title="View Details">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button *ngIf="canEdit(rfq)"
+                    class="btn btn-sm btn-light text-primary me-1 shadow-sm"
+                    (click)="editRFQ(rfq)" title="Edit RFQ">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button *ngIf="canResubmit(rfq)"
+                    class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                    (click)="resubmitRFQ(rfq)" title="Resubmit for Approval">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                  <button *ngIf="canPublish(rfq)"
+                    class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                    (click)="publishRFQ(rfq)" title="Submit for Approval">
+                    <i class="bi bi-send"></i>
+                  </button>
+                  <button *ngIf="canClose(rfq)"
+                    class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                    (click)="closeRFQ(rfq)" title="Close RFQ">
+                    <i class="bi bi-lock"></i>
+                  </button>
+                  <button *ngIf="canCompareQuotes(rfq)"
+                    class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                    (click)="compareQuotes(rfq)" title="Compare Supplier Quotes">
+                    <i class="bi bi-clipboard-data"></i>
+                  </button>
+                  <button class="btn btn-sm btn-light text-danger shadow-sm"
+                    (click)="deleteRFQ(rfq)" title="Delete RFQ">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+
+            <tr *ngIf="pagedRFQs.length === 0">
+              <td colspan="5" class="text-center py-5">
+                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                <p class="text-muted mb-0">No RFQs found.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- PAGINATION BAR -->
+        <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
+             *ngIf="filteredRFQs.length > 0">
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="text-muted small">
+              Showing <strong>{{ startIndex }}–{{ endIndex }}</strong>
+              of <strong>{{ filteredRFQs.length }}</strong> RFQs
+            </span>
+            <div class="d-flex align-items-center gap-2">
+              <label class="text-muted small mb-0 text-nowrap">Rows per page:</label>
+              <div class="page-size-group">
+                <button *ngFor="let size of pageSizeOptions"
+                  class="page-size-btn"
+                  [class.active]="pageSize === size"
+                  (click)="onPageSizeChange(size)">{{ size }}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-1">
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+              (click)="goToPage(1)" title="First page">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+              (click)="goToPage(currentPage - 1)" title="Previous page">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <ng-container *ngFor="let page of pageNumbers">
+              <span *ngIf="page === -1" class="page-ellipsis">…</span>
+              <button *ngIf="page !== -1" class="page-num-btn"
+                [class.active]="currentPage === page"
+                (click)="goToPage(page)">{{ page }}</button>
+            </ng-container>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+              (click)="goToPage(currentPage + 1)" title="Next page">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+              (click)="goToPage(totalPages)" title="Last page">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

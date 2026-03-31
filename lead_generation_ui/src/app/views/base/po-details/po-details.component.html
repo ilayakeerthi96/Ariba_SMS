@@ -1,0 +1,725 @@
+<!-- <c-container fluid class="mt-4">
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <c-spinner color="primary" style="width: 3rem; height: 3rem;"></c-spinner>
+    <p class="mt-3 text-muted">Loading purchase order...</p>
+  </div>
+
+  <div *ngIf="!isLoading && po">
+
+    <c-row class="mb-3">
+      <c-col xs="12">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-1">
+          <div>
+            <h5 class="mb-0 fw-bold text-dark">
+              <i class="bi bi-file-earmark-text me-2 text-primary"></i>{{ po.poNumber }}
+            </h5>
+            <div class="mt-1 d-flex align-items-center gap-2">
+              <span class="badge" [ngClass]="getStatusBadgeClass(po.status)">{{ po.status }}</span>
+              <small class="text-muted">Created on {{ formatDate(po.createdAt) }}</small>
+              
+              <span class="badge bg-primary" style="font-size:0.75rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+              </span>
+            </div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button cButton color="secondary" variant="outline" size="sm" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i>Back
+            </button>
+            <button *ngIf="po.status === 'DRAFT'" cButton color="warning" variant="outline" size="sm" (click)="openEditModal()">
+              <i class="bi bi-pencil me-1"></i>Edit
+            </button>
+            <button *ngIf="po.status === 'APPROVED'" cButton color="info" variant="outline" size="sm" (click)="printPO()">
+              <i class="bi bi-printer me-1"></i>Print
+            </button>
+          </div>
+        </div>
+      </c-col>
+    </c-row>
+
+    <c-row>
+      <c-col xs="12">
+        <div class="po-document" id="po-print-area">
+
+         
+          <div class="po-header-inner">
+            <div class="po-logo-cell">
+              <img *ngIf="po.buyerLogoUrl" [src]="po.buyerLogoUrl" alt="Company Logo" />
+              <div *ngIf="!po.buyerLogoUrl" class="logo-placeholder">LOGO</div>
+            </div>
+            <div class="po-company-cell">
+              <div class="co-name">{{ po.buyerName }}</div>
+              <div class="co-line" *ngIf="po.buyerCin">
+                CIN: {{ po.buyerCin }} &nbsp;|&nbsp; GSTIN: {{ po.buyerGstin || 'NIL' }} &nbsp;|&nbsp; PAN: {{ po.buyerPan || 'NIL' }} &nbsp;|&nbsp; Email: {{ po.buyerEmail || 'NIL' }}
+              </div>
+              <div class="co-line" *ngIf="!po.buyerCin">
+                GSTIN: {{ po.buyerGstin || 'NIL' }} &nbsp;|&nbsp; PAN: {{ po.buyerPan || 'NIL' }} &nbsp;|&nbsp; Email: {{ po.buyerEmail || 'NIL' }}
+              </div>
+              <div class="co-line">{{ po.buyerLocationAddress || po.buyerLocationName || '' }}</div>
+            </div>
+          </div>
+
+          
+          <div class="po-title-box">
+            <span class="po-title-text">PURCHASE ORDER</span>
+          </div>
+
+          
+          <div class="po-box">
+            <div class="po-two-col">
+              <div class="po-col-left">
+                <div class="meta-row"><span class="mk">Vendor Details</span><span class="ms">:</span><span class="mv">{{ po.supplierName || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Address</span><span class="ms">:</span><span class="mv">{{ po.supplierAddress || 'NIL' }}<span *ngIf="po.supplierCity">, {{ po.supplierCity }}</span></span></div>
+                <div class="meta-row" *ngIf="po.supplierCity || po.supplierState"><span class="mk">City / Pincode</span><span class="ms">:</span><span class="mv">{{ po.supplierCity || '' }}<span *ngIf="po.supplierPincode"> - {{ po.supplierPincode }}</span></span></div>
+                <div class="meta-row"><span class="mk">Contact Person</span><span class="ms">:</span><span class="mv">{{ po.supplierContactName || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Contact Number</span><span class="ms">:</span><span class="mv">{{ po.supplierContactPhone || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Vendor GSTIN</span><span class="ms">:</span><span class="mv">{{ po.supplierGstin || 'NIL' }}</span></div>
+              </div>
+              <div class="po-col-right">
+                <div class="meta-row"><span class="mk">Order No</span><span class="ms">:</span><span class="mv" style="font-weight:800;">{{ po.poNumber || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Created Date</span><span class="ms">:</span><span class="mv">{{ formatDateShort(po.createdAt) || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Document Date</span><span class="ms">:</span><span class="mv">{{ formatDateShort(po.poDate) || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Quote No</span><span class="ms">:</span><span class="mv">{{ po.referenceQuoteNo || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Vendor Order No</span><span class="ms">:</span><span class="mv">NIL</span></div>
+                <div class="meta-row"><span class="mk">Requested Receipt:</span><span class="ms"></span><span class="mv"></span></div>
+                <div class="meta-row"><span class="mk">Indent No</span><span class="ms">:</span><span class="mv">{{ po.indentNo || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Purchaser Code</span><span class="ms">:</span><span class="mv">{{ po.purchaserCode || '' }}</span></div>
+                <div class="meta-row"><span class="mk">Campaign No</span><span class="ms">:</span><span class="mv">{{ po.campaignNo || '' }}</span></div>
+                <div class="meta-row"><span class="mk">Responsibility</span><span class="ms">:</span><span class="mv">{{ po.responsibility || '' }}</span></div>
+              </div>
+            </div>
+          </div>
+
+          
+          <div class="po-box">
+            <div class="sec-bar">DELIVERY INSTRUCTIONS</div>
+            <div class="sec-body">{{ po.dispatchedThrough || po.destination || 'NIL' }}</div>
+          </div>
+
+        
+          <div class="po-box">
+            <div class="po-two-col">
+              <div class="po-col-left p-0">
+                <div class="sec-bar">BILLING ADDRESS</div>
+                <div class="sec-body">
+                  <div class="addr-name">{{ po.buyerName || 'NIL' }}</div>
+                  <div>{{ po.buyerLocationAddress || po.buyerLocationName || 'NIL' }}</div>
+                  <div>GSTIN: {{ po.buyerGstin || 'NIL' }}</div>
+                  <div *ngIf="po.buyerContactName">CONTACT NAME : {{ po.buyerContactName }}</div>
+                  <div *ngIf="po.buyerContactPhone">CONTACT NO &nbsp;&nbsp;: {{ po.buyerContactPhone }}</div>
+                  <div>Email: {{ po.buyerEmail || 'NIL' }}</div>
+                </div>
+              </div>
+              <div class="po-col-right p-0">
+                <div class="sec-bar">SHIPPING ADDRESS</div>
+                <div class="sec-body">
+                  <div class="addr-name">{{ po.deliveryLocationName || po.buyerName || 'NIL' }}</div>
+                  <div>{{ po.deliveryLocationAddress || po.buyerLocationAddress || po.buyerLocationName || 'NIL' }}</div>
+                  <div *ngIf="po.deliveryContactName">CONTACT NAME : {{ po.deliveryContactName }}</div>
+                  <div *ngIf="po.deliveryContactPhone">CONTACT NO &nbsp;&nbsp;: {{ po.deliveryContactPhone }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+         
+          <div class="po-box">
+            <div class="po-table-wrap">
+              <table class="po-table">
+                <colgroup>
+                  <col style="width:4%"><col style="width:32%"><col style="width:6%">
+                  <col style="width:12%"><col style="width:9%"><col style="width:9%"><col style="width:13%">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th class="tc">S.No</th>
+                    <th class="tl">Description of Goods / Services</th>
+                    <th class="tc">Qty</th>
+                    
+                    <th class="tr">Unit Price ({{ currencySymbol }})</th>
+                    <th class="tc">Discount %</th>
+                    <th class="tc">Tax %</th>
+                   
+                    <th class="tr">Total ({{ currencyCode }})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of po.lineItems; let i = index">
+                    <td class="tc">{{ item.slNo || i + 1 }}</td>
+                    <td class="tl">
+                      <div class="item-name">{{ item.itemDescription || 'NIL' }}</div>
+                      <div *ngIf="item.brandMakeModel" class="item-sub">Brand: {{ item.brandMakeModel }}</div>
+                      <div *ngIf="item.specifications" class="item-sub">{{ item.specifications }}</div>
+                      <div *ngIf="item.deliveryDays || item.warrantyMonths" class="item-sub">
+                        <span *ngIf="item.deliveryDays">Delivery: {{ item.deliveryDays }} days</span>
+                        <span *ngIf="item.deliveryDays && item.warrantyMonths"> &nbsp;|&nbsp; </span>
+                        <span *ngIf="item.warrantyMonths">Warranty: {{ item.warrantyMonths }} months</span>
+                      </div>
+                      
+                      <div *ngIf="item.originalQuotedPrice && item.discountPercentage > 0"
+                           class="item-sub" style="color:#888; text-decoration:line-through;">
+                        Original: {{ currencySymbol }}{{ item.originalQuotedPrice | number:'1.2-2' }}
+                      </div>
+                    </td>
+                    <td class="tc fw7">{{ item.quantity != null ? item.quantity : 'NIL' }}</td>
+                    <td class="tr">{{ item.unitRate != null ? (item.unitRate | number:'1.2-2') : 'NIL' }}</td>
+                    <td class="tc">
+                      <span *ngIf="item.discountPercentage > 0" style="color:#2a9d2a; font-weight:600;">
+                        {{ item.discountPercentage | number:'1.2-2' }}%
+                      </span>
+                      <span *ngIf="!item.discountPercentage || item.discountPercentage === 0" class="text-muted">—</span>
+                    </td>
+                    <td class="tc">
+                      <span *ngIf="item.taxPercentage > 0" style="color:#b07a00; font-weight:600;">
+                        {{ item.taxPercentage | number:'1.2-2' }}%
+                       
+                        <div style="font-size:0.7rem; font-weight:400;">
+                          +{{ currencySymbol }}{{ item.taxAmount | number:'1.2-2' }}
+                        </div>
+                      </span>
+                      <span *ngIf="!item.taxPercentage || item.taxPercentage === 0" class="text-muted">—</span>
+                    </td>
+                    <td class="tr fw7">
+                      {{ (item.lineTotalWithTax != null ? item.lineTotalWithTax : item.lineTotal) | number:'1.2-2' }}
+                    
+                      <div *ngIf="item.taxPercentage > 0" style="font-size:0.7rem; font-weight:400; color:#888;">
+                        Pre-tax: {{ currencySymbol }}{{ item.lineTotal | number:'1.2-2' }}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngFor="let _ of spacerRows" class="spacer-row">
+                    <td colspan="7">&nbsp;</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                 
+                  <tr *ngIf="hasTax()">
+                    <td colspan="6" class="tr">Subtotal (Pre-tax)</td>
+                    <td class="tr">{{ po.subtotal | number:'1.2-2' }}</td>
+                  </tr>
+
+                  
+                  <ng-container *ngFor="let taxGroup of getTaxGroups()">
+                    <tr>
+                     
+                      <td colspan="6" class="tr" style="color:#b07a00;">
+                        GST / Tax ({{ taxGroup.rate }}%) on {{ currencySymbol }}{{ taxGroup.base | number:'1.2-2' }}
+                      </td>
+                      <td class="tr" style="color:#b07a00;">{{ taxGroup.amount | number:'1.2-2' }}</td>
+                    </tr>
+                  </ng-container>
+
+                  
+                  <tr *ngIf="getOverallDiscount() > 0" style="color:#d32f2f;">
+                    <td colspan="6" class="tr"><span style="font-weight:600;">Round Off</span></td>
+                    <td class="tr" style="font-weight:600;">− {{ getOverallDiscount() | number:'1.2-2' }}</td>
+                  </tr>
+
+                  
+                  <tr class="grand-total-row">
+                    <td colspan="6" class="tr fw8">Grand Total ({{ currencyCode }})</td>
+                    <td class="tr fw8">{{ po.grandTotal | number:'1.2-2' }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="po-box po-words-box">
+            <span class="words-label">Amount in Words:</span>
+            <span class="words-val">{{ po.amountInWords || 'NIL' }}</span>
+          </div>
+
+         
+          <div class="po-box po-remarks-box">
+            <span class="remarks-label">Remarks:</span>
+            <span class="remarks-val">{{ po.buyerRemarks || 'NIL' }}</span>
+          </div>
+
+        
+          <div class="po-box po-pan-box">
+            <strong>Company's PAN:</strong> {{ po.buyerPan || 'NIL' }}
+          </div>
+
+          <div class="po-box">
+            <div class="sec-bar">TERMS &amp; CONDITIONS</div>
+            <div *ngIf="po.otherTerms; else defaultTC" class="tc-body">{{ po.otherTerms }}</div>
+            <ng-template #defaultTC>
+              <div class="tc-body">
+                <div>1) Kindly acknowledge and confirm the Order Immediately within 7 Days from the date of Purchase Order, failing which, it shall be deemed to be accepted.</div>
+                <div>2) Please mention purchase order number in the invoice.</div>
+                <div>3) TDS and Other Statutory deductions will be deducted as applicable.</div>
+                <div>4) Deliveries do not exceed ordered Quantity.</div>
+                <div>5) GST as applicable.</div>
+                <div>6) Payment Terms: {{ po.paymentTerms || 'NIL' }}</div>
+              </div>
+            </ng-template>
+          </div>
+
+         
+          <div class="po-box">
+            <div class="po-two-col">
+              <div class="po-col-left sig-col">
+                <div class="sig-header">Vendor Details</div>
+                <div class="sig-fields">
+                  <div class="sig-row" *ngFor="let f of ['Name', 'Signature', 'Designation', 'Date']">
+                    <div class="sig-label-row"><span class="sig-lbl">{{ f }} :</span></div>
+                    <div class="sig-line"></div>
+                  </div>
+                </div>
+                <div class="sig-behalf">For and on behalf of <strong>{{ po.supplierName }}</strong></div>
+              </div>
+              <div class="po-col-right sig-col">
+                <div class="sig-header">{{ po.buyerName }}</div>
+                <div class="sig-fields">
+                  <div class="sig-row" *ngFor="let f of ['Name', 'Signature', 'Designation', 'Date']">
+                    <div class="sig-label-row"><span class="sig-lbl">{{ f }} :</span></div>
+                    <div class="sig-line"></div>
+                  </div>
+                </div>
+                <div class="sig-behalf">
+                  <div *ngIf="po.approvedByName" class="fw-bold">{{ po.approvedByName }}</div>
+                  <div *ngIf="po.approvedByDesignation" class="sig-desig">{{ po.approvedByDesignation }}</div>
+                  For and on behalf of <strong>{{ po.buyerName }}</strong>
+                </div>
+                <div *ngIf="po.approvedAt" class="sig-digital">Digitally Signed on: {{ formatDateShort(po.approvedAt) }}</div>
+              </div>
+            </div>
+          </div>
+
+        
+          <div class="po-box po-footer-box">
+            {{ po.buyerLocationAddress || po.buyerLocationName }}
+          </div>
+
+        </div>
+      </c-col>
+    </c-row>
+  </div>
+
+ 
+  <div class="modal fade" id="editModal" tabindex="-1" #editModalEl>
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-pencil me-2"></i>Edit Purchase Order — {{ po?.poNumber }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+        </div>
+        <div class="modal-body" *ngIf="editForm">
+          <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Note:</strong> Line item amounts are not editable.
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Payment Terms</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.paymentTerms">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Delivery Terms</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.deliveryTerms">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Dispatched Through</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.dispatchedThrough">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Mode of Payment</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.modeOfPayment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Destination</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.destination">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Buyer Remarks</label>
+              <textarea class="form-control" [(ngModel)]="editForm.buyerRemarks" rows="3"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Terms &amp; Conditions</label>
+              <textarea class="form-control" [(ngModel)]="editForm.otherTerms" rows="5"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Internal Notes</label>
+              <textarea class="form-control" [(ngModel)]="editForm.internalNotes" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+          <button type="button" class="btn btn-success" (click)="saveEdit()" [disabled]="isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+            {{ isSaving ? 'Saving...' : '💾 Save Changes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</c-container> -->
+
+<c-container fluid class="mt-4">
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <c-spinner color="primary" style="width: 3rem; height: 3rem;"></c-spinner>
+    <p class="mt-3 text-muted">Loading purchase order...</p>
+  </div>
+
+  <div *ngIf="!isLoading && po">
+
+    <c-row class="mb-3">
+      <c-col xs="12">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-1">
+          <div>
+            <h5 class="mb-0 fw-bold text-dark">
+              <i class="bi bi-file-earmark-text me-2 text-primary"></i>{{ po.poNumber }}
+            </h5>
+            <div class="mt-1 d-flex align-items-center gap-2">
+              <span class="badge" [ngClass]="getStatusBadgeClass(po.status)">{{ po.status }}</span>
+              <small class="text-muted">Created on {{ formatDate(po.createdAt) }}</small>
+              <span class="badge bg-primary" style="font-size:0.75rem;">
+                <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+              </span>
+            </div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button cButton color="secondary" variant="outline" size="sm" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i>Back
+            </button>
+            <button *ngIf="po.status === 'DRAFT'" cButton color="warning" variant="outline" size="sm" (click)="openEditModal()">
+              <i class="bi bi-pencil me-1"></i>Edit
+            </button>
+            <button *ngIf="po.status === 'APPROVED'" cButton color="info" variant="outline" size="sm" (click)="printPO()">
+              <i class="bi bi-printer me-1"></i>Print
+            </button>
+          </div>
+        </div>
+      </c-col>
+    </c-row>
+
+    <c-row>
+      <c-col xs="12">
+        <div class="po-document" id="po-print-area">
+
+          <!-- HEADER -->
+          <div class="po-header-inner">
+            <div class="po-logo-cell">
+              <!-- ✅ Show actual buyer logo (URL or base64 data-URI from backend) -->
+              <img *ngIf="getBuyerLogoSrc()"
+                   [src]="getBuyerLogoSrc()"
+                   alt="{{ po.buyerName }} Logo"
+                   (error)="onLogoError($event)" />
+              <!-- ✅ Fallback: styled initials circle when no logo available -->
+              <div *ngIf="!getBuyerLogoSrc()" class="logo-initials-circle">
+                {{ getBuyerInitials() }}
+              </div>
+            </div>
+
+            <!-- ✅ Company name centered across full PO width -->
+            <div class="po-company-cell">
+              <div class="co-name">{{ po.buyerName }}</div>
+              <div class="co-line" *ngIf="po.buyerCin">
+                CIN: {{ po.buyerCin }} &nbsp;|&nbsp; GSTIN: {{ po.buyerGstin || 'NIL' }} &nbsp;|&nbsp; PAN: {{ po.buyerPan || 'NIL' }} &nbsp;|&nbsp; Email: {{ po.buyerEmail || 'NIL' }}
+              </div>
+              <div class="co-line" *ngIf="!po.buyerCin">
+                GSTIN: {{ po.buyerGstin || 'NIL' }} &nbsp;|&nbsp; PAN: {{ po.buyerPan || 'NIL' }} &nbsp;|&nbsp; Email: {{ po.buyerEmail || 'NIL' }}
+              </div>
+              <div class="co-line">{{ po.buyerLocationAddress || po.buyerLocationName || '' }}</div>
+            </div>
+
+            <!-- ✅ Mirror spacer — keeps company name truly centered -->
+            <div class="po-header-spacer"></div>
+          </div>
+
+          <!-- PURCHASE ORDER TITLE -->
+          <div class="po-title-box">
+            <span class="po-title-text">PURCHASE ORDER</span>
+          </div>
+
+          <!-- VENDOR + ORDER META -->
+          <div class="po-box">
+            <div class="po-two-col">
+              <div class="po-col-left">
+                <div class="meta-row"><span class="mk">Vendor Details</span><span class="ms">:</span><span class="mv">{{ po.supplierName || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Address</span><span class="ms">:</span><span class="mv">{{ po.supplierAddress || 'NIL' }}<span *ngIf="po.supplierCity">, {{ po.supplierCity }}</span></span></div>
+                <div class="meta-row" *ngIf="po.supplierCity || po.supplierState"><span class="mk">City / Pincode</span><span class="ms">:</span><span class="mv">{{ po.supplierCity || '' }}<span *ngIf="po.supplierPincode"> - {{ po.supplierPincode }}</span></span></div>
+                <div class="meta-row"><span class="mk">Contact Person</span><span class="ms">:</span><span class="mv">{{ po.supplierContactName || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Contact Number</span><span class="ms">:</span><span class="mv">{{ po.supplierContactPhone || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Vendor GSTIN</span><span class="ms">:</span><span class="mv">{{ po.supplierGstin || 'NIL' }}</span></div>
+              </div>
+              <div class="po-col-right">
+                <div class="meta-row"><span class="mk">Order No</span><span class="ms">:</span><span class="mv" style="font-weight:800;">{{ po.poNumber || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Created Date</span><span class="ms">:</span><span class="mv">{{ formatDateShort(po.createdAt) || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Document Date</span><span class="ms">:</span><span class="mv">{{ formatDateShort(po.poDate) || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Quote No</span><span class="ms">:</span><span class="mv">{{ po.referenceQuoteNo || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Vendor Order No</span><span class="ms">:</span><span class="mv">NIL</span></div>
+                <div class="meta-row"><span class="mk">Requested Receipt:</span><span class="ms"></span><span class="mv"></span></div>
+                <div class="meta-row"><span class="mk">Indent No</span><span class="ms">:</span><span class="mv">{{ po.indentNo || 'NIL' }}</span></div>
+                <div class="meta-row"><span class="mk">Purchaser Code</span><span class="ms">:</span><span class="mv">{{ po.purchaserCode || '' }}</span></div>
+                <div class="meta-row"><span class="mk">Campaign No</span><span class="ms">:</span><span class="mv">{{ po.campaignNo || '' }}</span></div>
+                <div class="meta-row"><span class="mk">Responsibility</span><span class="ms">:</span><span class="mv">{{ po.responsibility || '' }}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DELIVERY INSTRUCTIONS -->
+          <div class="po-box">
+            <div class="sec-bar">DELIVERY INSTRUCTIONS</div>
+            <div class="sec-body">{{ po.dispatchedThrough || po.destination || 'NIL' }}</div>
+          </div>
+
+          <!-- BILLING / SHIPPING ADDRESS -->
+          <div class="po-box">
+            <div class="po-two-col">
+              <div class="po-col-left p-0">
+                <div class="sec-bar">BILLING ADDRESS</div>
+                <div class="sec-body">
+                  <div class="addr-name">{{ po.buyerName || 'NIL' }}</div>
+                  <div>{{ po.buyerLocationAddress || po.buyerLocationName || 'NIL' }}</div>
+                  <div>GSTIN: {{ po.buyerGstin || 'NIL' }}</div>
+                  <div *ngIf="po.buyerContactName">CONTACT NAME : {{ po.buyerContactName }}</div>
+                  <div *ngIf="po.buyerContactPhone">CONTACT NO &nbsp;&nbsp;: {{ po.buyerContactPhone }}</div>
+                  <div>Email: {{ po.buyerEmail || 'NIL' }}</div>
+                </div>
+              </div>
+              <div class="po-col-right p-0">
+                <div class="sec-bar">SHIPPING ADDRESS</div>
+                <div class="sec-body">
+                  <div class="addr-name">{{ po.deliveryLocationName || po.buyerName || 'NIL' }}</div>
+                  <div>{{ po.deliveryLocationAddress || po.buyerLocationAddress || po.buyerLocationName || 'NIL' }}</div>
+                  <div *ngIf="po.deliveryContactName">CONTACT NAME : {{ po.deliveryContactName }}</div>
+                  <div *ngIf="po.deliveryContactPhone">CONTACT NO &nbsp;&nbsp;: {{ po.deliveryContactPhone }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LINE ITEMS TABLE -->
+          <div class="po-box">
+            <div class="po-table-wrap">
+              <table class="po-table">
+                <colgroup>
+                  <col style="width:4%"><col style="width:32%"><col style="width:6%">
+                  <col style="width:12%"><col style="width:9%"><col style="width:9%"><col style="width:13%">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th class="tc">S.No</th>
+                    <th class="tl">Description of Goods / Services</th>
+                    <th class="tc">Qty</th>
+                    <th class="tr">Unit Price ({{ currencySymbol }})</th>
+                    <th class="tc">Discount %</th>
+                    <th class="tc">Tax %</th>
+                    <th class="tr">Total ({{ currencyCode }})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of po.lineItems; let i = index">
+                    <td class="tc">{{ item.slNo || i + 1 }}</td>
+                    <td class="tl">
+                      <div class="item-name">{{ item.itemDescription || 'NIL' }}</div>
+                      <div *ngIf="item.brandMakeModel" class="item-sub">Brand: {{ item.brandMakeModel }}</div>
+                      <div *ngIf="item.specifications" class="item-sub">{{ item.specifications }}</div>
+                      <div *ngIf="item.deliveryDays || item.warrantyMonths" class="item-sub">
+                        <span *ngIf="item.deliveryDays">Delivery: {{ item.deliveryDays }} days</span>
+                        <span *ngIf="item.deliveryDays && item.warrantyMonths"> &nbsp;|&nbsp; </span>
+                        <span *ngIf="item.warrantyMonths">Warranty: {{ item.warrantyMonths }} months</span>
+                      </div>
+                      <div *ngIf="item.originalQuotedPrice && item.discountPercentage > 0"
+                           class="item-sub" style="color:#888; text-decoration:line-through;">
+                        Original: {{ currencySymbol }}{{ item.originalQuotedPrice | number:'1.2-2' }}
+                      </div>
+                    </td>
+                    <td class="tc fw7">{{ item.quantity != null ? item.quantity : 'NIL' }}</td>
+                    <td class="tr">{{ item.unitRate != null ? (item.unitRate | number:'1.2-2') : 'NIL' }}</td>
+                    <td class="tc">
+                      <span *ngIf="item.discountPercentage > 0" style="color:#2a9d2a; font-weight:600;">
+                        {{ item.discountPercentage | number:'1.2-2' }}%
+                      </span>
+                      <span *ngIf="!item.discountPercentage || item.discountPercentage === 0" class="text-muted">—</span>
+                    </td>
+                    <td class="tc">
+                      <span *ngIf="item.taxPercentage > 0" style="color:#b07a00; font-weight:600;">
+                        {{ item.taxPercentage | number:'1.2-2' }}%
+                        <div style="font-size:0.7rem; font-weight:400;">
+                          +{{ currencySymbol }}{{ item.taxAmount | number:'1.2-2' }}
+                        </div>
+                      </span>
+                      <span *ngIf="!item.taxPercentage || item.taxPercentage === 0" class="text-muted">—</span>
+                    </td>
+                    <td class="tr fw7">
+                      {{ (item.lineTotalWithTax != null ? item.lineTotalWithTax : item.lineTotal) | number:'1.2-2' }}
+                      <div *ngIf="item.taxPercentage > 0" style="font-size:0.7rem; font-weight:400; color:#888;">
+                        Pre-tax: {{ currencySymbol }}{{ item.lineTotal | number:'1.2-2' }}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngFor="let _ of spacerRows" class="spacer-row">
+                    <td colspan="7">&nbsp;</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr *ngIf="hasTax()">
+                    <td colspan="6" class="tr">Subtotal (Pre-tax)</td>
+                    <td class="tr">{{ po.subtotal | number:'1.2-2' }}</td>
+                  </tr>
+                  <ng-container *ngFor="let taxGroup of getTaxGroups()">
+                    <tr>
+                      <td colspan="6" class="tr" style="color:#b07a00;">
+                        GST / Tax ({{ taxGroup.rate }}%) on {{ currencySymbol }}{{ taxGroup.base | number:'1.2-2' }}
+                      </td>
+                      <td class="tr" style="color:#b07a00;">{{ taxGroup.amount | number:'1.2-2' }}</td>
+                    </tr>
+                  </ng-container>
+                  <tr *ngIf="getOverallDiscount() > 0" style="color:#d32f2f;">
+                    <td colspan="6" class="tr"><span style="font-weight:600;">Round Off</span></td>
+                    <td class="tr" style="font-weight:600;">− {{ getOverallDiscount() | number:'1.2-2' }}</td>
+                  </tr>
+                  <tr class="grand-total-row">
+                    <td colspan="6" class="tr fw8">Grand Total ({{ currencyCode }})</td>
+                    <td class="tr fw8">{{ po.grandTotal | number:'1.2-2' }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- AMOUNT IN WORDS -->
+          <div class="po-box po-words-box">
+            <span class="words-label">Amount in Words:</span>
+            <span class="words-val">{{ po.amountInWords || 'NIL' }}</span>
+          </div>
+
+          <!-- REMARKS -->
+          <div class="po-box po-remarks-box">
+            <span class="remarks-label">Remarks:</span>
+            <span class="remarks-val">{{ po.buyerRemarks || 'NIL' }}</span>
+          </div>
+
+          <!-- COMPANY PAN -->
+          <div class="po-box po-pan-box">
+            <strong>Company's PAN:</strong> {{ po.buyerPan || 'NIL' }}
+          </div>
+
+          <!-- TERMS & CONDITIONS -->
+          <div class="po-box">
+            <div class="sec-bar">TERMS &amp; CONDITIONS</div>
+            <div *ngIf="po.otherTerms; else defaultTC" class="tc-body">{{ po.otherTerms }}</div>
+            <ng-template #defaultTC>
+              <div class="tc-body">
+                <div>1) Kindly acknowledge and confirm the Order Immediately within 7 Days from the date of Purchase Order, failing which, it shall be deemed to be accepted.</div>
+                <div>2) Please mention purchase order number in the invoice.</div>
+                <div>3) TDS and Other Statutory deductions will be deducted as applicable.</div>
+                <div>4) Deliveries do not exceed ordered Quantity.</div>
+                <div>5) GST as applicable.</div>
+                <div>6) Payment Terms: {{ po.paymentTerms || 'NIL' }}</div>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- SIGNATURES -->
+          <div class="po-box">
+            <div class="po-two-col">
+              <div class="po-col-left sig-col">
+                <div class="sig-header">Vendor Details</div>
+                <div class="sig-fields">
+                  <div class="sig-row" *ngFor="let f of ['Name', 'Signature', 'Designation', 'Date']">
+                    <div class="sig-label-row"><span class="sig-lbl">{{ f }} :</span></div>
+                    <div class="sig-line"></div>
+                  </div>
+                </div>
+                <div class="sig-behalf">For and on behalf of <strong>{{ po.supplierName }}</strong></div>
+              </div>
+              <div class="po-col-right sig-col">
+                <div class="sig-header">{{ po.buyerName }}</div>
+                <div class="sig-fields">
+                  <div class="sig-row" *ngFor="let f of ['Name', 'Signature', 'Designation', 'Date']">
+                    <div class="sig-label-row"><span class="sig-lbl">{{ f }} :</span></div>
+                    <div class="sig-line"></div>
+                  </div>
+                </div>
+                <div class="sig-behalf">
+                  <div *ngIf="po.approvedByName" class="fw-bold">{{ po.approvedByName }}</div>
+                  <div *ngIf="po.approvedByDesignation" class="sig-desig">{{ po.approvedByDesignation }}</div>
+                  For and on behalf of <strong>{{ po.buyerName }}</strong>
+                </div>
+                <div *ngIf="po.approvedAt" class="sig-digital">Digitally Signed on: {{ formatDateShort(po.approvedAt) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="po-box po-footer-box">
+            {{ po.buyerLocationAddress || po.buyerLocationName }}
+          </div>
+
+        </div>
+      </c-col>
+    </c-row>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" #editModalEl>
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-pencil me-2"></i>Edit Purchase Order — {{ po?.poNumber }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+        </div>
+        <div class="modal-body" *ngIf="editForm">
+          <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Note:</strong> Line item amounts are not editable.
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Payment Terms</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.paymentTerms">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Delivery Terms</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.deliveryTerms">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Dispatched Through</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.dispatchedThrough">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Mode of Payment</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.modeOfPayment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Destination</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.destination">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Buyer Remarks</label>
+              <textarea class="form-control" [(ngModel)]="editForm.buyerRemarks" rows="3"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Terms &amp; Conditions</label>
+              <textarea class="form-control" [(ngModel)]="editForm.otherTerms" rows="5"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Internal Notes</label>
+              <textarea class="form-control" [(ngModel)]="editForm.internalNotes" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+          <button type="button" class="btn btn-success" (click)="saveEdit()" [disabled]="isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</c-container>

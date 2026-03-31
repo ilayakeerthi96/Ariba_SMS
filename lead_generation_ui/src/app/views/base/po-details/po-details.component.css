@@ -1,0 +1,554 @@
+/* ══════════════════════════════════════════════════════
+   BUYER LOGO — actual image or initials fallback
+   ══════════════════════════════════════════════════════ */
+.po-logo-cell img {
+  max-width: 155px;
+  max-height: 115px;
+  object-fit: contain;
+}
+
+/* ✅ Shown when no logo exists — professional initials circle */
+.logo-initials-circle {
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 2px;
+  border: 3px solid #e2e8f0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.po-document {
+  max-width: 1060px;
+  margin: 0 auto 32px auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.85rem;
+  color: #000;
+  background: #fff;
+  border: 1.5px solid #555;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══════════════════════════════════════════════════════
+   HEADER — 3-column grid so company name is truly centered
+   Logo (fixed) | Company (flex center) | Spacer (fixed mirror)
+   ══════════════════════════════════════════════════════ */
+.po-header-inner {
+  display: grid;
+  grid-template-columns: 175px 1fr 175px;
+  align-items: center;
+  padding: 18px 24px 16px 20px;
+  gap: 0;
+  min-height: 130px;
+  border-bottom: 1px solid #555;
+}
+
+.po-logo-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 175px;
+  padding-right: 10px;
+}
+
+/* ✅ Mirror spacer — same width as logo column to balance centering */
+.po-header-spacer {
+  width: 175px;
+}
+
+/* Placeholder shown when no logo URL */
+.logo-placeholder {
+  width: 130px;
+  height: 105px;
+  border: 1px solid #bbb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #aaa;
+  font-family: Arial, sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* NO divider — hidden */
+.po-header-divider {
+  display: none;
+}
+
+/* ✅ Company cell — centered both horizontally and vertically */
+.po-company-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+  padding: 0 10px;
+}
+
+/* CRITICAL: Reference shows huge bold company name */
+.co-name {
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.1;
+  margin-bottom: 7px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* CIN / GSTIN / PAN lines — normal weight, smaller */
+.co-line {
+  font-size: 0.79rem;
+  color: #000;
+  line-height: 1.75;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 400;
+}
+
+/* ══════════════════════════════════════════════════════
+   PURCHASE ORDER TITLE
+   ══════════════════════════════════════════════════════ */
+.po-title-box {
+  text-align: center;
+  padding: 10px 0 9px 0;
+  border-top: 1.5px solid #555;
+  border-bottom: 1.5px solid #555;
+  background: #fff;
+}
+
+.po-title-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION BOXES — flush stacked, shared borders
+   ══════════════════════════════════════════════════════ */
+.po-box {
+  border-top: 1px solid #555;
+  border-bottom: none;
+  background: #fff;
+}
+
+.po-title-box.po-box {
+  border-top: 1.5px solid #555;
+}
+
+.po-box:last-child {
+  border-bottom: 1px solid #555;
+}
+
+/* ══════════════════════════════════════════════════════
+   TWO-COLUMN LAYOUT (Vendor/Meta, Billing/Shipping, Sigs)
+   ══════════════════════════════════════════════════════ */
+.po-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.po-col-left {
+  padding: 10px 14px 12px 16px;
+  border-right: 1px solid #555;
+}
+
+.po-col-right {
+  padding: 10px 14px 12px 16px;
+}
+
+/* ══════════════════════════════════════════════════════
+   META ROWS (Vendor details, Order info)
+   ══════════════════════════════════════════════════════ */
+.meta-row {
+  display: flex;
+  align-items: baseline;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.mk {
+  min-width: 148px;
+  font-weight: 400;
+  flex-shrink: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.3rem;
+}
+
+.ms {
+  min-width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.3rem;
+}
+
+.mv {
+  flex: 1;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+/* ══════════════════════════════════════════════════════
+   GREY SECTION HEADER BARS
+   ══════════════════════════════════════════════════════ */
+.sec-bar {
+  background: #c8c8c8;
+  border-bottom: 1px solid #555;
+  font-size: 1.33rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-align: center;
+  padding: 7px 12px;
+  color: #000;
+  text-transform: uppercase;
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.sec-body {
+  padding: 9px 16px;
+  font-size: 1.3rem;
+  color: #000;
+  line-height: 1.7;
+  min-height: 32px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════════
+   BILLING / SHIPPING ADDRESS TEXT
+   ══════════════════════════════════════════════════════ */
+.addr-name {
+  font-weight: 700;
+  margin-bottom: 3px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.3rem;
+}
+
+/* ══════════════════════════════════════════════════════
+   LINE ITEMS TABLE
+   ══════════════════════════════════════════════════════ */
+.po-table-wrap { overflow-x: auto; }
+
+.po-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.79rem;
+  table-layout: fixed;
+}
+
+.po-table thead tr th {
+  background: #c8c8c8 !important;
+  color: #000 !important;
+  font-weight: 600;
+  font-size: 1.12rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  padding: 8px 8px;
+  border: 1px solid #555 !important;
+  vertical-align: middle;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.po-table tbody td {
+  padding: 8px 8px;
+  border: 1px solid #555 !important;
+  vertical-align: top;
+  color: #000;
+  font-size: 1.15rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.po-table tfoot td {
+  padding: 7px 8px;
+  border: 1px solid #555 !important;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.15rem;
+}
+
+.tc { text-align: center !important; }
+.tl { text-align: left !important; padding-left: 10px !important; }
+.tr { text-align: right !important; padding-right: 10px !important; }
+.fw7 { font-weight: 700; }
+.fw8 { font-weight: 800; }
+
+.item-name {
+  font-weight: 700;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.12rem;
+}
+
+.item-sub {
+  font-size: 0.75rem;
+  color: #444;
+  margin-top: 2px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.spacer-row td {
+  height: 24px !important;
+  border: 1px solid #555 !important;
+  padding: 0 !important;
+  background: #fff;
+}
+
+.grand-total-row td {
+  background: #efefef !important;
+  font-weight: 800;
+  font-size: 0.85rem;
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ══════════════════════════════════════════════════════
+   AMOUNT IN WORDS
+   ══════════════════════════════════════════════════════ */
+.po-words-box {
+  padding: 9px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.words-label {
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 1.15rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.words-val {
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.10rem;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════════
+   REMARKS
+   ══════════════════════════════════════════════════════ */
+.po-remarks-box {
+  padding: 8px 16px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 1.05rem;
+}
+
+.remarks-label {
+  font-weight: 700;
+  white-space: nowrap;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.remarks-val {
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.01rem;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAN
+   ══════════════════════════════════════════════════════ */
+.po-pan-box {
+  padding: 7px 16px;
+  font-size: 1.03rem;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════════
+   TERMS & CONDITIONS
+   ══════════════════════════════════════════════════════ */
+.tc-body {
+  padding: 10px 16px 18px 16px;
+  font-size: 1.10rem;
+  color: #000;
+  line-height: 1.70;
+  min-height: 100px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.tc-body > div { margin-bottom: 2px; }
+
+/* ══════════════════════════════════════════════════════
+   SIGNATURES
+   ══════════════════════════════════════════════════════ */
+.sig-col {
+  padding: 22px 28px 22px 28px;
+}
+
+.sig-header {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 26px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.sig-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.sig-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+.sig-label-row {
+  font-size: 1.15rem;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-bottom: 5px;
+}
+
+.sig-lbl {
+  font-size: 1.15rem;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.sig-line {
+  width: 78%;
+  border-bottom: 1px solid #444;
+  height: 1px;
+}
+
+.sig-behalf {
+  margin-top: 22px;
+  font-size: 1.12rem;
+  color: #000;
+  line-height: 1.65;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.sig-desig {
+  font-size: 1.03rem;
+  color: #555;
+}
+
+.sig-digital {
+  margin-top: 8px;
+  font-size: 0.73rem;
+  color: #555;
+  font-style: italic;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════ */
+.po-footer-box {
+  text-align: center;
+  padding: 8px 14px;
+  background: #efefef;
+  font-size: 1.30rem;
+  color: #333;
+  font-style: italic;
+  font-family: Arial, Helvetica, sans-serif;
+  border-bottom: 1px solid #555 !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ══════════════════════════════════════════════════════
+   BADGE
+   ══════════════════════════════════════════════════════ */
+.badge {
+  font-size: 0.68rem;
+  padding: 3px 7px;
+  border-radius: 3px;
+}
+
+/* ══════════════════════════════════════════════════════
+   PRINT
+   ══════════════════════════════════════════════════════ */
+@media print {
+  .c-sidebar,
+  .c-header,
+  c-card-header,
+  .btn,
+  button,
+  .d-flex.gap-2 { display: none !important; }
+
+  .po-document {
+    border: none !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .po-box,
+  .po-table td,
+  .po-table th,
+  .sec-bar,
+  .grand-total-row td,
+  .po-footer-box {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .po-header-inner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .po-header-spacer {
+    display: none;
+  }
+
+  .po-logo-cell {
+    width: auto;
+    padding-right: 0;
+  }
+
+  .po-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .po-col-left {
+    border-right: none;
+    border-bottom: 1px solid #555;
+  }
+
+  .po-table { font-size: 0.72rem; }
+  .co-name { font-size: 1.2rem; }
+}

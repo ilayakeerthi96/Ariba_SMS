@@ -1,0 +1,301 @@
+<div class="grn-qa-page">
+
+  <!-- ── TOP NAV BAR ──────────────────────────────────────────────────────── -->
+  <div class="qa-topbar">
+    <button class="qa-back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left me-2"></i>Back to GRN List
+    </button>
+    <div class="qa-topbar-title">
+      <span class="qa-phase-pill">Phase 2 · QA Review</span>
+      <h4 class="mb-0 ms-3" *ngIf="grn">{{ grn.grnNumber }}</h4>
+    </div>
+    <div class="qa-topbar-meta" *ngIf="grn">
+      <span class="text-muted small">PO: <strong>{{ grn.poNumber || '—' }}</strong></span>
+      <span class="text-muted small ms-3">Supplier: <strong>{{ grn.supplierName || '—' }}</strong></span>
+    </div>
+  </div>
+
+  <div class="qa-body">
+
+    <!-- LOADING SPINNER -->
+    <div *ngIf="pagePhase === 'loading'" class="qa-loading-screen">
+      <div class="qa-loading-card">
+        <div class="spinner-border text-primary qa-spinner"></div>
+        <p class="mt-4 text-muted fw-semibold">Starting QA Review…</p>
+        <p class="text-muted small">Transitioning GRN to QA_REVIEW status</p>
+      </div>
+    </div>
+
+    <!-- DONE BANNER -->
+    <div *ngIf="pagePhase === 'done'" class="qa-done-screen">
+      <div class="qa-done-card">
+        <div class="qa-done-icon"><i class="bi bi-check-circle-fill"></i></div>
+        <h4 class="mt-4 fw-bold">GRN Approved!</h4>
+        <p class="text-muted">QA review completed and GRN moved to APPROVED status.</p>
+        <p class="text-muted small">Redirecting to GRN List…</p>
+      </div>
+    </div>
+
+    <!-- MAIN FORM -->
+    <ng-container *ngIf="pagePhase === 'ready'">
+
+      <!-- ALERTS -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible d-flex align-items-center border-0 mb-4" style="border-left:4px solid #198754!important">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+        <button class="btn-close ms-auto" (click)="dismissAlert()"></button>
+      </div>
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible d-flex align-items-center border-0 mb-4" style="border-left:4px solid #dc3545!important">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button class="btn-close ms-auto" (click)="dismissAlert()"></button>
+      </div>
+
+      <!-- ERROR with no GRN -->
+      <div *ngIf="!grn && !isLoading" class="text-center py-5">
+        <i class="bi bi-exclamation-circle text-danger" style="font-size:3rem;"></i>
+        <p class="text-muted mt-3">Could not load GRN data.</p>
+        <button class="btn btn-outline-secondary" (click)="goBack()">Return to List</button>
+      </div>
+
+      <ng-container *ngIf="grn">
+
+        <!-- ── QA HEADER CARD ──────────────────────────────────────────────── -->
+        <div class="qa-header-card mb-4">
+          <div class="qa-header-card-top">
+            <div class="qa-header-info-grid">
+              <div class="qa-info-item">
+                <div class="qa-info-label">GRN Number</div>
+                <div class="qa-info-value text-primary fw-bold">{{ grn.grnNumber }}</div>
+              </div>
+              <div class="qa-info-item">
+                <div class="qa-info-label">PO Reference</div>
+                <div class="qa-info-value">{{ grn.poNumber || '—' }}</div>
+              </div>
+              <div class="qa-info-item">
+                <div class="qa-info-label">Supplier</div>
+                <div class="qa-info-value">{{ grn.supplierName || '—' }}</div>
+              </div>
+              <div class="qa-info-item">
+                <div class="qa-info-label">Delivery Date</div>
+                <div class="qa-info-value">{{ formatDate(grn.deliveryDate) }}</div>
+              </div>
+              <div class="qa-info-item">
+                <div class="qa-info-label">Received By</div>
+                <div class="qa-info-value">{{ grn.receivedByName || '—' }}</div>
+              </div>
+              <div class="qa-info-item">
+                <div class="qa-info-label">Status</div>
+                <div><span class="status-badge status-qa">QA Review</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QA Reviewer form -->
+          <div class="qa-reviewer-form">
+            <div class="row g-3">
+              <div class="col-md-5">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-person-badge me-1 text-primary"></i>
+                  QA Inspector Name <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control"
+                       placeholder="Enter inspector's full name"
+                       [(ngModel)]="qaInspectorName">
+              </div>
+              <div class="col-md-7">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-chat-text me-1 text-primary"></i>
+                  Overall QA Remarks
+                </label>
+                <input type="text" class="form-control"
+                       placeholder="e.g. 3 units found damaged in outer packaging"
+                       [(ngModel)]="qaOverallRemarks">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── INSTRUCTIONS BANNER ─────────────────────────────────────────── -->
+        <div class="qa-instructions mb-4">
+          <div class="qa-instructions-icon"><i class="bi bi-info-circle-fill"></i></div>
+          <div class="qa-instructions-text">
+            <strong>Instructions:</strong>
+            For each line item, enter how many units are
+            <span class="text-warning fw-semibold">defective</span> (damaged but usable) and how many are formally
+            <span class="text-danger fw-semibold">rejected</span> (not accepted into inventory).
+            <strong>Accepted = Received − Rejected</strong> is auto-computed.
+            QA remarks are <strong>mandatory</strong> when any units are rejected.
+          </div>
+        </div>
+
+        <!-- ── QA LINE ITEMS TABLE ─────────────────────────────────────────── -->
+        <div class="qa-table-card mb-4">
+          <div class="qa-table-card-header">
+            <h6 class="mb-0 fw-bold text-white">
+              <i class="bi bi-clipboard-check me-2"></i>Line Item Inspection
+            </h6>
+            <span class="qa-line-count">{{ qaLineItems.length }} item{{ qaLineItems.length !== 1 ? 's' : '' }}</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table qa-table mb-0">
+              <thead class="qa-thead">
+                <tr>
+                  <th>#</th>
+                  <th>Item Description</th>
+                  <th class="text-center">Ordered</th>
+                  <th class="text-center">Received</th>
+                  <th class="text-center qa-col-defective">
+                    Defective<br><small class="fw-normal opacity-75">(damaged)</small>
+                  </th>
+                  <th class="text-center qa-col-rejected">
+                    Rejected<br><small class="fw-normal opacity-75">(formal)</small>
+                  </th>
+                  <th class="text-center qa-col-accepted">
+                    Accepted<br><small class="fw-normal text-success opacity-75">(auto)</small>
+                  </th>
+                  <th class="text-center">Condition</th>
+                  <th>QA Remarks <span class="text-danger small">*if rejected</span></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let li of qaLineItems; let i=index"
+                    class="qa-row"
+                    [class.qa-row-rejected]="li.rejectedQuantity > 0"
+                    [class.qa-row-partial]="li.defectiveQuantity > 0 && li.rejectedQuantity === 0">
+
+                  <td class="text-muted fw-semibold">{{ i+1 }}</td>
+
+                  <td>
+                    <div class="fw-semibold qa-item-name">{{ li.itemDescription || '—' }}</div>
+                  </td>
+
+                  <!-- Ordered — readonly -->
+                  <td class="text-center">
+                    <span class="qty-pill qty-ordered">{{ li.orderedQuantity }}</span>
+                  </td>
+
+                  <!-- Received — readonly -->
+                  <td class="text-center">
+                    <span class="qty-pill qty-received">{{ li.receivedQuantity }}</span>
+                  </td>
+
+                  <!-- Defective — editable -->
+                  <td class="text-center">
+                    <input type="number" class="qa-num-input defective-input"
+                           [(ngModel)]="li.defectiveQuantity"
+                           [min]="0" [max]="li.receivedQuantity"
+                           (ngModelChange)="onDefectiveChange(li)">
+                  </td>
+
+                  <!-- Rejected — editable -->
+                  <td class="text-center">
+                    <input type="number" class="qa-num-input rejected-input"
+                           [(ngModel)]="li.rejectedQuantity"
+                           [min]="0" [max]="li.receivedQuantity"
+                           (ngModelChange)="onRejectedChange(li)">
+                  </td>
+
+                  <!-- Accepted — auto-computed -->
+                  <td class="text-center">
+                    <span class="qty-pill qty-accepted"
+                          [class.qty-accepted-reduced]="li.rejectedQuantity > 0">
+                      {{ li.acceptedQuantity }}
+                    </span>
+                  </td>
+
+                  <!-- Condition -->
+                  <td class="text-center">
+                    <select class="qa-condition-select" [(ngModel)]="li.itemCondition">
+                      <option *ngFor="let c of conditionOptions" [value]="c">{{ c }}</option>
+                    </select>
+                  </td>
+
+                  <!-- QA Remarks -->
+                  <td>
+                    <input type="text" class="qa-remarks-input"
+                           [class.qa-remarks-required]="li.rejectedQuantity > 0 && !li.qaRemarks?.trim()"
+                           [placeholder]="li.rejectedQuantity > 0 ? '⚠ Required — reason for rejection' : 'Optional remark'"
+                           [(ngModel)]="li.qaRemarks">
+                  </td>
+                </tr>
+              </tbody>
+
+              <!-- Totals footer -->
+              <tfoot class="qa-tfoot">
+                <tr>
+                  <td colspan="2" class="fw-bold text-end pe-3">TOTALS</td>
+                  <td class="text-center fw-bold">{{ qaGetTotal('orderedQuantity') }}</td>
+                  <td class="text-center fw-bold">{{ qaGetTotal('receivedQuantity') }}</td>
+                  <td class="text-center fw-bold text-warning">{{ qaGetTotal('defectiveQuantity') }}</td>
+                  <td class="text-center fw-bold text-danger">{{ qaGetTotal('rejectedQuantity') }}</td>
+                  <td class="text-center fw-bold text-success">{{ qaGetTotal('acceptedQuantity') }}</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── SUMMARY CHIPS ────────────────────────────────────────────────── -->
+        <div class="qa-summary-row mb-5">
+          <div class="qa-summary-chip chip-purple">
+            <i class="bi bi-box me-2"></i>
+            <span class="chip-value">{{ qaGetTotal('orderedQuantity') }}</span>
+            <span class="chip-label">Ordered</span>
+          </div>
+          <div class="qa-summary-chip chip-blue">
+            <i class="bi bi-inbox-fill me-2"></i>
+            <span class="chip-value">{{ qaGetTotal('receivedQuantity') }}</span>
+            <span class="chip-label">Received</span>
+          </div>
+          <div class="qa-summary-chip chip-orange">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span class="chip-value">{{ qaGetTotal('defectiveQuantity') }}</span>
+            <span class="chip-label">Defective</span>
+          </div>
+          <div class="qa-summary-chip chip-red">
+            <i class="bi bi-x-circle me-2"></i>
+            <span class="chip-value">{{ qaGetTotal('rejectedQuantity') }}</span>
+            <span class="chip-label">Rejected</span>
+          </div>
+          <div class="qa-summary-chip chip-green">
+            <i class="bi bi-check-circle me-2"></i>
+            <span class="chip-value">{{ qaGetTotal('acceptedQuantity') }}</span>
+            <span class="chip-label">Accepted</span>
+          </div>
+        </div>
+
+        <!-- ── ACTION FOOTER ────────────────────────────────────────────────── -->
+        <div class="qa-action-footer">
+          <button class="btn btn-outline-secondary"
+                  (click)="goBack()" [disabled]="isSubmitting">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+          </button>
+
+          <div class="d-flex gap-3">
+            <!-- Save only — stays QA_REVIEW -->
+            <button class="btn btn-outline-primary btn-action-save"
+                    (click)="saveQAData()" [disabled]="isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isSubmitting" class="bi bi-save me-2"></i>
+              Save QA Data
+              <span class="btn-sublabel">GRN stays in QA Review</span>
+            </button>
+
+            <!-- Save + Approve — QA_REVIEW → APPROVED -->
+            <button class="btn btn-success btn-action-approve"
+                    (click)="completeQAAndApprove()" [disabled]="isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isSubmitting" class="bi bi-check-circle me-2"></i>
+              Complete QA &amp; Approve GRN
+              <span class="btn-sublabel">Moves to APPROVED status</span>
+            </button>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+  </div>
+</div>

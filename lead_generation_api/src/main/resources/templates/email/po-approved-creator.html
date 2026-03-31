@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PO Fully Approved</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #34a853 0%, #2e7d32 100%); padding: 30px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table td { padding: 8px; border: 1px solid #ddd; }
+        .label { background: #f5f5f5; font-weight: bold; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>✅ Purchase Order Approved</h1>
+    </div>
+
+    <div class="content">
+        <p>Dear <strong th:text="${creatorName}">Creator</strong>,</p>
+
+        <p>Your Purchase Order has been fully approved.</p>
+
+        <table class="table">
+            <tr>
+                <td class="label">PO Number</td>
+                <td th:text="${poNumber}">PO-001</td>
+            </tr>
+            <tr>
+                <td class="label">Supplier</td>
+                <td th:text="${supplierName}">ABC Pvt Ltd</td>
+            </tr>
+            <tr>
+                <td class="label">Grand Total</td>
+                <td>₹ <span th:text="${grandTotal}">10000</span></td>
+            </tr>
+            <tr>
+                <td class="label">Approved By</td>
+                <td th:text="${approvedBy}">Manager</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 Your Company. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

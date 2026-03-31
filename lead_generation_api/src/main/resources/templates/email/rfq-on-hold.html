@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>RFQ On Hold</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .hold-box { background: #fff3cd; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏸️ RFQ On Hold</h1>
+        </div>
+        
+        <div class="content">
+            <p>Dear <strong th:text="${creatorName}">Creator</strong>,</p>
+            
+            <div class="hold-box">
+                <strong>⏸️ Temporarily Paused</strong><br>
+                Your RFQ has been put on hold by the approver.
+            </div>
+            
+            <h3 th:text="${rfqNumber}">RFQ-001</h3>
+            <h4 th:text="${rfqTitle}">Title</h4>
+            
+            <p><strong>Held By:</strong> <span th:text="${holderName}">Name</span> 
+               (<span th:text="${holderLevel}">Level</span>)</p>
+            <p><strong>Date:</strong> <span th:text="${holdDate}">Date</span></p>
+            
+            <p><strong>Hold Remarks:</strong></p>
+            <p th:text="${holdRemarks}">Remarks</p>
+            
+            <p><strong>What This Means:</strong></p>
+            <ul>
+                <li>The approval workflow is temporarily paused</li>
+                <li>No action is required from you at this time</li>
+                <li>You will be notified when the hold is released</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Your Company. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

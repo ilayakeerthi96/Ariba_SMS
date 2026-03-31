@@ -1,0 +1,282 @@
+<c-container class="mt-4" fluid>
+  <!-- Header Section with User Details -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow-lg">
+        <div class="gradient-header-reporting">
+          <c-card-body class="p-4">
+            <c-row class="align-items-center">
+              <!-- User Info -->
+              <c-col xs="12" lg="4" class="mb-3 mb-lg-0">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle-large me-3">
+                    {{ getInitials(fullName) }}
+                  </div>
+                  <div class="text-white">
+                    <h5 class="mb-1 fw-bold">{{ fullName }}</h5>
+                    <p class="mb-0 opacity-90">
+                      <i class="cil-shield-alt me-1"></i>
+                      {{ role }}
+                    </p>
+                  </div>
+                </div>
+              </c-col>
+
+              <!-- Page Title & Details -->
+              <c-col xs="12" lg="8">
+                <h3 class="text-white mb-2 fw-bold">
+                  <i class="cil-sitemap me-2"></i>
+                  Reporting Structure Management
+                </h3>
+                <p class="text-white mb-0 opacity-90">
+                  <i class="cil-building me-2"></i>
+                  Company: <strong>{{ companyName }}</strong> | 
+                  <i class="cil-envelope-closed me-2"></i>
+                  <strong>{{ email }}</strong> 
+                </p>
+              </c-col>
+            </c-row>
+          </c-card-body>
+        </div>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <!-- Reporting Setup Cards -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow">
+        <c-card-header class="bg-white border-bottom">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-bold">
+              <i class="cil-people me-2 text-primary"></i>
+              Reporting Structure
+            </h5>
+            <!-- <button cButton color="primary" size="sm" (click)="loadHierarchyUsers()">
+              <i class="cil-reload"></i>
+            </button> -->
+          </div>
+        </c-card-header>
+        <c-card-body class="p-4">
+          <!-- Loading -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading users...</p>
+          </div>
+
+          <!-- No Data -->
+          <div *ngIf="!isLoading && hierarchyUsers.length === 0" class="text-center py-5">
+            <i class="cil-people" style="font-size: 4rem; color: #6c757d;"></i>
+            <p class="text-muted mb-3 fs-5 mt-3">No users found. Please create users first.</p>
+            <button cButton color="primary" routerLink="/hierarchy-users">
+              <i class="cil-user-follow me-2"></i>
+              Go to User Management
+            </button>
+          </div>
+
+          <!-- User Cards -->
+          <div *ngIf="!isLoading && hierarchyUsers.length > 0" class="row g-4">
+            <div *ngFor="let user of hierarchyUsers" class="col-12 col-lg-6">
+              <div class="reporting-card">
+                <div class="reporting-card-header">
+                  <!-- User Header -->
+                  <div class="d-flex align-items-start mb-3">
+                    <div class="avatar-circle me-3">
+                      {{ user.fullName.charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="flex-grow-1">
+                      <h5 class="card-title mb-1">
+                        <i class="cil-user me-2 text-primary"></i>
+                        {{ user.fullName }}
+                      </h5>
+                      <p class="text-muted small mb-0">
+                        <i class="cil-envelope-closed me-1"></i>
+                        {{ user.email }}
+                      </p>
+                    </div>
+                    <c-badge [color]="getLevelBadgeColor(user.hierarchyLevelOrder)" size="lg" class="level-badge-reporting">
+                      L{{ user.hierarchyLevelOrder }}
+                    </c-badge>
+                  </div>
+
+                  <!-- User Info -->
+                  <div class="info-grid mb-3">
+                    <div class="info-item">
+                      <i class="cil-briefcase info-icon"></i>
+                      <div>
+                        <small class="text-muted d-block">Designation</small>
+                        <strong>{{ user.designation }}</strong>
+                      </div>
+                    </div>
+                    <div class="info-item">
+                      <i class="cil-layers info-icon"></i>
+                      <div>
+                        <small class="text-muted d-block">Level</small>
+                        <strong>{{ user.hierarchyLevelName }}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Current Managers -->
+                  <div class="current-managers-section">
+                    <div class="section-label">
+                      <i class="cil-arrow-thick-from-bottom me-2"></i>
+                      Current Reporting Managers
+                    </div>
+                    <div *ngIf="user.reportsTo && user.reportsTo.length > 0" class="managers-chips">
+                      <c-badge 
+                        *ngFor="let manager of user.reportsTo" 
+                        color="info" 
+                        class="manager-badge-current">
+                        <i class="cil-user me-1"></i>
+                        {{ manager.fullName }}
+                        <small class="ms-1">(L{{ manager.hierarchyLevelOrder }})</small>
+                      </c-badge>
+                    </div>
+                    <div *ngIf="!user.reportsTo || user.reportsTo.length === 0">
+                      <c-badge color="light" class="text-muted px-3 py-2">
+                        <i class="cil-ban me-1"></i>
+                        No manager assigned
+                      </c-badge>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Assign Managers Section -->
+                <div class="reporting-card-body">
+                  <div class="section-label mb-3">
+                    <i class="cil-task me-2"></i>
+                    Assign Reporting Managers
+                  </div>
+                  
+                  <!-- Manager Selection Chips -->
+                  <div *ngIf="getPotentialManagers(user).length > 0" class="mb-3">
+                    <div class="manager-selection-grid">
+                      <div 
+                        *ngFor="let manager of getPotentialManagers(user)" 
+                        class="manager-chip"
+                        [class.selected]="isManagerSelected(user.id, manager.id)"
+                        (click)="toggleManager(user.id, manager.id)">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input me-2"
+                          [checked]="isManagerSelected(user.id, manager.id)"
+                          [id]="'manager-' + user.id + '-' + manager.id">
+                        <label [for]="'manager-' + user.id + '-' + manager.id" class="mb-0">
+                          <strong>{{ manager.fullName }}</strong>
+                          <br>
+                          <small class="text-muted">
+                            {{ manager.designation }} 
+                            <c-badge color="secondary" size="sm">(L{{ manager.hierarchyLevelOrder }})</c-badge>
+                          </small>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- No Managers Available -->
+                  <div *ngIf="getPotentialManagers(user).length === 0" class="alert alert-info">
+                    <i class="cil-info me-2"></i>
+                    <small>No higher-level managers available.</small>
+                  </div>
+
+                  <!-- Update Button -->
+                  <button 
+                    cButton 
+                    color="primary" 
+                    class="w-100 update-btn"
+                    (click)="updateReporting(user)"
+                    [disabled]="updatingUsers[user.id]">
+                    <span *ngIf="!updatingUsers[user.id]">
+                      <i class="cil-save me-2"></i>
+                      Update Reporting
+                    </span>
+                    <span *ngIf="updatingUsers[user.id]">
+                      <span class="spinner-border spinner-border-sm me-2"></span>
+                      Updating...
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <!-- Visual Hierarchy Tree -->
+  <c-row>
+    <c-col xs="12">
+      <c-card class="border-0 shadow">
+        <c-card-header class="bg-white border-bottom">
+          <h5 class="mb-0 fw-bold">
+            <i class="cil-sitemap me-2 text-primary"></i>
+            Organization Chart
+          </h5>
+        </c-card-header>
+        <c-card-body class="p-4">
+          <div *ngIf="hierarchyTree.length === 0" class="text-center py-5">
+            <i class="cil-info" style="font-size: 4rem; color: #6c757d;"></i>
+            <p class="text-muted mt-3 fs-5">Setup reporting relationships to see the organization chart</p>
+          </div>
+          
+          <div *ngIf="hierarchyTree.length > 0" class="hierarchy-tree">
+            <div *ngFor="let topLevel of hierarchyTree" class="tree-node mb-4">
+              <!-- Top Level User -->
+              <div class="org-card top-level">
+                <div class="org-card-header">
+                  <c-badge color="light" class="text-dark me-2">L{{ topLevel.hierarchyLevelOrder }}</c-badge>
+                  <strong class="fs-5">{{ topLevel.fullName }}</strong>
+                </div>
+                <div class="org-card-body">
+                  <div class="text-muted">
+                    <i class="cil-briefcase me-1"></i>
+                    {{ topLevel.designation }}
+                  </div>
+                  <small class="text-muted">
+                    <i class="cil-layers me-1"></i>
+                    {{ topLevel.hierarchyLevelName }}
+                  </small>
+                </div>
+              </div>
+              
+              <!-- Direct Reports -->
+              <div *ngIf="topLevel.reports && topLevel.reports.length > 0" class="tree-children">
+                <div class="connection-line"></div>
+                <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
+                  <div *ngFor="let report of topLevel.reports" class="report-branch">
+                    <div class="org-card">
+                      <div class="org-card-header" 
+                           [ngClass]="{'bg-warning': report.hierarchyLevelOrder <= 20, 'bg-info': report.hierarchyLevelOrder > 20}">
+                        <c-badge color="light" class="me-2">L{{ report.hierarchyLevelOrder }}</c-badge>
+                        <strong>{{ report.fullName }}</strong>
+                      </div>
+                      <div class="org-card-body">
+                        <small>
+                          <i class="cil-briefcase me-1"></i>
+                          {{ report.designation }}
+                        </small>
+                      </div>
+                    </div>
+                    
+                    <!-- Sub Reports -->
+                    <div *ngIf="report.reports && report.reports.length > 0" class="sub-reports mt-2">
+                      <div class="mini-connection"></div>
+                      <div *ngFor="let subReport of report.reports" class="org-card-mini">
+                        <c-badge color="secondary" class="me-1">L{{ subReport.hierarchyLevelOrder }}</c-badge>
+                        <small><strong>{{ subReport.fullName }}</strong></small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+</c-container>

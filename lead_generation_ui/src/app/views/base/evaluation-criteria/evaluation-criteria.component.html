@@ -1,0 +1,316 @@
+<c-container class="mt-4" fluid>
+  <!-- Header Section -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow-lg">
+        <div class="gradient-header-levels">
+          <c-card-body class="p-4">
+            <c-row class="align-items-center">
+              <!-- User Info -->
+              <c-col xs="12" lg="4" class="mb-3 mb-lg-0">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle-large me-3">
+                    {{ getInitials(fullName) }}
+                  </div>
+                  <div class="text-white">
+                    <h5 class="mb-1 fw-bold">{{ fullName }}</h5>
+                    <p class="mb-0 opacity-90">
+                      <i class="cil-shield-alt me-1"></i>
+                      {{ role }}
+                    </p>
+                  </div>
+                </div>
+              </c-col>
+
+              <!-- Page Title -->
+              <c-col xs="12" lg="5" class="mb-3 mb-lg-0">
+                <h3 class="text-white mb-2 fw-bold">
+                  <i class="cil-star me-2"></i>
+                  Evaluation Criteria Management
+                </h3>
+                <p class="text-white mb-0 opacity-90">
+                  <i class="cil-building me-2"></i>
+                   Company: <strong>{{ companyName }}</strong> | 
+                  <i class="cil-envelope-closed me-2"></i>
+                  <strong>{{ email }}</strong>
+                </p>
+              </c-col>
+            </c-row>
+          </c-card-body>
+        </div>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <!-- Info Alert -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-alert color="info" class="modern-alert">
+        <div class="d-flex align-items-center">
+          <i class="cil-info me-3" style="font-size: 1.5rem;"></i>
+          <div>
+            
+          
+           
+            Weightages will be assigned by RFQ Creator during evaluation.
+          </div>
+        </div>
+      </c-alert>
+    </c-col>
+  </c-row>
+
+  <!-- Criteria Table -->
+  <c-row>
+    <c-col xs="12">
+      <c-card class="border-0 shadow">
+        <c-card-header class="bg-white border-bottom">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-bold">
+              <i class="cil-list me-2 text-primary"></i>
+              Organization-Wide Criteria
+              <!-- <c-badge color="info" class="ms-2">{{ criteria.length }} Total</c-badge> -->
+            </h5>
+            <button cButton color="primary" (click)="openCreateModal()">
+              <i class="cil-plus me-2"></i>
+              Create Criterion
+            </button>
+          </div>
+        </c-card-header>
+        
+        <c-card-body class="p-0">
+          <!-- Loading -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading criteria...</p>
+          </div>
+
+          <!-- No Data -->
+          <div *ngIf="!isLoading && criteria.length === 0" class="text-center py-5">
+            <i class="cil-info" style="font-size: 4rem; color: #6c757d;"></i>
+            <p class="text-muted mb-3 fs-5 mt-3">No criteria created yet.</p>
+            <button cButton color="primary" (click)="openCreateModal()">
+              <i class="cil-plus me-2"></i>
+              Create First Criterion
+            </button>
+          </div>
+
+          <!-- Criteria Table -->
+          <div *ngIf="!isLoading && criteria.length > 0" class="table-responsive">
+            <table class="table table-hover modern-table mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 80px;" class="text-center">
+                    <i class="cil-list me-1"></i>Sl No
+                  </th>
+                  <th>
+                    <i class="cil-star me-2"></i> Criteria
+                  </th>
+                  <th>
+                    <i class="cil-notes me-2"></i>Description
+                  </th>
+                  <th class="text-center" style="width: 120px;">
+                    <i class="cil-speedometer me-2"></i>Max Score
+                  </th>
+                  <th class="text-center" style="width: 90px;">
+                    <i class="cil-check-circle me-2"></i>Status
+                  </th>
+                  <th class="text-center" style="width: 180px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let criterion of criteria; let i = index" class="modern-table-row">
+                  
+                  <!-- Sl No -->
+                  <td class="text-center">
+                    <div class="sl-no-badge">{{ i + 1 }}</div>
+                  </td>
+
+                  <!-- Criterion Name -->
+                  <td>
+                    <strong class="level-name-text">{{ criterion.criterionName }}</strong>
+                  </td>
+
+                  <!-- Description -->
+                  <td>
+                    <span class="description-text">{{ criterion.description || 'No description' }}</span>
+                  </td>
+
+                  <!-- Max Score -->
+                  <td class="text-center">
+                    <c-badge color="primary" class="fs-6">5</c-badge>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="text-center">
+                    <c-badge [color]="criterion.isActive ? 'success' : 'danger'" class="status-badge">
+                      <i [class]="criterion.isActive ? 'cil-check-circle' : 'cil-x-circle'" class="me-1"></i>
+                      {{ criterion.isActive ? 'Active' : 'Inactive' }}
+                    </c-badge>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="text-center">
+                    <button
+                      class="btn btn-sm btn-light text-primary me-1 action-icon-btn"
+                      (click)="openEditModal(criterion)"
+                      title="Edit Criterion">
+                      <i class="cil-pencil"></i>
+                    </button>
+
+                    <button
+                      *ngIf="criterion.isActive"
+                      class="btn btn-sm btn-light text-warning me-1 action-icon-btn"
+                      (click)="toggleStatus(criterion)"
+                      title="Deactivate">
+                      <i class="cil-ban"></i>
+                    </button>
+
+                    <button
+                      *ngIf="!criterion.isActive"
+                      class="btn btn-sm btn-light text-success me-1 action-icon-btn"
+                      (click)="toggleStatus(criterion)"
+                      title="Activate">
+                      <i class="cil-check"></i>
+                    </button>
+
+                    <button
+                      class="btn btn-sm btn-light text-danger action-icon-btn"
+                      (click)="confirmDelete(criterion)"
+                      title="Delete">
+                      <i class="cil-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </c-card-body>
+
+      </c-card>
+    </c-col>
+  </c-row>
+</c-container>
+
+<!-- ==================== CREATE/EDIT MODAL (SIMPLIFIED) ==================== -->
+<c-modal #criterionModal [visible]="showModal" (visibleChange)="onModalClose($event)" size="lg">
+  <c-modal-header class="modal-header-gradient">
+    <h5 cModalTitle class="text-white">
+      <i [class]="isEditMode ? 'cil-pencil' : 'cil-plus'" class="me-2"></i>
+      {{ isEditMode ? 'Edit' : 'Create' }} Evaluation Criterion
+    </h5>
+    <button (click)="closeModal()" cButtonClose class="text-white"></button>
+  </c-modal-header>
+  
+  <c-modal-body class="p-4">
+    <!-- ✅ SIMPLIFIED: Only Name + Description -->
+    <form [formGroup]="criterionForm">
+      <c-row>
+        <c-col xs="12" class="mb-3">
+          <label cLabel class="form-label-modern">
+            Criterion Name <span class="text-danger">*</span>
+          </label>
+          <input 
+            cFormControl 
+            formControlName="criterionName" 
+            placeholder="e.g., Quality, Delivery Time, Service"
+            class="form-control-modern"
+            [class.is-invalid]="criterionForm.get('criterionName')?.invalid && criterionForm.get('criterionName')?.touched" />
+          <div *ngIf="criterionForm.get('criterionName')?.invalid && criterionForm.get('criterionName')?.touched" class="invalid-feedback">
+            Criterion name is required
+          </div>
+        </c-col>
+
+        <c-col xs="12" class="mb-3">
+          <label cLabel class="form-label-modern">Description</label>
+          <textarea 
+            cFormControl 
+            formControlName="description" 
+            rows="3"
+            placeholder="Optional description of what this criterion evaluates"
+            class="form-control-modern">
+          </textarea>
+        </c-col>
+
+        <!-- ✅ INFO BOX: Fixed Values -->
+        <c-col xs="12">
+          <c-alert color="info" class="mb-0">
+            <div class="row">
+              <div class="col-md-6">
+                <i class="cil-info me-2"></i>
+                <strong>Max Score:</strong> <c-badge color="primary">5 (fixed)</c-badge>
+              </div>
+              <!-- <div class="col-md-6">
+                <i class="cil-layers me-2"></i>
+                <strong>Type:</strong> <c-badge color="secondary">Manual Rating (fixed)</c-badge>
+              </div> -->
+            </div>
+            <small class="d-block mt-2 text-muted">
+              All criteria use 5-point scale. Weightages assigned during evaluation.
+            </small>
+          </c-alert>
+        </c-col>
+      </c-row>
+
+      <c-alert *ngIf="errorMessage" color="danger" [dismissible]="true" (visibleChange)="errorMessage = null">
+        <i class="cil-x-circle me-2"></i>
+        {{ errorMessage }}
+      </c-alert>
+
+      <c-alert *ngIf="successMessage" color="success" [dismissible]="true" (visibleChange)="successMessage = null">
+        <i class="cil-check-circle me-2"></i>
+        {{ successMessage }}
+      </c-alert>
+    </form>
+  </c-modal-body>
+  
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="closeModal()" [disabled]="isSubmitting">
+      Cancel
+    </button>
+    <button cButton [color]="isEditMode ? 'warning' : 'primary'" (click)="submitCriterion()" [disabled]="isSubmitting || criterionForm.invalid">
+      <span *ngIf="!isSubmitting">
+        <i [class]="isEditMode ? 'cil-save' : 'cil-plus'" class="me-2"></i>
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </span>
+      <span *ngIf="isSubmitting">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        {{ isEditMode ? 'Updating...' : 'Creating...' }}
+      </span>
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- DELETE MODAL -->
+<c-modal #deleteModal [visible]="showDeleteModal" (visibleChange)="showDeleteModal = $event" size="sm">
+  <c-modal-header class="modal-header-danger">
+    <h5 cModalTitle class="text-white">
+      <i class="cil-warning me-2"></i>
+      Confirm Delete
+    </h5>
+    <button (click)="showDeleteModal = false" cButtonClose class="text-white"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <p>Are you sure you want to delete <strong>{{ selectedCriterion?.criterionName }}</strong>?</p>
+    <div class="alert alert-warning">
+      <i class="cil-info me-2"></i>
+      <small>This action cannot be undone.</small>
+    </div>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="showDeleteModal = false" [disabled]="isDeleting">
+      Cancel
+    </button>
+    <button cButton color="danger" (click)="deleteCriterion()" [disabled]="isDeleting">
+      <span *ngIf="!isDeleting">
+        <i class="cil-trash me-2"></i>
+        Delete
+      </span>
+      <span *ngIf="isDeleting">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Deleting...
+      </span>
+    </button>
+  </c-modal-footer>
+</c-modal>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .container { max-width:600px; margin:30px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    .header { background:#ea4335; color:#fff; padding:28px 32px; }
+    .header h1 { margin:0; font-size:22px; }
+    .body { padding:28px 32px; color:#333; line-height:1.6; }
+    .info-box { background:#fdf0f0; border-left:4px solid #ea4335; padding:16px 20px; border-radius:4px; margin:20px 0; }
+    .info-box p { margin:4px 0; font-size:14px; }
+    .remarks { background:#fdf0f0; border:1px solid #f5c6c6; padding:14px 18px; border-radius:4px; margin:16px 0; }
+    .footer { background:#f4f4f4; color:#999; font-size:12px; padding:16px 32px; text-align:center; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>❌ Invoice Permanently Rejected</h1></div>
+  <div class="body">
+    <p>Hello <strong th:text="${supplierName}">Supplier</strong>,</p>
+    <p>Unfortunately, your invoice has been <strong>permanently rejected</strong> and is now closed. No further action can be taken on this invoice.</p>
+    <div class="info-box">
+      <p><strong>Invoice Number:</strong> <span th:text="${invoiceNumber}"></span></p>
+      <p><strong>PO Number:</strong> <span th:text="${poNumber}"></span></p>
+      <p><strong>Rejected By:</strong> <span th:text="${buyerName}"></span></p>
+    </div>
+    <div class="remarks" th:if="${remarks != null and !#strings.isEmpty(remarks)}">
+      <p><strong>Reason:</strong></p>
+      <p th:text="${remarks}"></p>
+    </div>
+    <p>If you have questions, please contact your buyer directly.</p>
+  </div>
+  <div class="footer">This is an automated notification. Please do not reply to this email.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!-- session-expiry-dialog.component.html -->
+<div class="session-dialog-overlay" *ngIf="isVisible" (click)="onOverlayClick($event)">
+  <div class="session-dialog-box" role="dialog" aria-modal="true" aria-labelledby="sessionDialogTitle">
+
+    <!-- Top Warning Bar -->
+    <div class="session-dialog-topbar"></div>
+
+    <!-- Icon + Header -->
+    <div class="session-dialog-header">
+      <div class="session-dialog-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h2 class="session-dialog-title" id="sessionDialogTitle">Session Expiring Soon</h2>
+      <p class="session-dialog-subtitle">Your session is about to expire due to inactivity.</p>
+    </div>
+
+    <!-- Countdown Display -->
+    <div class="session-dialog-countdown-wrapper">
+      <div class="session-dialog-countdown-label">Time remaining</div>
+      <div class="session-dialog-countdown">{{ countdown }}</div>
+      <div class="session-dialog-progress-bar">
+        <div class="session-dialog-progress-fill" [style.width]="progressPercent + '%'"></div>
+      </div>
+    </div>
+
+    <!-- Message -->
+    <p class="session-dialog-message">
+      Would you like to extend your session by <strong>1 hour</strong> or logout now?
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="session-dialog-actions">
+      <button class="session-btn session-btn-logout" (click)="onLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Logout Now
+      </button>
+      <button class="session-btn session-btn-extend" (click)="onExtend()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Extend +1 Hour
+      </button>
+    </div>
+
+  </div>
+</div>

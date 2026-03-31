@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Purchase Order</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #000;
+            padding: 20px;
+            line-height: 1.4;
+        }
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+        }
+        .company-logo {
+            width: 70px;
+            height: 60px;
+            margin-right: 15px;
+        }
+        .company-info { flex: 1; }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .company-meta { font-size: 9px; color: #333; margin-bottom: 2px; }
+        .company-address { font-size: 9px; color: #333; }
+
+        /* ===== PO TITLE ===== */
+        .po-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-decoration: underline;
+            letter-spacing: 1px;
+        }
+
+        /* ===== VENDOR + ORDER INFO ===== */
+        .info-grid {
+            display: flex;
+            border: 1px solid #999;
+            margin-bottom: 6px;
+        }
+        .vendor-section { flex: 1; padding: 8px; border-right: 1px solid #999; }
+        .order-section { flex: 1; padding: 8px; }
+        .info-row { display: flex; margin-bottom: 3px; }
+        .info-label { font-weight: bold; min-width: 110px; font-size: 9px; }
+        .info-value { font-size: 9px; }
+
+        /* ===== DELIVERY INSTRUCTIONS ===== */
+        .section-header {
+            background: #e0e0e0;
+            text-align: center;
+            font-weight: bold;
+            padding: 4px;
+            border: 1px solid #999;
+            border-bottom: none;
+            font-size: 10px;
+        }
+        .section-body {
+            border: 1px solid #999;
+            padding: 6px;
+            margin-bottom: 6px;
+            min-height: 30px;
+            font-size: 9px;
+        }
+
+        /* ===== BILLING / SHIPPING ===== */
+        .address-grid {
+            display: flex;
+            border: 1px solid #999;
+            margin-bottom: 8px;
+        }
+        .address-box { flex: 1; padding: 8px; }
+        .address-box:first-child { border-right: 1px solid #999; }
+        .address-header {
+            font-weight: bold;
+            text-align: center;
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+        .address-text { font-size: 9px; line-height: 1.5; }
+
+        /* ===== LINE ITEMS TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+        }
+        table th {
+            background: #d0d0d0;
+            border: 1px solid #999;
+            padding: 5px 4px;
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        table td {
+            border: 1px solid #999;
+            padding: 4px;
+            font-size: 9px;
+            vertical-align: top;
+        }
+        .td-center { text-align: center; }
+        .td-right { text-align: right; }
+        .total-row td {
+            font-weight: bold;
+            background: #f0f0f0;
+        }
+        .grand-total-row td {
+            font-weight: bold;
+            font-size: 10px;
+            background: #e0e0e0;
+        }
+
+        /* ===== AMOUNT IN WORDS ===== */
+        .amount-words {
+            font-size: 9.5px;
+            margin-bottom: 8px;
+        }
+
+        /* ===== TERMS & CONDITIONS ===== */
+        .terms-body {
+            border: 1px solid #999;
+            padding: 8px;
+            min-height: 60px;
+            font-size: 9px;
+            margin-bottom: 16px;
+        }
+
+        /* ===== SIGNATURE SECTION ===== */
+        .signature-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .sig-box { flex: 1; margin: 0 8px; }
+        .sig-box:first-child { margin-left: 0; }
+        .sig-box:last-child { margin-right: 0; }
+        .sig-row { margin-bottom: 16px; font-size: 9px; }
+        .sig-line { border-bottom: 1px solid #000; margin-top: 2px; width: 180px; }
+        .sig-label { font-weight: bold; font-size: 9px; margin-bottom: 12px; }
+        .sig-footer { font-size: 8px; color: #555; margin-top: 4px; }
+        .digital-sig { font-style: italic; color: #1a56db; font-size: 14px; margin-top: 20px; text-align: right; }
+        .dig-signed { font-style: italic; font-size: 9px; color: #555; text-align: right; }
+        .footer-address {
+            font-style: italic;
+            font-size: 8.5px;
+            color: #444;
+            text-align: center;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <div class="company-info">
+        <div class="company-name" th:text="${po.buyerName}">ITTI PRIVATE LIMITED</div>
+        <div class="company-meta">
+            <span th:if="${po.buyerGstin != null}">GSTIN: <span th:text="${po.buyerGstin}"></span> &nbsp;|&nbsp;</span>
+            <span th:if="${po.buyerPan != null}">PAN: <span th:text="${po.buyerPan}"></span> &nbsp;|&nbsp;</span>
+            <span th:if="${po.buyerEmail != null}">Email: <span th:text="${po.buyerEmail}"></span></span>
+        </div>
+        <div class="company-address" th:text="${po.buyerLocationAddress}"></div>
+    </div>
+</div>
+
+<!-- ===== PO TITLE ===== -->
+<div class="po-title">PURCHASE ORDER</div>
+
+<!-- ===== VENDOR + ORDER INFO ===== -->
+<div class="info-grid">
+    <div class="vendor-section">
+        <div class="info-row">
+            <span class="info-label">Vendor Details</span>
+            <span class="info-value">: <span th:text="${po.supplierContactName}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Address</span>
+            <span class="info-value">: <span th:text="${po.supplierAddress}"></span></span>
+        </div>
+        <div class="info-row" th:if="${po.supplierCity != null}">
+            <span class="info-label">City / Pincode</span>
+            <span class="info-value">: <span th:text="${po.supplierCity}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Contact Person</span>
+            <span class="info-value">: <span th:text="${po.supplierContactName}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Contact Number</span>
+            <span class="info-value">: <span th:text="${po.supplierContactPhone}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Vendor GSTIN</span>
+            <span class="info-value">: <span th:text="${po.supplierGstin}"></span></span>
+        </div>
+    </div>
+    <div class="order-section">
+        <div class="info-row">
+            <span class="info-label">Order No</span>
+            <span class="info-value">: <span th:text="${po.poNumber}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Created Date</span>
+            <span class="info-value">: <span th:text="${#temporals.format(po.createdAt, 'yyyy-MM-dd')}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Document Date</span>
+            <span class="info-value">: <span th:text="${#temporals.format(po.poDate, 'dd-MMM-yyyy')}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Quote No</span>
+            <span class="info-value">: <span th:text="${po.referenceQuoteNo}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Vendor Order No</span>
+            <span class="info-value">:</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Requested Receipt</span>
+            <span class="info-value">:</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Indent No</span>
+            <span class="info-value">: <span th:text="${po.rfqNumber}"></span></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Purchaser Code</span>
+            <span class="info-value">:</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Campaign No</span>
+            <span class="info-value">:</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Responsibility</span>
+            <span class="info-value">:</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== DELIVERY INSTRUCTIONS ===== -->
+<div class="section-header">DELIVERY INSTRUCTIONS</div>
+<div class="section-body" th:text="${po.deliveryTerms != null ? po.deliveryTerms : 'As per PO'}"></div>
+
+<!-- ===== BILLING / SHIPPING ===== -->
+<div class="address-grid">
+    <div class="address-box">
+        <div class="address-header">BILLING ADDRESS</div>
+        <div class="address-text">
+            <span th:text="${po.buyerName}"></span><br/>
+            <span th:text="${po.buyerLocationAddress}"></span><br/>
+            <span th:if="${po.buyerContactName != null}">CONTACT NAME : <span th:text="${po.buyerContactName}"></span><br/></span>
+            <span th:if="${po.buyerContactPhone != null}">CONTACT NO : <span th:text="${po.buyerContactPhone}"></span></span>
+        </div>
+    </div>
+    <div class="address-box">
+        <div class="address-header">SHIPPING ADDRESS</div>
+        <div class="address-text">
+            <span th:text="${po.buyerName}"></span><br/>
+            <span th:text="${po.deliveryLocationAddress != null ? po.deliveryLocationAddress : po.buyerLocationAddress}"></span><br/>
+            <span th:if="${po.buyerContactName != null}">CONTACT NAME : <span th:text="${po.buyerContactName}"></span><br/></span>
+            <span th:if="${po.buyerContactPhone != null}">CONTACT NO : <span th:text="${po.buyerContactPhone}"></span></span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== LINE ITEMS TABLE ===== -->
+<table>
+    <thead>
+        <tr>
+            <th style="width:5%">S.No</th>
+            <th style="width:35%">Description</th>
+            <th style="width:10%">Qty</th>
+            <th style="width:7%">UOM</th>
+            <th style="width:13%">Unit Price</th>
+            <th style="width:10%">Discount %</th>
+            <th style="width:14%">Total (INR)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="item : ${po.lineItems}">
+            <td class="td-center" th:text="${item.slNo}"></td>
+            <td>
+                <div th:text="${item.itemDescription}"></div>
+                <div th:if="${item.specifications != null}" style="color:#555;font-size:8px" th:text="${item.specifications}"></div>
+                <div th:if="${item.brandMakeModel != null}" style="color:#555;font-size:8px" th:text="'Brand: ' + ${item.brandMakeModel}"></div>
+            </td>
+            <td class="td-center" th:text="${#numbers.formatDecimal(item.quantity, 1, 2)}"></td>
+            <td class="td-center" th:text="${item.uom}"></td>
+            <td class="td-right" th:text="${#numbers.formatDecimal(item.unitRate, 1, 2)}"></td>
+            <td class="td-center" th:text="${item.discountPercentage != null ? #numbers.formatDecimal(item.discountPercentage, 1, 2) : '0.00'}"></td>
+            <td class="td-right" th:text="${#numbers.formatDecimal(item.lineTotal, 1, 2)}"></td>
+        </tr>
+        <!-- Spacer rows for short POs -->
+        <tr th:if="${#lists.size(po.lineItems) lt 5}" th:each="i : ${#numbers.sequence(1, 5 - #lists.size(po.lineItems))}">
+            <td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr th:if="${po.subtotal != null and po.taxPercentage != null and po.taxPercentage > 0}">
+            <td colspan="6" class="td-right" style="font-weight:bold">Subtotal</td>
+            <td class="td-right" style="font-weight:bold" th:text="${#numbers.formatDecimal(po.subtotal, 1, 2)}"></td>
+        </tr>
+        <tr th:if="${po.taxAmount != null and po.taxPercentage != null and po.taxPercentage > 0}">
+            <td colspan="6" class="td-right">
+                Tax (<span th:text="${#numbers.formatDecimal(po.taxPercentage, 1, 2)}"></span>%)
+            </td>
+            <td class="td-right" th:text="${#numbers.formatDecimal(po.taxAmount, 1, 2)}"></td>
+        </tr>
+        <tr class="grand-total-row">
+            <td colspan="6" class="td-right">Grand Total (INR)</td>
+            <td class="td-right" th:text="${#numbers.formatDecimal(po.grandTotal, 1, 2)}"></td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- ===== AMOUNT IN WORDS ===== -->
+<div class="amount-words">
+    <strong>Amount in Words:</strong> <span th:text="${po.amountInWords}"></span>
+</div>
+
+<!-- ===== TERMS & CONDITIONS ===== -->
+<div class="section-header">TERMS &amp; CONDITIONS</div>
+<div class="terms-body">
+    <span th:if="${po.otherTerms != null}" th:text="${po.otherTerms}"></span>
+    <span th:if="${po.paymentTerms != null}">
+        <strong>Payment Terms:</strong> <span th:text="${po.paymentTerms}"></span><br/>
+    </span>
+    <span th:if="${po.buyerRemarks != null}">
+        <strong>Remarks:</strong> <span th:text="${po.buyerRemarks}"></span>
+    </span>
+</div>
+
+<!-- ===== SIGNATURES ===== -->
+<div class="signature-grid">
+    <!-- Vendor Signatures -->
+    <div class="sig-box">
+        <div class="sig-label">Vendor Details</div>
+        <div class="sig-row">
+            <span>Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-row">
+            <span>Signature &nbsp;:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-row">
+            <span>Designation:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-row">
+            <span>Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div style="font-size:9px;margin-top:6px">
+            <strong>For and on behalf of <span th:text="${po.supplierName}"></span></strong>
+        </div>
+    </div>
+
+    <!-- Company Signatures -->
+    <div class="sig-box">
+        <div class="sig-label" th:text="${po.buyerName}">ITTI PRIVATE LIMITED</div>
+        <div class="sig-row">
+            <span>Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-row">
+            <span>Signature &nbsp;:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-row">
+            <span>Designation:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-row">
+            <span>Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span>
+            <div class="sig-line"></div>
+        </div>
+        <div style="font-size:9px;margin-top:6px">
+            <strong>For and on behalf of <span th:text="${po.buyerName}"></span></strong>
+        </div>
+        <div class="digital-sig" th:if="${po.approvedByName != null}">Procurement Signature</div>
+        <div class="dig-signed" th:if="${po.approvalDate != null}">
+            Digitally Signed on: <span th:text="${#temporals.format(po.approvalDate, 'dd-MMM-yyyy')}"></span>
+        </div>
+    </div>
+</div>
+
+<div class="footer-address" th:text="${po.buyerLocationAddress}"></div>
+
+</body>
+</html>

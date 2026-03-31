@@ -1,0 +1,166 @@
+spring:
+  cloud:
+  
+    discovery:
+      enabled: true
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  application:
+    name: spring-security
+  jpa:
+    # Provide database platform that is being used
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      # New database is created when application starts and destroyed when application is stopped
+      ddl-auto: none
+    # Show sql when spring data jpa performs query
+    show-sql: true
+    properties:
+      hibernate:
+        # Format queries
+        format_sql: true
+    naming:
+      physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    # URL connection to database (spring-security is database name)time_sheet
+    url:  jdbc:mysql://localhost:3306/dev_itti_timesheet?allowPublicKeyRetrieval=true&useSSL=false
+    #customer_tracking_db
+    username: root
+    password: Admin@123
+  h2:
+    console:
+      enabled: true
+token:
+  signing:
+    key: SAADSSAASDASDKSANDKASDNASKD34234234324FSDFDSFSDKNSDKFNDSFNSDFNS68568565406509
+  expirationTime: 3600000
+
+timesheet:
+  url: http://localhost:9090
+
+
+
+
+
+# # spring:
+# #   # --- Spring Cloud Gateway Configuration ---
+# #   cloud:
+# #     gateway:
+# #       routes:
+# #         - id: buyer-service
+# #           # Note: Changed to use a proper port, assuming 8080 is for a different service
+# #           uri: http://localhost:8081 
+# #           predicates:
+# #             - Path=/api/buyers/**
+# #       # Enabling service discovery is typically separate from the routes block
+# #       discovery:
+# #         enabled: true
+
+# #   # --- Spring Boot Application Configuration ---
+# #   application:
+# #     name: spring-security
+
+# #   main:
+# #     web-application-type: reactive
+# #     allow-bean-definition-overriding: true
+
+# #   # --- Spring Data JPA and Hibernate Configuration ---
+# #   jpa:
+# #     # Provide database platform that is being used
+# #     database-platform: org.hibernate.dialect.MySQL8Dialect
+# #     hibernate:
+# #       # New database is created when application starts and destroyed when application is stopped
+# #       ddl-auto: none
+# #     # Show sql when spring data jpa performs query
+# #     show-sql: true
+# #     properties:
+# #       hibernate:
+# #         # Format queries
+# #         format_sql: true
+# #     naming:
+# #       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+# #   # --- DataSource Configuration ---
+# #   datasource:
+# #     # URL connection to database
+# #     url: jdbc:mysql://localhost:3306/dev_itti_timesheet?allowPublicKeyRetrieval=true&useSSL=false
+# #     username: root
+# #     password: Admin@123
+
+# #   # --- H2 Console Configuration (Often used for development) ---
+# #   h2:
+# #     console:
+# #       enabled: true
+
+# # # --- Custom/External Configuration (JWT Token Properties) ---
+# # token:
+# #   signing:
+# #     key: SAADSSAASDASDKSANDKASDNASKD34234234324FSDFDSFSDKNSDKFNDSFNSDFNS68568565406509
+# #   expirationTime: 3600000 # 1 hour in milliseconds (3600 * 1000)
+
+# # # --- Custom/External Configuration (Timesheet Service URL) ---
+# # timesheet:
+# #   url: http://localhost:9090
+
+
+# spring:
+#   cloud:
+#     gateway:
+#       routes:
+#         # ============================================
+#         # ✅ Lead Capture Routes (Buyer Service)
+#         # ============================================
+#         - id: leadcapture
+#           uri: http://localhost:9092
+#           predicates:
+#             - Path=/leadcapture/**
+      
+#       # Service Discovery
+#       discovery:
+#         enabled: true
+
+#   # Spring Boot Application
+#   application:
+#     name: spring-gateway
+  
+#   main:
+#     web-application-type: reactive
+#     allow-bean-definition-overriding: true
+
+#   # JPA & Hibernate
+#   jpa:
+#     database-platform: org.hibernate.dialect.MySQL8Dialect
+#     hibernate:
+#       ddl-auto: none
+#     show-sql: true
+#     properties:
+#       hibernate:
+#         format_sql: true
+#     naming:
+#       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+#   # DataSource
+#   datasource:
+#     url: jdbc:mysql://localhost:3306/dev_itti_timesheet?allowPublicKeyRetrieval=true&useSSL=false
+#     username: root
+#     password: Admin@123
+
+#   # H2 Console
+#   h2:
+#     console:
+#       enabled: true
+
+# # ============================================
+# # JWT Token Configuration
+# # ============================================
+# token:
+#   signing:
+#     key: SAADSSAASDASDKSANDKASDNASKD34234234324FSDFDSFSDKNSDKFNDSFNSDFNS68568565406509
+#   expirationTime: 3600000  # 1 hour in milliseconds
+
+# # ============================================
+# # Timesheet Service
+# # ============================================
+# timesheet:
+#   url: http://localhost:9090

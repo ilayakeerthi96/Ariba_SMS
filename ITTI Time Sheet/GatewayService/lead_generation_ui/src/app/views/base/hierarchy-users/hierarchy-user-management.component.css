@@ -1,0 +1,876 @@
+/* ============================================
+   UNIFIED HIERARCHY MANAGEMENT STYLES - BLUE THEME
+   ============================================ */
+
+/* ============================================
+   GRADIENT HEADERS - ALL BLUE
+   ============================================ */
+.gradient-header,
+.gradient-header-levels,
+.gradient-header-users,
+.gradient-header-reporting {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+    padding: 10px;
+}
+
+.gradient-header::before,
+.gradient-header-levels::before,
+.gradient-header-users::before,
+.gradient-header-reporting::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+/* ============================================
+   AVATAR CIRCLES - LARGER FOR HEADERS
+   ============================================ */
+.avatar-circle-large {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================
+   INFO CARDS (IN HEADER)
+   ============================================ */
+.info-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+}
+
+.info-card-content {
+  flex-grow: 1;
+  color: white;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ============================================
+   DASHBOARD STATISTICS CARDS
+   ============================================ */
+.stat-card {
+  transition: all 0.3s ease;
+  border-radius: 16px !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.stat-label {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.stat-footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   ACTION BUTTONS (DASHBOARD)
+   ============================================ */
+.action-button {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  text-align: center;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e7f3ff 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+}
+
+.action-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: white;
+}
+
+/* ============================================
+   HIERARCHY LEVEL ITEMS (DASHBOARD)
+   ============================================ */
+.hierarchy-level-item {
+  padding: 1rem;
+  border-radius: 12px;
+  background: white;
+  border: 2px solid #e9ecef;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.hierarchy-level-item:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+  transform: translateX(5px);
+}
+
+.level-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.level-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.level-users {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.level-status {
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================
+   MODERN ALERTS
+   ============================================ */
+.modern-alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-create-primary {
+  background: white;
+  color: #667eea;
+  border: 2px solid white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-create-primary:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-modern {
+  border-radius: 8px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-btn {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   MODERN TABLE STYLES
+   ============================================ */
+.modern-table {
+  font-size: 0.95rem;
+}
+
+.modern-table thead th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  padding: 1rem 0.75rem;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.modern-table tbody td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+}
+
+.modern-table-row {
+  transition: all 0.2s ease;
+}
+
+.modern-table-row:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   LEVEL ORDER BADGE
+   ============================================ */
+.level-order-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.level-name-text {
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.description-text {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.date-text {
+  color: #6c757d;
+}
+
+/* ============================================
+   STATUS & USER COUNT BADGES
+   ============================================ */
+.status-badge,
+.user-count-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   DRAG HANDLE
+   ============================================ */
+.drag-handle {
+  cursor: move;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+/* ============================================
+   AVATAR CIRCLES
+   ============================================ */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mini-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   USER NAME & EMAIL
+   ============================================ */
+.user-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-email {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* ============================================
+   MANAGERS LIST
+   ============================================ */
+.managers-list {
+  min-width: 180px;
+}
+
+.manager-item {
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+  transition: all 0.2s ease;
+}
+
+.manager-item:hover {
+  transform: translateX(3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   MANAGER CHIPS (IN FORMS)
+   ============================================ */
+.manager-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.manager-chip-select {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  min-width: 220px;
+}
+
+.manager-chip-select:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.manager-chip-select.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.manager-chip-select .manager-info {
+  flex-grow: 1;
+}
+
+.manager-chip-select input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   MANAGER CHIPS (IN REPORTING STRUCTURE)
+   ============================================ */
+.manager-chip {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.manager-chip:hover {
+  border-color: #667eea;
+  background: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.manager-chip.selected {
+  border-color: #667eea;
+  background: #e7f3ff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.manager-chip label {
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+/* ============================================
+   ORGANIZATION CHART STYLES
+   ============================================ */
+.org-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 220px;
+  max-width: 280px;
+  transition: all 0.3s ease;
+}
+
+.org-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.org-card-header {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 3px solid #dee2e6;
+  color: white;
+  font-weight: 600;
+}
+
+.org-card-body {
+  padding: 1rem;
+}
+
+.org-card.top-level {
+  margin: 0 auto;
+  max-width: 320px;
+  border: 3px solid #dc3545;
+}
+
+.org-card.top-level .org-card-header {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.tree-children {
+  position: relative;
+  margin-top: 2rem;
+}
+
+.connection-line {
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 2rem;
+  background: linear-gradient(180deg, #dee2e6 0%, #adb5bd 100%);
+}
+
+.report-branch {
+  position: relative;
+}
+
+.report-branch::before {
+  content: '';
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 2rem;
+  background: #dee2e6;
+}
+
+.org-card-mini {
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.org-card-mini:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+  transform: scale(1.05);
+}
+
+.mini-connection {
+  width: 2px;
+  height: 1rem;
+  background: #dee2e6;
+  margin: 0 auto;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+.modal-header-gradient,
+.modal-header-users,
+.modal-header-reporting {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+}
+
+.modal-header-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border-bottom: none;
+}
+
+.form-label-modern {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control-modern,
+.form-select-modern {
+  border-radius: 8px;
+  border: 2px solid #dee2e6;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.form-control-modern:focus,
+.form-select-modern:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ============================================
+   REPORTING STRUCTURE STYLES
+   ============================================ */
+.reporting-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reporting-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.reporting-card-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 2px solid #dee2e6;
+}
+
+.reporting-card-body {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  color: #667eea;
+}
+
+.section-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.current-managers-section {
+  padding: 1rem;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+}
+
+.managers-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.manager-badge-current {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.manager-selection-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+  .manager-selection-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.level-badge-reporting {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.update-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.update-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   ADDITIONAL STYLES
+   ============================================ */
+.email-cell {
+  display: flex;
+  align-items: center;
+}
+
+.designation-badge {
+  background: linear-gradient(135deg, #f0f2ff 0%, #e7f3ff 100%);
+  color: #667eea;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.level-badge-modern {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   CARD SHADOWS
+   ============================================ */
+.shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+.spinner-border {
+  border-width: 0.3em;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+  .modern-table {
+    font-size: 0.85rem;
+  }
+  
+  .modern-table thead th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .modern-table tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .level-order-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+  }
+  
+  .avatar-circle {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .avatar-circle-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+  
+  .manager-chips-container {
+    flex-direction: column;
+  }
+  
+  .manager-chip-select {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .org-card {
+    min-width: 180px;
+    max-width: 220px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modern-table-row {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.modern-table-row:nth-child(1) { animation-delay: 0.05s; }
+.modern-table-row:nth-child(2) { animation-delay: 0.1s; }
+.modern-table-row:nth-child(3) { animation-delay: 0.15s; }
+.modern-table-row:nth-child(4) { animation-delay: 0.2s; }
+.modern-table-row:nth-child(5) { animation-delay: 0.25s; }
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}

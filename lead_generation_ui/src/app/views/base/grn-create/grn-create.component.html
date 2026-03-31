@@ -1,0 +1,776 @@
+<div class="grn-page">
+
+  <!-- ── TOP BAR ── -->
+  <div class="grn-topbar">
+    <button class="topbar-back-btn" (click)="cancel()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <div class="topbar-title">
+      <i class="bi bi-receipt-cutoff"></i>
+      <div>
+        <div class="topbar-title-main">Create Goods Receipt Note</div>
+        <div class="topbar-title-sub">Fill in all details and submit</div>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+  </div>
+
+  <!-- ── PAGE BODY ── -->
+  <div class="grn-body">
+
+    <!-- ── Alerts ── -->
+    <div *ngIf="errorMessage" class="grn-alert grn-alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{ errorMessage }}</span>
+      <button class="grn-alert-close" (click)="errorMessage = ''"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div *ngIf="successMessage" class="grn-alert grn-alert-success">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- ── Fully-received banner (blocks the form visually) ── -->
+    <div *ngIf="isPOFullyReceived" class="grn-alert grn-alert-danger">
+      <i class="bi bi-ban"></i>
+      <div>
+        <strong>PO Fully Received — No New GRN Allowed</strong><br>
+        <span>
+          All ordered quantities for <strong>{{ selectedPO?.poNumber }}</strong> have already been
+          fully received in previous GRNs. You cannot create another GRN for this PO.
+          If goods were rejected during QA, please handle returns separately.
+        </span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 1 — SELECT PURCHASE ORDER
+    ══════════════════════════════════════════ -->
+    <div class="grn-section">
+      <div class="grn-section-header">
+        <div class="grn-section-icon indigo"><i class="bi bi-file-earmark-text"></i></div>
+        <div>
+          <div class="grn-section-title">Purchase Order</div>
+          <div class="grn-section-sub">Search and select an approved PO</div>
+        </div>
+        <span *ngIf="selectedPO" class="po-selected-chip">
+          <i class="bi bi-patch-check-fill me-1"></i>{{ selectedPO.poNumber }}
+        </span>
+      </div>
+
+      <div class="po-search-row">
+        <div class="po-search-wrap">
+          <i class="bi bi-search po-search-icon"></i>
+          <input
+            type="text"
+            class="po-search-input"
+            placeholder="Search by PO number or supplier…"
+            [(ngModel)]="poSearch"
+            (input)="filterPOs()"
+            (focus)="filterPOs(); poDropdownOpen = true"
+            (click)="filterPOs(); poDropdownOpen = true" />
+          <button *ngIf="poSearch" class="po-search-clear" (click)="poSearch=''; filterPOs()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+
+          <!-- Dropdown -->
+          <div class="po-dropdown" *ngIf="poDropdownOpen && filteredPOs.length > 0">
+            <div
+              *ngFor="let po of filteredPOs"
+              class="po-dropdown-item"
+              (mousedown)="selectPO(po); poDropdownOpen = false">
+              <div class="po-dd-left">
+                <span class="po-dd-number">{{ po.poNumber }}</span>
+                <span class="po-dd-supplier">{{ getSupplierName(po) }}</span>
+              </div>
+              <div class="po-dd-right">
+                <span class="po-dd-items">{{ po.lineItems?.length || po.items?.length || 0 }} items</span>
+                <span class="po-dd-amount">{{ po.totalAmount | currency:'INR':'symbol':'1.0-0' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="po-dropdown" *ngIf="poDropdownOpen && filteredPOs.length === 0">
+            <div class="po-dd-empty"><i class="bi bi-inbox me-2"></i>No POs found</div>
+          </div>
+        </div>
+
+        <div *ngIf="poLoading" class="po-loading-hint">
+          <i class="bi bi-arrow-repeat spin me-1"></i> Loading POs…
+        </div>
+      </div>
+
+      <!-- Selected PO Summary -->
+      <div *ngIf="selectedPO" class="po-summary-bar">
+        <div class="po-sum-item">
+          <span class="po-sum-label">Supplier</span>
+          <span class="po-sum-val">{{ getSupplierName(selectedPO) }}</span>
+        </div>
+        <div class="po-sum-divider"></div>
+        <div class="po-sum-item">
+          <span class="po-sum-label">PO Date</span>
+          <span class="po-sum-val">{{ selectedPO.poDate | date:'dd MMM yyyy' }}</span>
+        </div>
+        <div class="po-sum-divider"></div>
+        <div class="po-sum-item">
+          <span class="po-sum-label">Total Value</span>
+          <span class="po-sum-val strong">{{ selectedPO.totalAmount | currency:'INR':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="po-sum-divider"></div>
+        <div class="po-sum-item">
+          <span class="po-sum-label">Status</span>
+          <span class="po-sum-status">{{ selectedPO.status }}</span>
+        </div>
+        <!-- Receipt progress chip -->
+        <div class="po-sum-divider" *ngIf="lineItems.length > 0 && !existingGRNsLoading"></div>
+        <div class="po-sum-item" *ngIf="lineItems.length > 0 && !existingGRNsLoading">
+          <span class="po-sum-label">Qty Progress</span>
+          <span class="po-sum-val"
+            [style.color]="isPOFullyReceived ? '#dc2626' : '#16a34a'"
+            style="font-weight:800;">
+            {{ totalAlreadyReceived }} / {{ totalOrderedQty }} received
+          </span>
+        </div>
+        <button class="po-sum-change" (click)="selectedPO = null; poSearch = ''; lineItems = []; isPOFullyReceived = false; errorMessage = ''">
+          <i class="bi bi-x me-1"></i>Clear
+        </button>
+      </div>
+
+      <!-- Loading spinner while fetching existing GRNs -->
+      <div *ngIf="existingGRNsLoading" class="po-grn-loading">
+        <i class="bi bi-arrow-repeat spin me-2"></i>
+        Checking existing GRNs for this PO…
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 2 — DELIVERY DETAILS
+    ══════════════════════════════════════════ -->
+    <div class="grn-section" [class.grn-section-disabled]="isPOFullyReceived">
+      <div class="grn-section-header">
+        <div class="grn-section-icon teal"><i class="bi bi-truck"></i></div>
+        <div>
+          <div class="grn-section-title">Delivery Details</div>
+          <div class="grn-section-sub">Transportation and delivery information</div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="grn-field">
+          <label class="grn-label">Received Date <span class="req">*</span></label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-calendar3"></i>
+            <input type="date" class="grn-input grn-input-iconed"
+                   [(ngModel)]="grn.deliveryDate" [min]="today"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Delivery Challan No.</label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-file-earmark-text"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="DC/2024/001"
+                   [(ngModel)]="grn.deliveryChallanNumber"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Mode Of transportation</label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-receipt"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="mode of transportation"
+                   [(ngModel)]="grn.lrNumber"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Transporter Name</label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-truck-front"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="Transporter / courier name"
+                   [(ngModel)]="grn.transporterName"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Vehicle Number</label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-car-front"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="MH12AB1234"
+                   [(ngModel)]="grn.vehicleNumber"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Delivery Location</label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-geo-alt"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="Warehouse / site"
+                   [(ngModel)]="grn.deliveryLocation"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 3 — RECEIVER DETAILS
+    ══════════════════════════════════════════ -->
+    <div class="grn-section" [class.grn-section-disabled]="isPOFullyReceived">
+      <div class="grn-section-header">
+        <div class="grn-section-icon green"><i class="bi bi-person-badge"></i></div>
+        <div>
+          <div class="grn-section-title">Receiver Details</div>
+          <div class="grn-section-sub">Who received the delivery</div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="grn-field">
+          <label class="grn-label">Receiver Name <span class="req">*</span></label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-person"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="Full name of receiver"
+                   [(ngModel)]="grn.receiverName"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Receiver Designation</label>
+          <div class="grn-input-wrap">
+            <i class="grn-input-icon bi bi-briefcase"></i>
+            <input type="text" class="grn-input grn-input-iconed"
+                   placeholder="e.g. Store Manager"
+                   [(ngModel)]="grn.receiverDesignation"
+                   [disabled]="isPOFullyReceived" />
+          </div>
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Receiver Remarks</label>
+          <input type="text" class="grn-input"
+                 placeholder="Optional remarks from receiver"
+                 [(ngModel)]="grn.receiverRemarks"
+                 [disabled]="isPOFullyReceived" />
+        </div>
+
+        <div class="grn-field">
+          <label class="grn-label">Internal Notes</label>
+          <textarea class="grn-input grn-textarea"
+                    placeholder="Internal notes (not visible to supplier)"
+                    [(ngModel)]="grn.internalNotes"
+                    [disabled]="isPOFullyReceived"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 4 — LINE ITEMS
+    ══════════════════════════════════════════ -->
+    <div class="grn-section" *ngIf="selectedPO && !existingGRNsLoading">
+      <div class="grn-section-header">
+        <div class="grn-section-icon purple"><i class="bi bi-list-ul"></i></div>
+        <div>
+          <div class="grn-section-title">
+            Line Items
+            <span class="items-badge">{{ lineItems.length }} items</span>
+          </div>
+          <div class="grn-section-sub">Enter received quantities — cannot exceed remaining quantity per line</div>
+        </div>
+        <span class="qa-hint"><i class="bi bi-info-circle me-1"></i>QA review happens after submission</span>
+      </div>
+
+      <!-- Partial receipt info banner -->
+      <div *ngIf="totalAlreadyReceived > 0 && !isPOFullyReceived"
+           class="partial-receipt-banner">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <div>
+          <strong>Partial delivery previously recorded.</strong>
+          Some quantities for this PO have already been received in earlier GRNs.
+          The <strong>Remaining</strong> column shows the maximum you can enter for each line.
+          Previously received quantities are locked and cannot be changed.
+        </div>
+      </div>
+
+      <div class="line-items-table-wrap">
+        <table class="line-items-table">
+          <thead>
+            <tr>
+              <th style="width:44px">#</th>
+              <th>Item / Description</th>
+              <th style="width:70px">UOM</th>
+              <th style="width:100px;text-align:center">Ordered</th>
+              <!-- Only show "Already Received" column if there are any prior receipts -->
+              <th *ngIf="totalAlreadyReceived > 0"
+                  style="width:110px;text-align:center" class="col-already">
+                Already<br>Received
+              </th>
+              <th style="width:100px;text-align:center" class="col-remaining">
+                Remaining
+              </th>
+              <th style="width:150px;text-align:center">
+                Received Qty <span class="req">*</span>
+              </th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let li of lineItems; let i = index"
+                class="li-row"
+                [class.li-row-full]="li.remainingQty === 0"
+                [class.li-row-partial]="li.alreadyReceived > 0 && li.remainingQty > 0">
+
+              <td class="li-num">{{ i + 1 }}</td>
+
+              <td class="li-item">
+                {{ li.itemName }}
+                <div *ngIf="li.itemCode"       class="li-code">{{ li.itemCode }}</div>
+                <div *ngIf="li.brandMakeModel" class="li-brand">{{ li.brandMakeModel }}</div>
+              </td>
+
+              <td class="li-uom">{{ li.uom }}</td>
+
+              <!-- Ordered Qty -->
+              <td style="text-align:center">
+                <span class="qty-badge ordered">{{ li.orderedQty }}</span>
+              </td>
+
+              <!-- Already Received (only if prior receipts exist) -->
+              <td *ngIf="totalAlreadyReceived > 0" style="text-align:center">
+                <span class="qty-badge already" *ngIf="li.alreadyReceived > 0">
+                  {{ li.alreadyReceived }}
+                </span>
+                <span class="qty-badge none" *ngIf="li.alreadyReceived === 0">—</span>
+              </td>
+
+              <!-- Remaining Qty -->
+              <td style="text-align:center">
+                <span class="qty-badge"
+                  [class.remaining-ok]="li.remainingQty > 0"
+                  [class.remaining-zero]="li.remainingQty === 0">
+                  {{ li.remainingQty }}
+                </span>
+                <div *ngIf="li.remainingQty === 0" class="fully-received-label">
+                  <i class="bi bi-check-circle-fill me-1"></i>Fully received
+                </div>
+              </td>
+
+              <!-- Received Qty input — disabled when remaining = 0 -->
+              <td style="text-align:center">
+                <input type="number" class="qty-input"
+                       [(ngModel)]="li.receivedQty"
+                       min="0"
+                       [max]="li.remainingQty"
+                       [disabled]="li.remainingQty === 0"
+                       [class.qty-input-maxed]="li.receivedQty > li.remainingQty"
+                       (ngModelChange)="li.receivedQty = li.receivedQty > li.remainingQty ? li.remainingQty : li.receivedQty" />
+                <!-- <div *ngIf="li.remainingQty > 0" class="qty-max-hint">max {{ li.remainingQty }}</div> -->
+              </td>
+
+              <td>
+                <input type="text" class="remarks-input"
+                       placeholder="Optional"
+                       [(ngModel)]="li.remarks"
+                       [disabled]="li.remainingQty === 0" />
+              </td>
+            </tr>
+
+            <tr *ngIf="lineItems.length === 0">
+              <td colspan="8">
+                <div class="li-empty">
+                  <i class="bi bi-inbox"></i>
+                  <span>No line items found for this PO</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <!-- <tfoot>
+            <tr class="li-foot">
+              <td colspan="3" style="text-align:right;padding-right:16px">Totals</td>
+              <td style="text-align:center">{{ totalOrderedQty }}</td>
+              <td *ngIf="totalAlreadyReceived > 0" style="text-align:center">{{ totalAlreadyReceived }}</td>
+              <td style="text-align:center">{{ totalRemainingQty }}</td>
+              <td style="text-align:center">{{ totalReceivedQty }}</td>
+              <td></td>
+            </tr>
+          </tfoot> -->
+        </table>
+      </div>
+    </div>
+
+    <!-- Loading existing GRNs placeholder -->
+    <div class="grn-section grn-section-muted" *ngIf="selectedPO && existingGRNsLoading">
+      <div class="no-po-placeholder">
+        <i class="bi bi-arrow-repeat spin"></i>
+        <span>Loading line items and checking existing GRNs…</span>
+      </div>
+    </div>
+
+    <!-- No PO selected placeholder -->
+    <div class="grn-section grn-section-muted" *ngIf="!selectedPO">
+      <div class="no-po-placeholder">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>Line items will appear here once a PO is selected</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         WHAT HAPPENS NEXT
+    ══════════════════════════════════════════ -->
+    <div class="grn-alert grn-alert-warning" *ngIf="!isPOFullyReceived">
+      <i class="bi bi-arrow-right-circle-fill"></i>
+      <span>
+        <strong>What happens next?</strong>
+        After submission, the QA team will review each line item and record defective / rejected quantities.
+        The 3-Way Match will only run after the QA team approves the GRN.
+      </span>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         ACTION BAR
+    ══════════════════════════════════════════ -->
+    <div class="grn-action-bar">
+      <button class="grn-btn secondary" (click)="cancel()">
+        <i class="bi bi-arrow-left me-2"></i>Cancel
+      </button>
+      <div class="grn-action-right">
+        <button class="grn-btn outline-primary"
+                (click)="submitGRN(true)"
+                [disabled]="isSubmitting || isPOFullyReceived">
+          <span *ngIf="isSubmitting" class="spin-ring"></span>
+          <i *ngIf="!isSubmitting" class="bi bi-floppy me-2"></i>
+          Save as Draft
+        </button>
+        <button class="grn-btn success"
+                (click)="submitGRN(false)"
+                [disabled]="isSubmitting || isPOFullyReceived">
+          <span *ngIf="isSubmitting" class="spin-ring white"></span>
+          <i *ngIf="!isSubmitting" class="bi bi-send-check me-2"></i>
+          Submit GRN
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /grn-body -->
+</div><!-- /grn-page -->
+
+
+<style>
+/* ─── Variables ─────────────────────────────────────── */
+:host {
+  --indigo:    #667eea;
+  --indigo-d:  #764ba2;
+  --teal:      #43cea2;
+  --teal-d:    #185a9d;
+  --green:     #22c55e;
+  --green-d:   #16a34a;
+  --purple:    #8b5cf6;
+  --purple-d:  #6d28d9;
+  --border:    #e8eaf6;
+  --text-main: #1a1a2e;
+  --text-sub:  #6b7280;
+  --bg:        #f4f6fb;
+  --white:     #ffffff;
+  --radius:    12px;
+  --shadow:    0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* ─── Page shell ────────────────────────────────────── */
+.grn-page { background: var(--bg); min-height: 100vh; padding-bottom: 60px; }
+
+/* ─── Top bar ───────────────────────────────────────── */
+.grn-topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 14px 32px; display: flex; align-items: center; gap: 20px;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.topbar-back-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 7px 14px; font-size: 0.84rem; font-weight: 500;
+  color: var(--text-sub); cursor: pointer; transition: all 0.2s;
+}
+.topbar-back-btn:hover { border-color: var(--indigo); color: var(--indigo); background: #f0f4ff; }
+.topbar-title { display: flex; align-items: center; gap: 10px; }
+.topbar-title > i { font-size: 1.5rem; color: var(--indigo); }
+.topbar-title-main { font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+.topbar-title-sub  { font-size: 0.75rem; color: var(--text-sub); }
+.topbar-spacer { flex: 1; }
+
+/* ─── Body ──────────────────────────────────────────── */
+.grn-body { max-width: 1040px; margin: 28px auto; padding: 0 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ─── Alerts ────────────────────────────────────────── */
+.grn-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 13px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 500;
+}
+.grn-alert i { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.grn-alert span, .grn-alert div { flex: 1; }
+.grn-alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; border-left: 4px solid #22c55e; }
+.grn-alert-danger  { background: #fff1f2; border: 1px solid #fecdd3; color: #dc2626; border-left: 4px solid #ef4444; }
+.grn-alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-left: 4px solid #f59e0b; }
+.grn-alert-close { background: none; border: none; color: inherit; cursor: pointer; padding: 0; opacity: 0.6; margin-left: 4px; }
+.grn-alert-close:hover { opacity: 1; }
+
+/* ─── Section card ──────────────────────────────────── */
+.grn-section {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: visible;
+}
+.grn-section-muted   { border-style: dashed; box-shadow: none; }
+.grn-section-disabled { opacity: 0.5; pointer-events: none; user-select: none; }
+.grn-section-header {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  border-bottom: 1px solid var(--border); background: #fafbff; flex-wrap: wrap;
+}
+.grn-section-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: white; flex-shrink: 0;
+}
+.grn-section-icon.indigo { background: linear-gradient(135deg, var(--indigo), var(--indigo-d)); }
+.grn-section-icon.teal   { background: linear-gradient(135deg, var(--teal), var(--teal-d)); }
+.grn-section-icon.green  { background: linear-gradient(135deg, var(--green), var(--green-d)); }
+.grn-section-icon.purple { background: linear-gradient(135deg, var(--purple), var(--purple-d)); }
+.grn-section-title { font-size: 0.95rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.grn-section-sub   { font-size: 0.76rem; color: var(--text-sub); margin-top: 2px; }
+.qa-hint { margin-left: auto; font-size: 0.75rem; color: var(--text-sub); }
+.items-badge {
+  background: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe;
+  border-radius: 20px; padding: 2px 10px; font-size: 0.72rem; font-weight: 700;
+}
+
+/* ─── PO Search ─────────────────────────────────────── */
+.po-search-row { padding: 16px 20px; display: flex; align-items: center; gap: 16px; position: relative; }
+.po-search-wrap { position: relative; flex: 1; max-width: 100%; }
+.po-search-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: #94a3b8; font-size: 0.88rem; pointer-events: none;
+}
+.po-search-input {
+  width: 100%; padding: 10px 38px 10px 38px; border: 2px solid var(--border);
+  border-radius: 10px; font-size: 0.88rem; color: var(--text-main);
+  background: white; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
+}
+.po-search-input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+.po-search-clear {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.8rem;
+}
+.po-search-clear:hover { color: #ef4444; }
+.po-loading-hint { font-size: 0.8rem; color: var(--text-sub); }
+
+/* ─── Dropdown ──────────────────────────────────────── */
+.po-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+  z-index: 9999; overflow-y: auto; max-height: 320px;
+}
+.po-dropdown-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 16px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: background 0.12s;
+}
+.po-dropdown-item:last-child { border-bottom: none; }
+.po-dropdown-item:hover { background: #f5f7ff; }
+.po-dd-left { display: flex; flex-direction: column; gap: 2px; }
+.po-dd-number   { font-weight: 700; color: var(--indigo); font-size: 0.86rem; }
+.po-dd-supplier { font-size: 0.78rem; color: var(--text-sub); }
+.po-dd-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.po-dd-items  { font-size: 0.72rem; background: #eef2ff; color: #4338ca; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+.po-dd-amount { font-size: 0.78rem; font-weight: 700; color: var(--text-main); }
+.po-dd-empty  { padding: 18px 16px; text-align: center; font-size: 0.84rem; color: var(--text-sub); }
+
+/* ─── PO summary bar ────────────────────────────────── */
+.po-selected-chip {
+  margin-left: auto; display: inline-flex; align-items: center;
+  background: #dcfce7; color: #15803d; border: 1.5px solid #86efac;
+  border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; font-weight: 700;
+}
+.po-summary-bar {
+  display: flex; align-items: center; padding: 12px 20px;
+  background: linear-gradient(135deg, #f5f7ff, #eef2ff);
+  border-top: 1px solid var(--border); flex-wrap: wrap; gap: 8px;
+}
+.po-sum-item { display: flex; flex-direction: column; gap: 2px; padding: 0 16px; }
+.po-sum-item:first-child { padding-left: 0; }
+.po-sum-label  { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sub); }
+.po-sum-val    { font-size: 0.86rem; font-weight: 600; color: var(--text-main); }
+.po-sum-val.strong { color: var(--indigo); font-weight: 800; }
+.po-sum-status {
+  display: inline-block; background: #dcfce7; color: #15803d;
+  border-radius: 20px; padding: 2px 9px; font-size: 0.72rem; font-weight: 700;
+}
+.po-sum-divider { width: 1px; height: 32px; background: var(--border); flex-shrink: 0; }
+.po-sum-change {
+  margin-left: auto; background: white; border: 1.5px solid #fecaca;
+  color: #ef4444; border-radius: 8px; padding: 5px 12px; font-size: 0.78rem;
+  font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center;
+}
+.po-sum-change:hover { background: #fef2f2; }
+
+/* GRN loading hint beneath PO summary */
+.po-grn-loading {
+  padding: 10px 20px; font-size: 0.8rem; color: var(--text-sub);
+  background: #fafbff; border-top: 1px solid var(--border);
+  display: flex; align-items: center;
+}
+
+/* ─── Partial receipt banner ───────────────────────── */
+.partial-receipt-banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 20px; background: #fffbeb; border-bottom: 1px solid #fde68a;
+  font-size: 0.82rem; color: #92400e; line-height: 1.6;
+}
+.partial-receipt-banner i { flex-shrink: 0; margin-top: 2px; font-size: 1rem; color: #f59e0b; }
+
+/* ─── Form grid ─────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 20px; }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+.grn-field { display: flex; flex-direction: column; gap: 6px; }
+.grn-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-sub); }
+.req { color: #ef4444; }
+.grn-input {
+  width: 100%; padding: 9px 13px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-size: 0.87rem; color: var(--text-main); background: #fcfcfe; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
+}
+.grn-input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); background: white; }
+.grn-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+.grn-textarea { resize: vertical; min-height: 80px; }
+.grn-input-wrap { position: relative; }
+.grn-input-icon {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  color: #94a3b8; font-size: 0.85rem; pointer-events: none;
+}
+.grn-input-iconed { padding-left: 34px; }
+
+/* ─── Line items table ──────────────────────────────── */
+.line-items-table-wrap { overflow-x: auto; }
+.line-items-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.line-items-table thead th {
+  background: #e8eaf6; color: #1a237e; font-weight: 700; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 10px 12px; border-bottom: 2px solid #c5cae9; white-space: nowrap;
+}
+.col-already   { background: #fef9c3 !important; color: #854d0e !important; }
+.col-remaining { background: #dcfce7 !important; color: #14532d !important; }
+.li-row td { padding: 10px 12px; vertical-align: middle; border-bottom: 1px solid #f1f3f9; }
+.li-row:last-child td { border-bottom: none; }
+.li-row:hover td { background: #f8f9ff; }
+.li-row-full td  { background: #f8fffe !important; opacity: 0.7; }
+.li-row-partial td { background: #fffef0; }
+.li-num   { color: var(--text-sub); font-weight: 600; }
+.li-item  { font-weight: 600; color: var(--text-main); }
+.li-code  { font-size: 0.72rem; color: var(--text-sub); margin-top: 2px; }
+.li-brand { font-size: 0.72rem; color: #9ca3af; }
+.li-uom   { color: var(--text-sub); font-weight: 500; }
+
+/* ─── Qty badges ────────────────────────────────────── */
+.qty-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 32px; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.82rem;
+}
+.qty-badge.ordered       { background: #eef2ff; color: #4338ca; }
+.qty-badge.already       { background: #fef3c7; color: #92400e; }
+.qty-badge.none          { background: #f3f4f6; color: #9ca3af; }
+.qty-badge.remaining-ok  { background: #dcfce7; color: #15803d; }
+.qty-badge.remaining-zero{ background: #fee2e2; color: #dc2626; }
+
+.fully-received-label {
+  font-size: 0.68rem; color: #dc2626; margin-top: 3px; font-weight: 600; white-space: nowrap;
+}
+
+/* ─── Qty input ─────────────────────────────────────── */
+.qty-input {
+  width: 80px; padding: 6px 8px; border: 1.5px solid #e2e8f0;
+  border-radius: 7px; font-size: 0.82rem; font-weight: 600;
+  text-align: center; color: var(--text-main); outline: none;
+}
+.qty-input:focus  { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+.qty-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+.qty-input.qty-input-maxed { border-color: #ef4444; background: #fff1f2; }
+.qty-max-hint { font-size: 0.65rem; color: #94a3b8; margin-top: 2px; }
+
+.remarks-input {
+  padding: 6px 10px; border: 1.5px solid #e2e8f0; border-radius: 7px;
+  font-size: 0.8rem; min-width: 120px; width: 100%; outline: none; box-sizing: border-box;
+}
+.remarks-input:focus    { border-color: var(--indigo); }
+.remarks-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+/* ─── Footer totals ─────────────────────────────────── */
+.li-foot td {
+  padding: 10px 12px; font-weight: 800; font-size: 0.84rem;
+  color: var(--text-main); background: #f8f9ff; border-top: 2px solid #e8eaf6;
+}
+.li-empty {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 32px; color: var(--text-sub); font-size: 0.86rem;
+}
+.li-empty i { font-size: 1.4rem; color: #d1d5db; }
+.no-po-placeholder {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 28px; color: #94a3b8; font-size: 0.86rem;
+}
+.no-po-placeholder i { font-size: 1.5rem; }
+
+/* ─── Action bar ─────────────────────────────────────── */
+.grn-action-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px;
+  box-shadow: var(--shadow); flex-wrap: wrap; gap: 12px;
+}
+.grn-action-right { display: flex; gap: 10px; flex-wrap: wrap; }
+.grn-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px; border-radius: 9px; font-size: 0.86rem;
+  font-weight: 700; cursor: pointer; border: none;
+  transition: all 0.2s ease; white-space: nowrap;
+}
+.grn-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.grn-btn.secondary { background: white; color: var(--text-sub); border: 1.5px solid var(--border); }
+.grn-btn.secondary:hover:not(:disabled) { border-color: var(--indigo); color: var(--indigo); background: #f0f4ff; }
+.grn-btn.outline-primary { background: white; color: var(--indigo); border: 1.5px solid var(--indigo); }
+.grn-btn.outline-primary:hover:not(:disabled) { background: var(--indigo); color: white; }
+.grn-btn.success {
+  background: linear-gradient(135deg, var(--green), var(--green-d));
+  color: white; box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+.grn-btn.success:hover:not(:disabled) { box-shadow: 0 6px 18px rgba(34,197,94,0.45); transform: translateY(-1px); }
+
+/* ─── Spinners ──────────────────────────────────────── */
+.spin-ring {
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  display: inline-block; margin-right: 6px; animation: spin 0.7s linear infinite;
+}
+.spin-ring.white { border-color: rgba(255,255,255,0.5); border-top-color: white; }
+.spin { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Responsive ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .grn-topbar  { padding: 12px 16px; }
+  .grn-body    { padding: 0 12px; margin-top: 16px; }
+  .grn-action-bar { flex-direction: column; align-items: stretch; }
+  .grn-action-right { flex-direction: column; }
+  .grn-btn { width: 100%; justify-content: center; }
+  .po-summary-bar { flex-direction: column; align-items: flex-start; }
+  .po-sum-divider { display: none; }
+  .po-sum-item { padding: 0; }
+}
+</style>

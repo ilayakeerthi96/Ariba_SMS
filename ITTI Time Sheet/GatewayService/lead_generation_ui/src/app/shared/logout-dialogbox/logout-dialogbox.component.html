@@ -1,0 +1,8 @@
+<h1 mat-dialog-title class="text-center">{{areyouSue}}</h1>
+<div mat-dialog-content class="text-center">
+  <p>{{doYouWant}}</p>
+</div>
+<div mat-dialog-actions class="confirmButton">
+    <button mat-raised-button tabindex="-1" class="confirm_no_button" (click)="onNoClick()"> NO</button>&nbsp;
+   <button mat-raised-button color="primary" class="confirm_yes_button"  tabindex="1" (click)="logout()">YES</button>
+</div>

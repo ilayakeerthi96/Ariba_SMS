@@ -1,0 +1,462 @@
+/* ============================================
+   HEADER WRAPPER
+   ============================================ */
+.logout-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.logout-confirm-dialog {
+  background: #fff;
+  border-radius: 10px;
+  padding: 28px 32px;
+  min-width: 300px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  text-align: center;
+}
+
+.logout-confirm-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.logout-confirm-message {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.logout-confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-confirm-yes {
+  padding: 8px 24px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-confirm-yes:hover { background: #b02a37; }
+
+.btn-confirm-no {
+  padding: 8px 24px;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-confirm-no:hover { background: #ddd; }
+.header-wrapper {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 12px 24px !important;
+  position: relative;
+}
+
+/* ============================================
+   HEADER FLEX CONTAINER - PROPER 3-SECTION LAYOUT
+   ============================================ */
+
+.header-flex-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  min-height: 60px;
+  width: 100%;
+}
+
+.header-section {
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================
+   LEFT SECTION: TOGGLE + LOGO (FLUSH LEFT)
+   ============================================ */
+
+.header-left {
+  flex: 0 0 auto;
+  gap: 12px;
+  z-index: 10;
+}
+
+.sidebar-toggle-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #4a5568 !important;
+  padding: 8px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  margin-right: 4px;
+}
+
+.sidebar-toggle-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+}
+
+.sidebar-toggle-btn:hover {
+  color: #667eea !important;
+  transform: scale(1.1);
+  background-color: rgba(102, 126, 234, 0.1) !important;
+  border-radius: 6px;
+}
+
+.sidebar-toggle-btn:focus,
+.sidebar-toggle-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* .company-logo-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.company-logo {
+  height: 50px;
+  max-width: 300px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+  border-radius: 6px;
+  padding: 4px;
+  background-color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.company-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+} */
+.company-logo-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.company-logo {
+  height: 70px;        /* increased height */
+  max-width: 400px;    /* increased width */
+  width: auto;         /* maintain aspect ratio */
+  object-fit: contain;
+  transition: transform 0.2s ease;
+  border-radius: 6px;
+  padding: 6px;
+  background-color: white;
+  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); */
+}
+
+.company-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.company-name-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+}
+
+/* ============================================
+   CENTER SECTION: TITLE + USER INFO (ABSOLUTELY CENTERED)
+   ============================================ */
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 5;
+  pointer-events: none; /* Allows clicks to pass through to underlying elements */
+}
+
+.header-center * {
+  pointer-events: auto; /* Re-enable clicks for child elements */
+}
+
+.system-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #336fd5;
+  /* letter-spacing: 1px; */
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.user-info-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.user-designation {
+  color: #718096;
+}
+
+.department-info {
+  color: #718096;
+}
+
+.separator {
+  margin: 0 4px;
+  color: #cbd5e0;
+}
+
+/* ============================================
+   RIGHT SECTION: TIMER + AVATAR (FLUSH RIGHT)
+   ============================================ */
+
+.header-right {
+  flex: 0 0 auto;
+  gap: 16px;
+  z-index: 10;
+}
+
+.timer-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer;
+}
+
+.avatar-btn:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.user-avatar {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ============================================
+   DROPDOWN MENU
+   ============================================ */
+
+.dropdown-menu-custom {
+  min-width: 240px;
+  border: none;
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-header {
+  padding: 12px 16px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.dropdown-item-custom {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-item-custom:hover {
+  background-color: #f7fafc;
+  color: #667eea;
+  transform: translateX(4px);
+}
+
+.dropdown-item-custom.text-danger:hover {
+  background-color: #fff5f5;
+  color: #e53e3e;
+}
+
+.dropdown-item-custom svg {
+  width: 18px;
+  height: 18px;
+}
+
+.dropdown-divider {
+  margin: 4px 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablets */
+@media (max-width: 991px) {
+  .system-title {
+    font-size: 18px;
+  }
+  
+  .user-info-line {
+    font-size: 13px;
+  }
+  
+  .company-logo {
+    height: 40px;
+    max-width: 150px;
+  }
+  
+  .company-name-badge {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .header-wrapper {
+    padding: 10px 16px !important;
+  }
+  
+  .system-title {
+    font-size: 16px;
+  }
+  
+  .user-info-line {
+    font-size: 12px;
+  }
+  
+  /* Hide department on mobile */
+  .department-info {
+    display: none;
+  }
+  
+  .company-logo {
+    height: 36px;
+    max-width: 120px;
+  }
+  
+  .company-name-badge {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .header-right {
+    gap: 12px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 575px) {
+  .header-wrapper {
+    padding: 8px 12px !important;
+  }
+  
+  .system-title {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  
+  .user-info-line {
+    font-size: 11px;
+  }
+  
+  .company-logo {
+    height: 32px;
+    max-width: 100px;
+  }
+  
+  .company-name-badge {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  
+  .header-right {
+    gap: 10px;
+  }
+  
+  .user-avatar {
+    --cui-avatar-size: 36px;
+  }
+}
+
+/* Extra Small */
+@media (max-width: 400px) {
+  .system-title {
+    font-size: 12px;
+  }
+  
+  .user-info-line {
+    font-size: 10px;
+  }
+  
+  .company-logo {
+    height: 28px;
+    max-width: 80px;
+  }
+  
+  .separator {
+    margin: 0 2px;
+  }
+  
+  .header-left {
+    gap: 8px;
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+}
+

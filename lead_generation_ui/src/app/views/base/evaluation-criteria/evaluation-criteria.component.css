@@ -1,0 +1,234 @@
+/* ==================== BASE STYLES FROM HIERARCHY ==================== */
+
+.gradient-header-levels {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.avatar-circle-large {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+}
+
+.modern-alert {
+  border-left: 4px solid;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.modern-table {
+  font-size: 12px;
+}
+
+.modern-table-row {
+  transition: all 0.2s ease;
+}
+
+.modern-table-row:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.level-name-text {
+  color: #2c3e50;
+  font-size: 13px;
+}
+
+.description-text {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.status-badge {
+  font-size: 11spx;
+  padding: 6px 11px;
+  border-radius: 20px;
+}
+
+.action-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.action-icon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-header-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modal-header-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.form-label-modern {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.form-control-modern {
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  padding: 10px 15px;
+  transition: all 0.2s ease;
+}
+
+.form-control-modern:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-modern {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ==================== NEW: SL NO BADGE ==================== */
+
+.sl-no-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* ==================== NEW: TYPE BADGE ==================== */
+
+.type-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== NEW: MAX SCORE ==================== */
+
+.max-score-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* ==================== NEW: WEIGHTAGE INPUT ==================== */
+
+.weightage-edit-wrapper {
+  display: inline-block;
+  max-width: 100px;
+}
+
+.weightage-input {
+  width: 80px;
+  font-weight: 600;
+  font-size: 12px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.weightage-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  outline: none;
+}
+
+.weightage-input:hover {
+  border-color: #667eea;
+}
+
+/* ==================== NEW: TOTAL ROW ==================== */
+
+.total-row {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-top: 3px solid #667eea !important;
+  font-weight: 700;
+}
+
+.total-row td {
+  padding: 20px 15px !important;
+}
+
+.total-badge {
+  font-size: 18px !important;
+  padding: 12px 24px !important;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 700;
+}
+
+/* ==================== TABLE ENHANCEMENTS ==================== */
+
+.modern-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  padding: 15px 12px;
+}
+
+.modern-table tbody td {
+  vertical-align: middle;
+  padding: 15px 12px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .sl-no-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .weightage-input {
+    width: 70px;
+    font-size: 13px;
+  }
+
+  .total-badge {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+  }
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                  padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .header h1 { color: white; margin: 0; }
+        .content { background: #f9f9f9; padding: 30px; }
+        .info-box { background: #cce5ff; border-left: 4px solid #007bff; 
+                    padding: 15px; margin: 20px 0; }
+        .btn { display: inline-block; padding: 12px 30px; background: #667eea; 
+               color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📥 New Quote Received</h1>
+        </div>
+        <div class="content">
+            <p>Dear <strong th:text="${buyerName}">Buyer</strong>,</p>
+
+            <div class="info-box">
+                <strong>A supplier has submitted their quote!</strong>
+            </div>
+
+            <p><strong>Details:</strong></p>
+            <ul>
+                <li><strong>RFQ:</strong> <span th:text="${rfqNumber}">RFQ-001</span> - <span th:text="${rfqTitle}">Title</span></li>
+                <li><strong>Supplier:</strong> <span th:text="${supplierName}">Supplier Name</span></li>
+            </ul>
+
+            <p>You can now compare all received quotes and select the best supplier.</p>
+
+            <p style="text-align: center;">
+                <a th:href="${comparisonUrl}" class="btn">View Quote Comparison</a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>This is an automated notification from RFQ Management System</p>
+        </div>
+    </div>
+</body>
+</html>

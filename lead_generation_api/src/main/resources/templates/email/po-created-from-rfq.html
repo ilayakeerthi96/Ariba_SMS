@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PO Issued to Supplier</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #673ab7 0%, #512da8 100%); padding: 30px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table td { padding: 8px; border: 1px solid #ddd; }
+        .label { background: #f5f5f5; font-weight: bold; width: 40%; }
+        .btn { display: inline-block; margin-top: 20px; padding: 12px 24px;
+               background: #673ab7; color: white; text-decoration: none;
+               border-radius: 4px; font-weight: bold; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📑 Purchase Order Issued to Supplier</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${rfqCreatorName}">User</strong>,</p>
+        <p>The Purchase Order generated from your RFQ has been approved and successfully issued to the supplier.</p>
+
+        <table class="table">
+            <tr>
+                <td class="label">RFQ Number</td>
+                <td th:text="${rfqNumber}">RFQ-001</td>
+            </tr>
+            <tr>
+                <td class="label">PO Number</td>
+                <td th:text="${poNumber}">PO-001</td>
+            </tr>
+            <tr>
+                <td class="label">Supplier</td>
+                <td th:text="${supplierName}">Supplier Co.</td>
+            </tr>
+            <tr>
+                <td class="label">Grand Total</td>
+                <td>&#8377; <span th:text="${grandTotal}">10000</span></td>
+            </tr>
+            <tr>
+                <td class="label">Issued On</td>
+                <td th:text="${issueDate}">01 Jan 2025</td>
+            </tr>
+        </table>
+
+        <p style="margin-top:20px;">You can track the PO status from the link below.</p>
+        <a th:href="${poUrl}" class="btn">View Purchase Order</a>
+    </div>
+    <div class="footer">
+        <p>© 2025 Your Company. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

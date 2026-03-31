@@ -1,0 +1,697 @@
+<c-container fluid class="p-4">
+
+<div class="row mb-4" *ngIf="loggedInBuyer">
+  <div class="col-12">
+    <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+      <div class="gradient-header">
+        <div class="row align-items-center">
+          <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+            <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+              <div class="avatar-circle-large me-3">{{ getInitials(loggedInBuyer.contactPersonName) }}</div>
+              <div class="text-white">
+                <h3 class="mb-1 fw-bold" style="font-size: 1.5rem; color: white;">{{ loggedInBuyer.contactPersonName }}</h3>
+                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                  <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-9">
+            <div class="row g-2">
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                  <div class="info-card-content"><div class="info-label">Company Name</div><div class="info-value">{{ loggedInBuyer.companyName }}</div></div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                  <div class="info-card-content"><div class="info-label">Email</div><div class="info-value">{{ loggedInBuyer.email }}</div></div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
+                  <div class="info-card-content"><div class="info-label">Phone</div><div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div></div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                  <div class="info-card-content">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">
+                      {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow-sm">
+        <c-card-header class="bg-white border-0 pt-4 px-4 pb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <h3 class="mb-0 fw-bold">
+                <i class="bi bi-file-earmark-text me-2 text-primary"></i>Invoice Management
+              </h3>
+              <p class="text-muted mb-0 mt-1">Review, approve, reject and track supplier invoices for your purchase orders.</p>
+            </div>
+            <button cButton color="secondary" variant="outline" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </button>
+          </div>
+        </c-card-header>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <c-row class="mb-4 g-3" *ngIf="!isLoading">
+    <c-col xs="12" sm="6" lg="3">
+      <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='ALL'; applyFilters()">
+        <div class="stat-icon-wrap stat-purple"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="stat-info"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Invoice</div></div>
+      </div>
+    </c-col>
+    <c-col xs="12" sm="6" lg="3">
+      <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='SUBMITTED'; applyFilters()">
+        <div class="stat-icon-wrap stat-pink"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-info"><div class="stat-value">{{ stats.submitted }}</div><div class="stat-label">Pending Invoice</div></div>
+      </div>
+    </c-col>
+    <c-col xs="12" sm="6" lg="3">
+      <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='APPROVED'; applyFilters()">
+        <div class="stat-icon-wrap stat-teal"><i class="bi bi-check-circle"></i></div>
+        <div class="stat-info"><div class="stat-value">{{ stats.approved }}</div><div class="stat-label">Approved Invoice</div></div>
+      </div>
+    </c-col>
+    <c-col xs="12" sm="6" lg="3">
+      <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='PAID'; applyFilters()">
+        <div class="stat-icon-wrap stat-green"><i class="bi bi-currency-rupee"></i></div>
+        <div class="stat-info"><div class="stat-value stat-value-sm">{{ stats.paid }}</div><div class="stat-label">Paid</div></div>
+      </div>
+    </c-col>
+    <c-col xs="12" sm="6" lg="3">
+      <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='REJECTED'; applyFilters()">
+        <div class="stat-icon-wrap stat-red"><i class="bi bi-x-circle"></i></div>
+        <div class="stat-info"><div class="stat-value">{{ stats.rejected }}</div><div class="stat-label">Rejected</div></div>
+      </div>
+    </c-col>
+  </c-row>
+
+  <div class="card border-0 shadow-sm" style="border-radius:12px;">
+    <div class="card-header bg-white border-0 pt-3 px-4 pb-3">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="fw-bold mb-0"><i class="bi bi-table me-2 text-primary"></i>All Invoices</h5>
+        <div class="d-flex gap-2">
+          <input type="text" class="form-control form-control-sm" style="width:200px;"
+            placeholder="Search invoice, supplier, PO..."
+            [(ngModel)]="searchText" (ngModelChange)="applyFilters()"/>
+          <select class="form-select form-select-sm" style="width:160px;"
+            [(ngModel)]="statusFilter" (change)="applyFilters()">
+            <option value="ALL">All Status</option>
+            <option value="SUBMITTED">Pending Review</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="PAID">Paid</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading invoices...</p>
+      </div>
+
+      <div *ngIf="!isLoading" class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead style="background:#f8f9fa;">
+            <tr>
+              <th class="ps-4">SL</th>
+              <th>INVOICE NO.</th>
+              <th>SUPPLIER</th>
+              <th>PO / RFQ</th>
+              <th>INVOICE DATE</th>
+              <th>DUE DATE</th>
+              <th class="text-end">AMOUNT</th>
+              <th class="text-center">STATUS</th>
+              <th class="text-center">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inv of pagedInvoices; let i=index" class="table-row-hover">
+              <td class="ps-4"><strong>{{ (currentPage-1)*pageSize+i+1 }}</strong></td>
+
+              <td>
+                <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewInvoice(inv)">
+                  {{ inv.invoiceNumber }}
+                </div>
+                <small class="text-muted">{{ formatDate(inv.createdAt) }}</small>
+                <span *ngIf="inv.resubmitCount > 0"
+                  class="badge bg-warning text-dark ms-1" style="font-size:.65rem;">
+                  <i class="bi bi-arrow-repeat me-1"></i>Resubmitted
+                </span>
+              </td>
+
+              <td><div class="fw-semibold">{{ inv.supplierCompanyName }}</div></td>
+
+              <td>
+                <div class="fw-semibold">{{ inv.poNumber }}</div>
+                <small class="text-muted">{{ inv.rfqNumber }}</small>
+              </td>
+
+              <td><small>{{ formatDate(inv.invoiceDate) }}</small></td>
+
+              <td>
+                <small [class.text-danger]="isOverdue(inv)" [class.fw-bold]="isOverdue(inv)">
+                  {{ formatDate(inv.dueDate) }}
+                </small>
+                <span *ngIf="isOverdue(inv)" class="badge bg-danger ms-1" style="font-size:.65rem;">OVERDUE</span>
+              </td>
+
+              <!-- ✅ Amount uses buyer's location currency from each invoice -->
+              <td class="text-end">
+                <span class="fw-bold text-success">{{ formatCurrency(inv.grandTotal, inv.currencyCode) }}</span>
+              </td>
+
+              <td class="text-center">
+                <span class="badge" [ngClass]="{
+                  'bg-secondary':         inv.status==='DRAFT',
+                  'bg-primary':           inv.status==='SUBMITTED',
+                  'bg-success':           inv.status==='APPROVED',
+                  'bg-warning text-dark': inv.status==='REJECTED',
+                  'bg-danger':            inv.status==='REJECTED_CLOSED',
+                  'bg-info':              inv.status==='PAID'
+                }">{{ getInvoiceStatusLabel(inv.status) }}</span>
+              </td>
+
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-1">
+                  <button class="btn btn-sm btn-light text-primary shadow-sm"
+                    (click)="viewInvoice(inv)" title="View Invoice">
+                    <i class="bi bi-eye-fill"></i>
+                  </button>
+                  <button *ngIf="inv.status==='SUBMITTED'"
+                    class="btn btn-sm shadow-sm"
+                    [ngClass]="inv.canApprove ? 'btn-success' : 'btn-outline-secondary'"
+                    (click)="handleApproveClick(inv)"
+                    [title]="inv.canApprove ? 'Approve Invoice' : 'Complete GRN & 3-Way Match first'">
+                    <i class="bi" [ngClass]="inv.canApprove ? 'bi-check-lg' : 'bi-lock-fill'"></i>
+                  </button>
+                  <button *ngIf="inv.status==='SUBMITTED'" class="btn btn-sm btn-warning shadow-sm text-white"
+                    (click)="openActionModal(inv, 'reject')" title="Return for Correction">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                  <button *ngIf="inv.status==='APPROVED'" class="btn btn-sm btn-info shadow-sm text-white"
+                    (click)="openActionModal(inv, 'paid')" title="Mark as Paid">
+                    <i class="bi bi-currency-rupee"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="pagedInvoices.length===0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-receipt display-6 d-block mb-2" style="opacity:.25;"></i>
+                <p class="text-muted mb-0">No invoices found</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!isLoading && filteredInvoices.length > 0"
+        class="d-flex justify-content-between align-items-center p-4 border-top">
+        <small class="text-muted">Showing {{ pagedInvoices.length }} of {{ filteredInvoices.length }}</small>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage===1"
+            (click)="onPageChange(currentPage-1)">
+            <i class="bi bi-chevron-left"></i> Previous
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage>=totalPages"
+            (click)="onPageChange(currentPage+1)">
+            Next <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</c-container>
+
+<!-- ============================================================ -->
+<!-- VIEW INVOICE MODAL                                           -->
+<!-- ============================================================ -->
+<c-modal [visible]="isViewModalOpen" (visibleChange)="isViewModalOpen=$event" size="xl" scrollable>
+  <c-modal-header style="background:linear-gradient(135deg,#1565c0,#0d47a1);">
+    <h5 cModalTitle class="text-white">
+      <i class="bi bi-receipt me-2"></i>{{ selectedInvoice?.invoiceNumber }}
+    </h5>
+    <button cButtonClose style="filter:brightness(0) invert(1);" (click)="closeViewModal()"></button>
+  </c-modal-header>
+
+  <c-modal-body *ngIf="selectedInvoice">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge fs-6" [ngClass]="{
+          'bg-secondary':         selectedInvoice.status==='DRAFT',
+          'bg-primary':           selectedInvoice.status==='SUBMITTED',
+          'bg-success':           selectedInvoice.status==='APPROVED',
+          'bg-warning text-dark': selectedInvoice.status==='REJECTED',
+          'bg-danger':            selectedInvoice.status==='REJECTED_CLOSED',
+          'bg-info':              selectedInvoice.status==='PAID'
+        }">{{ getInvoiceStatusLabel(selectedInvoice.status) }}</span>
+        <span *ngIf="selectedInvoice.resubmitCount > 0" class="badge bg-warning text-dark">
+          <i class="bi bi-arrow-repeat me-1"></i>Resubmitted {{ selectedInvoice.resubmitCount }}×
+        </span>
+        <!-- ✅ Currency badge -->
+        <span class="badge" style="background:#1565c0; font-size:0.75rem;">
+          <i class="bi bi-globe2 me-1"></i>{{ selectedInvoice.currencyCode || 'INR' }}
+        </span>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-danger" (click)="downloadPDF()" [disabled]="isDownloadingPDF">
+          <i *ngIf="!isDownloadingPDF" class="bi bi-file-pdf me-1"></i>
+          <span *ngIf="isDownloadingPDF" class="spinner-border spinner-border-sm me-1"></span>
+          Download PDF
+        </button>
+        <button *ngIf="selectedInvoice.status==='SUBMITTED'"
+          class="btn btn-sm"
+          [ngClass]="selectedInvoice.canApprove ? 'btn-success' : 'btn-outline-secondary'"
+          (click)="handleApproveClick(selectedInvoice)"
+          [title]="selectedInvoice.canApprove ? 'Approve Invoice' : 'Complete GRN & 3-Way Match first'">
+          <i class="bi me-1" [ngClass]="selectedInvoice.canApprove ? 'bi-check-lg' : 'bi-lock-fill'"></i>
+          {{ selectedInvoice.canApprove ? 'Approve' : 'Approve (Locked)' }}
+        </button>
+        <button *ngIf="selectedInvoice.status==='SUBMITTED'" class="btn btn-sm btn-warning text-white"
+          (click)="openActionModal(selectedInvoice, 'reject'); closeViewModal()"
+          title="Reject — supplier can resubmit">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Return for Correction
+        </button>
+        <button *ngIf="selectedInvoice.status==='APPROVED'" class="btn btn-sm btn-info text-white"
+          (click)="openActionModal(selectedInvoice, 'paid'); closeViewModal()">
+          <i class="bi bi-currency-rupee me-1"></i>Mark Paid
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="selectedInvoice.status==='SUBMITTED' && !selectedInvoice.canApprove"
+      class="alert alert-info d-flex align-items-start gap-2 mb-4" style="border-left:4px solid #0288d1;">
+      <i class="bi bi-info-circle-fill fs-5 mt-1 flex-shrink-0" style="color:#0288d1;"></i>
+      <div>
+        <strong>Approval Locked</strong><br>
+        <small>This invoice cannot be approved yet. You must first:
+          <strong>Create a GRN → Complete QA Review → Approve GRN → Run 3-Way Match.</strong>
+        </small>
+        <div *ngIf="selectedInvoice.threeWayMatchStatus" class="mt-1">
+          <span class="badge"
+            [ngClass]="{'bg-success': selectedInvoice.threeWayMatchStatus === 'MATCHED',
+                        'bg-danger':  selectedInvoice.threeWayMatchStatus !== 'MATCHED'}">
+            3-Way Match: {{ selectedInvoice.threeWayMatchStatus }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedInvoice.status==='REJECTED'" class="alert alert-warning">
+      <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Rejected — Supplier may resubmit once</strong><br>
+      <span>{{ selectedInvoice.approvalRemarks }}</span><br>
+      <small class="text-muted">By {{ selectedInvoice.approvedRejectedBy }} on {{ formatDate(selectedInvoice.approvedRejectedAt) }}</small>
+    </div>
+
+    <div *ngIf="selectedInvoice.status==='REJECTED_CLOSED'" class="alert alert-danger">
+      <strong><i class="bi bi-x-octagon-fill me-1"></i>Permanently Closed</strong><br>
+      <span>{{ selectedInvoice.approvalRemarks }}</span><br>
+      <small class="text-muted">By {{ selectedInvoice.approvedRejectedBy }} on {{ formatDate(selectedInvoice.approvedRejectedAt) }}</small>
+    </div>
+
+    <div *ngIf="selectedInvoice.resubmitCount > 0 && selectedInvoice.resubmitRemarks" class="alert alert-info">
+      <strong><i class="bi bi-arrow-repeat me-1"></i>Supplier Resubmit Remarks:</strong>
+      {{ selectedInvoice.resubmitRemarks }}
+      <small class="d-block text-muted mt-1">Resubmitted on {{ formatDate(selectedInvoice.resubmittedAt) }}</small>
+    </div>
+
+    <div *ngIf="selectedInvoice.status==='PAID'" class="alert alert-info">
+      <strong><i class="bi bi-check-circle-fill me-1"></i>Paid on {{ formatDate(selectedInvoice.paidAt) }}</strong>
+      <span *ngIf="selectedInvoice.paymentReference"> | Ref: {{ selectedInvoice.paymentReference }}</span>
+    </div>
+
+    <div id="buyer-invoice-print">
+      <div class="row mb-4">
+        <div class="col-6">
+          <h2 class="fw-bold text-primary" style="font-size:2rem;">INVOICE</h2>
+          <p class="text-muted fs-5">{{ selectedInvoice.invoiceNumber }}</p>
+        </div>
+        <div class="col-6 text-end">
+          <p class="mb-1"><strong>Invoice Date:</strong> {{ formatDate(selectedInvoice.invoiceDate) }}</p>
+          <p class="mb-1"><strong>Due Date:</strong>
+            <span class="text-danger fw-bold">{{ formatDate(selectedInvoice.dueDate) }}</span>
+          </p>
+          <p class="mb-0"><strong>PO Ref:</strong> {{ selectedInvoice.poNumber }}</p>
+          <p class="mb-0"><strong>RFQ Ref:</strong> {{ selectedInvoice.rfqNumber }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-6">
+          <div class="p-3 bg-light rounded">
+            <h6 class="fw-bold text-primary mb-2">FROM (Supplier)</h6>
+            <p class="mb-1 fw-bold">{{ selectedInvoice.supplierCompanyName }}</p>
+            <p class="mb-0 text-muted small">{{ selectedInvoice.supplierEmail }}</p>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-3 bg-light rounded">
+            <h6 class="fw-bold text-success mb-2">BILL TO (Buyer)</h6>
+            <p class="mb-1 fw-bold">{{ selectedInvoice.buyerCompanyName }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive mb-4">
+        <table class="table table-bordered" style="font-size:.875rem;">
+          <thead style="background:#1565c0;color:white;">
+            <tr>
+              <th>#</th><th>Description</th><th>HSN</th>
+              <th class="text-center">UOM</th><th class="text-center">Qty</th>
+              <!-- ✅ Unit Price column header uses buyer's currency symbol -->
+              <th class="text-end">Unit Price</th>
+              <th class="text-center">Tax%</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of selectedInvoice.lineItems; let i=index">
+              <td>{{ i+1 }}</td>
+              <td>
+                <div class="fw-semibold">{{ item.itemDescription }}</div>
+                <small class="text-muted" *ngIf="item.itemDescriptionDetailed">
+                  {{ item.itemDescriptionDetailed }}
+                </small>
+              </td>
+              <td>{{ item.hsnSacCode || '-' }}</td>
+              <td class="text-center">{{ item.uom }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <!-- ✅ Unit price uses buyer's currency from invoice -->
+              <td class="text-end">{{ formatCurrency(item.unitPrice, selectedInvoice.currencyCode) }}</td>
+              <td class="text-center">{{ item.taxPercentage || 0 }}%</td>
+              <!-- ✅ Line total uses buyer's currency from invoice -->
+              <td class="text-end fw-semibold">{{ formatCurrency(item.lineTotal, selectedInvoice.currencyCode) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="table-light">
+              <td colspan="7" class="text-end fw-semibold">Subtotal</td>
+              <!-- ✅ Subtotal uses buyer's currency -->
+              <td class="text-end fw-semibold">{{ formatCurrency(selectedInvoice.subtotal, selectedInvoice.currencyCode) }}</td>
+            </tr>
+            <tr class="table-light">
+              <td colspan="7" class="text-end fw-semibold text-warning">Tax</td>
+              <!-- ✅ Tax uses buyer's currency -->
+              <td class="text-end fw-semibold text-warning">{{ formatCurrency(selectedInvoice.taxAmount, selectedInvoice.currencyCode) }}</td>
+            </tr>
+            <tr style="background:#1565c0;color:white;">
+              <!-- ✅ Grand Total label uses buyer's currency CODE (dynamic) -->
+              <td colspan="7" class="text-end fw-bold">GRAND TOTAL ({{ selectedInvoice.currencyCode || 'INR' }})</td>
+              <!-- ✅ Grand Total amount uses buyer's currency -->
+              <td class="text-end fw-bold">{{ formatCurrency(selectedInvoice.grandTotal, selectedInvoice.currencyCode) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="row" *ngIf="selectedInvoice.bankName">
+        <div class="col-md-6">
+          <div class="p-3 border rounded" style="border-color:#1565c0!important;">
+            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-bank me-1"></i>Bank Details</h6>
+            <table class="table table-sm table-borderless mb-0">
+              <tr><td class="text-muted" style="width:45%;">Bank Name</td><td class="fw-semibold">{{ selectedInvoice.bankName }}</td></tr>
+              <tr><td class="text-muted">Account Holder</td><td class="fw-semibold">{{ selectedInvoice.accountHolderName }}</td></tr>
+              <tr><td class="text-muted">Account No.</td><td class="fw-semibold">{{ selectedInvoice.accountNumber }}</td></tr>
+              <tr><td class="text-muted">IFSC</td><td class="fw-semibold">{{ selectedInvoice.ifscCode }}</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded" *ngIf="selectedInvoice.paymentTerms">
+            <h6 class="fw-bold mb-2">Payment Terms</h6>
+            <p class="text-muted mb-2">{{ selectedInvoice.paymentTerms }}</p>
+            <small class="text-muted" *ngIf="selectedInvoice.termsAndConditions">
+              {{ selectedInvoice.termsAndConditions }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </c-modal-body>
+
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="closeViewModal()">Close</button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- ============================================================ -->
+<!-- ACTION MODAL                                                 -->
+<!-- ============================================================ -->
+<c-modal [visible]="isActionModalOpen" (visibleChange)="isActionModalOpen=$event" size="md">
+  <c-modal-header [ngStyle]="{
+    'background': pendingAction==='approve'     ? 'linear-gradient(135deg,#388e3c,#1b5e20)' :
+                  pendingAction==='reject'      ? 'linear-gradient(135deg,#f57c00,#e65100)' :
+                  pendingAction==='rejectClose' ? 'linear-gradient(135deg,#e53935,#b71c1c)' :
+                                                 'linear-gradient(135deg,#0288d1,#01579b)'
+  }">
+    <h5 cModalTitle class="text-white">
+      <i class="bi me-2" [ngClass]="{
+        'bi-check-circle':           pendingAction==='approve',
+        'bi-arrow-counterclockwise': pendingAction==='reject',
+        'bi-x-octagon':              pendingAction==='rejectClose',
+        'bi-currency-rupee':         pendingAction==='paid'
+      }"></i>
+      {{ getActionLabel() }}
+    </h5>
+    <button cButtonClose style="filter:brightness(0) invert(1);" (click)="isActionModalOpen=false"></button>
+  </c-modal-header>
+
+  <c-modal-body *ngIf="selectedInvoice">
+    <div class="alert alert-light border mb-3">
+      <strong>Invoice:</strong> {{ selectedInvoice.invoiceNumber }}<br>
+      <strong>Supplier:</strong> {{ selectedInvoice.supplierCompanyName }}<br>
+      <strong>Amount:</strong>
+      <!-- ✅ Action modal amount uses buyer's currency -->
+      <span class="text-success fw-bold">{{ formatCurrency(selectedInvoice.grandTotal, selectedInvoice.currencyCode) }}</span>
+    </div>
+
+    <div *ngIf="pendingAction==='reject'" class="alert alert-warning mb-3">
+      <i class="bi bi-arrow-counterclockwise me-2"></i>
+      <strong>Reject with Resubmit Option</strong><br>
+      <small>The supplier will be notified and can correct and resubmit this invoice <strong>once</strong>.</small>
+    </div>
+
+    <div *ngIf="pendingAction==='rejectClose'" class="alert alert-danger mb-3">
+      <i class="bi bi-x-octagon-fill me-2"></i>
+      <strong>Permanent Rejection — Cannot be undone</strong><br>
+      <small>The invoice will be permanently closed.</small>
+    </div>
+
+    <div *ngIf="pendingAction==='approve' || pendingAction==='reject' || pendingAction==='rejectClose'" class="mb-3">
+      <label class="form-label fw-semibold">
+        Remarks <span class="text-danger">*</span>
+        <small class="text-muted fw-normal ms-1">(visible to supplier)</small>
+      </label>
+      <textarea class="form-control" rows="3" [(ngModel)]="actionRemarks"
+        [placeholder]="pendingAction==='approve'
+          ? 'e.g. Invoice verified and approved for payment'
+          : pendingAction==='reject'
+            ? 'e.g. Invoice amount does not match PO, please correct and resubmit'
+            : 'e.g. Invoice repeatedly incorrect — closing permanently'">
+      </textarea>
+    </div>
+
+    <div *ngIf="pendingAction==='paid'" class="mb-3">
+      <label class="form-label fw-semibold">
+        Payment Reference <small class="text-muted">(optional)</small>
+      </label>
+      <input type="text" class="form-control" [(ngModel)]="paymentReference"
+        placeholder="e.g. NEFT/UTR number, cheque number"/>
+    </div>
+  </c-modal-body>
+
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="isActionModalOpen=false"
+      [disabled]="isPerformingAction">Cancel</button>
+    <button cButton [color]="getActionButtonColor()" (click)="confirmAction()"
+      [disabled]="isPerformingAction">
+      <c-spinner *ngIf="isPerformingAction" size="sm" class="me-1"></c-spinner>
+      <i *ngIf="!isPerformingAction" class="bi me-1" [ngClass]="{
+        'bi-check-lg':               pendingAction==='approve',
+        'bi-arrow-counterclockwise': pendingAction==='reject',
+        'bi-x-octagon':              pendingAction==='rejectClose',
+        'bi-check2-all':             pendingAction==='paid'
+      }"></i>
+      {{ getActionLabel() }}
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- ============================================================ -->
+<!-- PREREQUISITE MODAL                                           -->
+<!-- ============================================================ -->
+<c-modal [visible]="isPrereqModalOpen" (visibleChange)="isPrereqModalOpen=$event" size="lg">
+  <c-modal-header style="background:linear-gradient(135deg,#1565c0,#0d47a1);">
+    <h5 cModalTitle class="text-white">
+      <i class="bi bi-shield-lock me-2"></i>Invoice Approval — Prerequisites
+    </h5>
+    <button cButtonClose style="filter:brightness(0) invert(1);" (click)="closePrereqModal()"></button>
+  </c-modal-header>
+
+  <c-modal-body>
+    <div *ngIf="isCheckingPrereqs" class="text-center py-5">
+      <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem;"></div>
+      <p class="mt-3 text-muted fw-semibold">Checking prerequisites...</p>
+    </div>
+
+    <div *ngIf="!isCheckingPrereqs">
+      <div class="prereq-invoice-card mb-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="prereq-inv-icon"><i class="bi bi-file-earmark-text"></i></div>
+          <div>
+            <div class="fw-bold fs-6">{{ prereqInvoice?.invoiceNumber }}</div>
+            <small class="text-muted">
+              {{ prereqInvoice?.supplierCompanyName }}
+              &bull; {{ formatCurrency(prereqInvoice?.grandTotal, prereqInvoice?.currencyCode) }}
+            </small>
+          </div>
+          <div class="ms-auto"><span class="badge bg-primary">Pending Review</span></div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning d-flex gap-2 mb-4" style="border-left:4px solid #f57c00;">
+        <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0 mt-1" style="color:#f57c00;"></i>
+        <div>
+          <strong>Approval requires a passed 3-Way Match.</strong><br>
+          <small>Complete all 4 steps below before this invoice can be approved.</small>
+        </div>
+      </div>
+
+      <div class="prereq-checklist">
+        <div class="prereq-step" [class.step-done]="prereqChecks.grnCreated" [class.step-pending]="!prereqChecks.grnCreated">
+          <div class="prereq-step-number">
+            <span *ngIf="!prereqChecks.grnCreated">1</span>
+            <i *ngIf="prereqChecks.grnCreated" class="bi bi-check-lg"></i>
+          </div>
+          <div class="prereq-step-body">
+            <div class="prereq-step-title">Create GRN (Goods Receipt Note)</div>
+            <div class="prereq-step-desc">Record all goods physically received against the Purchase Order.</div>
+          </div>
+          <div class="prereq-step-badge">
+            <span class="badge rounded-pill" [class.bg-success]="prereqChecks.grnCreated" [class.bg-light]="!prereqChecks.grnCreated" [class.text-dark]="!prereqChecks.grnCreated">
+              <i class="bi me-1" [class.bi-check-circle-fill]="prereqChecks.grnCreated" [class.bi-hourglass]="!prereqChecks.grnCreated"></i>
+              {{ prereqChecks.grnCreated ? 'Done' : 'Pending' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="prereq-line" [class.line-done]="prereqChecks.grnCreated"></div>
+
+        <div class="prereq-step" [class.step-done]="prereqChecks.grnApproved" [class.step-pending]="!prereqChecks.grnApproved">
+          <div class="prereq-step-number">
+            <span *ngIf="!prereqChecks.grnApproved">2</span>
+            <i *ngIf="prereqChecks.grnApproved" class="bi bi-check-lg"></i>
+          </div>
+          <div class="prereq-step-body">
+            <div class="prereq-step-title">Complete QA Review &amp; Approve GRN</div>
+            <div class="prereq-step-desc">QA team inspects received goods, then a supervisor approves the GRN.</div>
+          </div>
+          <div class="prereq-step-badge">
+            <span class="badge rounded-pill" [class.bg-success]="prereqChecks.grnApproved" [class.bg-light]="!prereqChecks.grnApproved" [class.text-dark]="!prereqChecks.grnApproved">
+              <i class="bi me-1" [class.bi-check-circle-fill]="prereqChecks.grnApproved" [class.bi-hourglass]="!prereqChecks.grnApproved"></i>
+              {{ prereqChecks.grnApproved ? 'Done' : 'Pending' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="prereq-line" [class.line-done]="prereqChecks.grnApproved"></div>
+
+        <div class="prereq-step" [class.step-done]="prereqChecks.matchDone" [class.step-pending]="!prereqChecks.matchDone">
+          <div class="prereq-step-number">
+            <span *ngIf="!prereqChecks.matchDone">3</span>
+            <i *ngIf="prereqChecks.matchDone" class="bi bi-check-lg"></i>
+          </div>
+          <div class="prereq-step-body">
+            <div class="prereq-step-title">Perform 3-Way Match</div>
+            <div class="prereq-step-desc">Navigate to the <strong>3-Way Match module</strong>, select this PO, GRN, and Invoice, then run the match.</div>
+          </div>
+          <div class="prereq-step-badge">
+            <span class="badge rounded-pill" [class.bg-success]="prereqChecks.matchDone" [class.bg-light]="!prereqChecks.matchDone" [class.text-dark]="!prereqChecks.matchDone">
+              <i class="bi me-1" [class.bi-check-circle-fill]="prereqChecks.matchDone" [class.bi-hourglass]="!prereqChecks.matchDone"></i>
+              {{ prereqChecks.matchDone ? 'Done' : 'Pending' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="prereq-line" [class.line-done]="prereqChecks.matchDone"></div>
+
+        <div class="prereq-step" [class.step-done]="prereqChecks.matchPassed"
+             [class.step-failed]="prereqChecks.matchDone && !prereqChecks.matchPassed"
+             [class.step-pending]="!prereqChecks.matchDone">
+          <div class="prereq-step-number">
+            <span *ngIf="!prereqChecks.matchPassed && !prereqChecks.matchDone">4</span>
+            <i *ngIf="prereqChecks.matchPassed" class="bi bi-check-lg"></i>
+            <i *ngIf="prereqChecks.matchDone && !prereqChecks.matchPassed" class="bi bi-x-lg"></i>
+          </div>
+          <div class="prereq-step-body">
+            <div class="prereq-step-title">3-Way Match Must Pass (or Be Resolved)</div>
+            <div class="prereq-step-desc">The match result must be <strong>MATCHED</strong>, <strong>OVERRIDDEN APPROVED</strong>, or a resolved <strong>PARTIAL MATCH</strong>.</div>
+            <div *ngIf="prereqChecks.matchDone && !prereqChecks.matchPassed" class="mt-2">
+              <span class="badge bg-danger px-2 py-1">
+                <i class="bi bi-x-circle me-1"></i>
+                Current status: {{ prereqInvoice?.threeWayMatchStatus || 'MISMATCH DETECTED' }}
+              </span>
+              <div class="text-danger small mt-1">Please go to the 3-Way Match module and resolve the mismatch first.</div>
+            </div>
+          </div>
+          <div class="prereq-step-badge">
+            <span class="badge rounded-pill"
+              [class.bg-success]="prereqChecks.matchPassed"
+              [class.bg-danger]="prereqChecks.matchDone && !prereqChecks.matchPassed"
+              [class.bg-light]="!prereqChecks.matchDone"
+              [class.text-dark]="!prereqChecks.matchDone">
+              <i class="bi me-1"
+                [class.bi-check-circle-fill]="prereqChecks.matchPassed"
+                [class.bi-x-circle-fill]="prereqChecks.matchDone && !prereqChecks.matchPassed"
+                [class.bi-hourglass]="!prereqChecks.matchDone"></i>
+              {{ prereqChecks.matchPassed ? 'Passed' : (prereqChecks.matchDone ? 'Failed' : 'Pending') }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="allPrereqsPassed" class="alert alert-success d-flex align-items-center gap-2 mt-4" style="border-left:4px solid #28a745;">
+        <i class="bi bi-check-circle-fill fs-4 flex-shrink-0" style="color:#28a745;"></i>
+        <div><strong>All prerequisites completed!</strong><br><small>You can now proceed to approve this invoice.</small></div>
+      </div>
+      <div *ngIf="!allPrereqsPassed" class="mt-4 p-3 rounded d-flex align-items-center gap-2" style="background:#fff3cd;border:1px solid #ffc107;">
+        <i class="bi bi-lock-fill fs-5" style="color:#856404;"></i>
+        <small style="color:#856404;">Complete the steps above before approval becomes available.</small>
+      </div>
+    </div>
+  </c-modal-body>
+
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="closePrereqModal()">Close</button>
+    <button *ngIf="allPrereqsPassed" cButton color="success" (click)="proceedToApprove()">
+      <i class="bi bi-check-lg me-1"></i>Proceed to Approve
+    </button>
+  </c-modal-footer>
+</c-modal>

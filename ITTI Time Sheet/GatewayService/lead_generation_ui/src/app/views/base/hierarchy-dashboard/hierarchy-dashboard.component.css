@@ -1,0 +1,109 @@
+/* Stat Cards */
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+
+.stat-card-blue .stat-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-card-warning .stat-icon {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.stat-card-success .stat-icon {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.stat-card-info .stat-icon {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+.stat-info h4 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #2d3748;
+}
+
+.stat-info p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Table Styling */
+.table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  padding: 1rem 0.75rem;
+  border: none;
+}
+
+.table tbody td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  text-decoration: underline;
+}
+
+/* Badge Styling */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .stat-info h4 {
+    font-size: 1.5rem;
+  }
+}

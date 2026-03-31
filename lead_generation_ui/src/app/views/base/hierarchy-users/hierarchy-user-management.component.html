@@ -1,0 +1,465 @@
+<c-container class="mt-4" fluid>
+  <!-- Header Section with User Details -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <c-card class="border-0 shadow-lg">
+        <div class="gradient-header-users">
+          <c-card-body class="p-4">
+            <c-row class="align-items-center">
+              <!-- User Info -->
+              <c-col xs="12" lg="4" class="mb-3 mb-lg-0">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle-large me-3">
+                    {{ getInitials(fullName) }}
+                  </div>
+                  <div class="text-white">
+                    <h5 class="mb-1 fw-bold">{{ fullName }}</h5>
+                    <p class="mb-0 opacity-90">
+                      <i class="cil-shield-alt me-1"></i>
+                      {{ role }}
+                    </p>
+                  </div>
+                </div>
+              </c-col>
+
+              <!-- Page Title & Details -->
+              <c-col xs="12" lg="5" class="mb-3 mb-lg-0">
+                <h3 class="text-white mb-2 fw-bold">
+                  <i class="cil-people me-2"></i>
+                  Hierarchy User Management
+                </h3>
+                <p class="text-white mb-0 opacity-90">
+                  <i class="cil-building me-2"></i>
+                  Company: <strong>{{ companyName }}</strong> | 
+                  <i class="cil-envelope-closed me-2"></i>
+                  <strong>{{ email }}</strong>
+                </p>
+              </c-col>
+
+              <!-- Action Button -->
+              <!-- <c-col xs="12" lg="3" class="text-lg-end">
+                <button cButton class="btn-create-primary" (click)="openCreateModal()">
+                  <i class="cil-user-follow me-2"></i>
+                  Add User
+                </button>
+              </c-col> -->
+            </c-row>
+          </c-card-body>
+        </div>
+      </c-card>
+    </c-col>
+  </c-row>
+   
+
+  <!-- Users Table -->
+  <c-row>
+    <c-col xs="12">
+      <c-card class="border-0 shadow">
+        <c-card-header class="bg-white border-bottom">
+          <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <h5 class="mb-0 fw-bold">
+              <i class="cil-list me-2 text-primary"></i>
+             Hierarchy Users 
+            </h5>
+            
+            <!-- Filter Controls -->
+            <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+              <label class="mb-0 me-2">Filter:</label>
+              <select cFormControl [(ngModel)]="selectedLevelFilter" (change)="filterByLevel()" class="form-select-modern" style="width: 220px;">
+                <option value="">All Levels</option>
+                <option *ngFor="let level of hierarchyLevels" [value]="level.id">
+                  L{{ level.levelOrder }}: {{ level.levelName }}
+                </option>
+              </select>
+             <button cButton class="btn-create-primary" (click)="openCreateModal()">
+                  <i class="cil-user-follow me-2"></i>
+                  Add User
+                </button>
+            </div>
+          </div>
+        </c-card-header>
+        <c-card-body class="p-0">
+          <!-- Loading -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading users...</p>
+          </div>
+
+          <!-- No Data -->
+          <div *ngIf="!isLoading && filteredUsers.length === 0" class="text-center py-5">
+            <i class="cil-user" style="font-size: 4rem; color: #6c757d;"></i>
+            <p class="text-muted mb-3 fs-5 mt-3">No users found.</p>
+            <button cButton color="primary" (click)="openCreateModal()">
+              <i class="cil-user-follow me-2"></i>
+              Add First User
+            </button>
+          </div>
+
+          <!-- Users Table -->
+          <div *ngIf="!isLoading && filteredUsers.length > 0" class="table-responsive">
+            <table class="table table-hover modern-table mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th><i class="cil-user me-2"></i>Name & Contact</th>
+                  <th><i class="cil-envelope-closed me-2"></i>Email</th>
+                  <th><i class="cil-briefcase me-2"></i>Designation</th>
+                  <th><i class="cil-layers me-2"></i>Level</th>
+                  <th><i class="cil-arrow-thick-from-bottom me-2"></i>Reports To</th>
+                  <th><i class="cil-check-circle me-2"></i>Status</th>
+                  <th class="" >Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of filteredUsers" class="modern-table-row">
+                  <!-- Name & Contact -->
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle me-3">
+                        {{ user.fullName.charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <strong class="user-name">{{ user.fullName }}</strong>
+                        <div class="user-email">
+                          <!-- <i class="cil-phone me-1"></i> -->
+                          {{ user.phone || 'No phone' }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Email -->
+                  <td>
+                    <div class="email-cell">
+                      <!-- <i class="cil-envelope-closed me-2 text-muted"></i> -->
+                      <strong>{{ user.email }}</strong>
+                    </div>
+                  </td>
+                  
+                  <!-- Designation -->
+                  <td>
+                    <div class="designation-badge">
+                      <i class="cil-briefcase me-2"></i>
+                      {{ user.designation }}
+                    </div>
+                  </td>
+                  
+                  <!-- Hierarchy Level -->
+                  <td>
+                    <c-badge [color]="getLevelBadgeColor(user.hierarchyLevelOrder)" class="level-badge-modern">
+                      L{{ user.hierarchyLevelOrder }}: {{ user.hierarchyLevelName }}
+                    </c-badge>
+                  </td>
+                  
+                  <!-- Reports To - Multiple Managers -->
+                  <td>
+                    <div *ngIf="user.reportsTo && user.reportsTo.length > 0" class="managers-list">
+                      <div *ngFor="let manager of user.reportsTo" class="manager-item mb-2">
+                        <div class="d-flex align-items-center">
+                          <div class="mini-avatar me-2">
+                            {{ manager.fullName.charAt(0).toUpperCase() }}
+                          </div>
+                          <div>
+                            <strong class="d-block small">{{ manager.fullName }}</strong>
+                            <small class="text-muted">
+                              {{ manager.designation }}
+                              <c-badge color="secondary" size="sm" class="ms-1">
+                                L{{ manager.hierarchyLevelOrder }}
+                              </c-badge>
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="!user.reportsTo || user.reportsTo.length === 0">
+                      <c-badge color="light" class="text-muted px-3 py-2">
+                        <i class="cil-ban me-1"></i>
+                        No manager
+                      </c-badge>
+                    </div>
+                  </td>
+                  
+                  <!-- Status -->
+                  <td>
+                    <c-badge [color]="user.isActive ? 'primary' : 'secondary'" class="status-badge">
+                      <i [class]="user.isActive ? 'cil-check-circle' : 'cil-x-circle'" class="me-1"></i>
+                      {{ user.isActive ? 'Active' : 'Inactive' }}
+                    </c-badge>
+                  </td>
+                  
+                  <!-- Actions -->
+               <td class="text-end pe-4">
+  <button
+    class="btn btn-sm btn-light text-primary me-2 shadow-sm action-icon-btn"
+    (click)="openEditModal(user)"
+    title="Edit User">
+    <i class="cil-pencil"></i>
+  </button>
+
+  <button
+    *ngIf="user.isActive"
+    class="btn btn-sm btn-light text-warning me-2 shadow-sm action-icon-btn"
+    (click)="toggleUserStatus(user)"
+    title="Deactivate">
+    <i class="cil-ban"></i>
+  </button>
+
+  <button
+    *ngIf="!user.isActive"
+    class="btn btn-sm btn-light text-success me-2 shadow-sm action-icon-btn"
+    (click)="toggleUserStatus(user)"
+    title="Activate">
+    <i class="cil-check"></i>
+  </button>
+
+  <button
+    class="btn btn-sm btn-light text-danger shadow-sm action-icon-btn"
+    (click)="confirmDelete(user)"
+    title="Delete">
+    <i class="cil-trash"></i>
+  </button>
+</td>
+
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+</c-container>
+
+<!-- CREATE/EDIT MODAL -->
+<c-modal #userModal [visible]="showModal" (visibleChange)="onModalClose($event)" size="lg">
+  <c-modal-header class="modal-header-users">
+    <h5 cModalTitle class="text-white">
+      <i [class]="isEditMode ? 'cil-pencil' : 'cil-user-follow'" class="me-2"></i>
+      {{ isEditMode ? 'Edit' : 'Create' }} Hierarchy User
+    </h5>
+    <button (click)="closeModal()" cButtonClose class="text-white"></button>
+  </c-modal-header>
+  <c-modal-body class="p-4">
+    <form [formGroup]="userForm">
+      <c-row>
+        <c-col xs="12" md="6" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-envelope-closed me-2"></i>
+            Email <span class="text-danger">*</span>
+          </label>
+          <input 
+            cFormControl 
+            formControlName="email" 
+            type="email"
+            placeholder="user@example.com"
+            [disabled]="isEditMode"
+            class="form-control-modern"
+            [class.is-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched" />
+          <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="invalid-feedback">
+            <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="userForm.get('email')?.errors?.['email']">Invalid email format</span>
+          </div>
+        </c-col>
+
+        <c-col xs="12" md="6" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-user me-2"></i>
+            Full Name <span class="text-danger">*</span>
+          </label>
+          <input 
+            cFormControl 
+            formControlName="fullName" 
+            placeholder="John Doe"
+            class="form-control-modern"
+            [class.is-invalid]="userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched" />
+          <div *ngIf="userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched" class="invalid-feedback">
+            <span *ngIf="userForm.get('fullName')?.errors?.['required']">Full name is required</span>
+          </div>
+        </c-col>
+
+        <c-col xs="12" md="6" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-briefcase me-2"></i>
+            Designation <span class="text-danger">*</span>
+          </label>
+          <input 
+            cFormControl 
+            formControlName="designation" 
+            placeholder="Senior Manager"
+            class="form-control-modern"
+            [class.is-invalid]="userForm.get('designation')?.invalid && userForm.get('designation')?.touched" />
+          <div *ngIf="userForm.get('designation')?.invalid && userForm.get('designation')?.touched" class="invalid-feedback">
+            <span *ngIf="userForm.get('designation')?.errors?.['required']">Designation is required</span>
+          </div>
+        </c-col>
+
+        <c-col xs="12" md="6" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-phone me-2"></i>
+            Phone
+          </label>
+          <input 
+            cFormControl 
+            formControlName="phone" 
+            type="tel"
+            placeholder="+1234567890"
+            class="form-control-modern" />
+        </c-col>
+
+        <c-col xs="12" md="6" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-layers me-2"></i>
+            Hierarchy Level <span class="text-danger">*</span>
+          </label>
+          <select 
+            cFormControl 
+            formControlName="hierarchyLevelId"
+            class="form-control-modern"
+            [class.is-invalid]="userForm.get('hierarchyLevelId')?.invalid && userForm.get('hierarchyLevelId')?.touched">
+            <option value="">Select Level</option>
+            <option *ngFor="let level of hierarchyLevels" [value]="level.id">
+              L{{ level.levelOrder }}: {{ level.levelName }}
+            </option>
+          </select>
+          <div *ngIf="userForm.get('hierarchyLevelId')?.invalid && userForm.get('hierarchyLevelId')?.touched" class="invalid-feedback">
+            <span *ngIf="userForm.get('hierarchyLevelId')?.errors?.['required']">Hierarchy level is required</span>
+          </div>
+        </c-col>
+
+        <c-col xs="12" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-arrow-thick-from-bottom me-2"></i>
+            Reports To (Select Multiple) <span class="text-muted">(Optional)</span>
+          </label>
+          
+          <div *ngIf="userForm.get('hierarchyLevelId')?.value && potentialManagers.length > 0" class="manager-chips-container">
+            <div 
+              *ngFor="let manager of potentialManagers" 
+              class="manager-chip-select"
+              [class.selected]="isManagerSelectedInForm(manager.id)"
+              (click)="toggleManagerInForm(manager.id)">
+              <input 
+                type="checkbox" 
+                class="form-check-input me-2"
+                [checked]="isManagerSelectedInForm(manager.id)">
+              <div class="manager-info">
+                <strong>{{ manager.fullName }}</strong>
+                <br>
+                <small class="text-muted">
+                  {{ manager.designation }} 
+                  <c-badge color="secondary" size="sm">L{{ manager.hierarchyLevelOrder }}</c-badge>
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <small class="form-text text-muted mt-2">
+            <i class="cil-info me-1"></i>
+            Click on manager cards to select/deselect. Only higher-level users are shown.
+          </small>
+          
+          <div *ngIf="!userForm.get('hierarchyLevelId')?.value" class="alert alert-warning mt-2">
+            <i class="cil-warning me-2"></i>
+            Please select a hierarchy level first.
+          </div>
+          
+          <div *ngIf="userForm.get('hierarchyLevelId')?.value && potentialManagers.length === 0" class="alert alert-info mt-2">
+            <i class="cil-info me-2"></i>
+            No higher-level managers available.
+          </div>
+        </c-col>
+
+        <c-col xs="12" *ngIf="!isEditMode" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-lock-locked me-2"></i>
+            Password <span class="text-danger">*</span>
+          </label>
+          <input 
+            cFormControl 
+            formControlName="password" 
+            type="password"
+            placeholder="Minimum 6 characters"
+            class="form-control-modern"
+            [class.is-invalid]="userForm.get('password')?.invalid && userForm.get('password')?.touched" />
+          <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="invalid-feedback">
+            <span *ngIf="userForm.get('password')?.errors?.['required']">Password is required</span>
+            <span *ngIf="userForm.get('password')?.errors?.['minlength']">Minimum 6 characters</span>
+          </div>
+        </c-col>
+
+        <c-col xs="12" *ngIf="isEditMode" class="mb-3">
+          <label cLabel class="form-label-modern">
+            <i class="cil-lock-locked me-2"></i>
+            New Password (Optional)
+          </label>
+          <input 
+            cFormControl 
+            formControlName="password" 
+            type="password"
+            placeholder="Leave blank to keep current"
+            class="form-control-modern" />
+          <small class="form-text text-muted">Only fill to change password</small>
+        </c-col>
+      </c-row>
+
+      <c-alert *ngIf="errorMessage" color="danger" [dismissible]="true" (visibleChange)="errorMessage = null" class="modern-alert">
+        <i class="cil-x-circle me-2"></i>
+        {{ errorMessage }}
+      </c-alert>
+
+      <c-alert *ngIf="successMessage" color="success" [dismissible]="true" (visibleChange)="successMessage = null" class="modern-alert">
+        <i class="cil-check-circle me-2"></i>
+        {{ successMessage }}
+      </c-alert>
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="closeModal()" [disabled]="isSubmitting" class="btn-modern">
+      Cancel
+    </button>
+    <button cButton [color]="isEditMode ? 'warning' : 'primary'" (click)="submitUser()" [disabled]="isSubmitting || userForm.invalid" class="btn-modern">
+      <span *ngIf="!isSubmitting">
+        <i [class]="isEditMode ? 'cil-save' : 'cil-user-follow'" class="me-2"></i>
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </span>
+      <span *ngIf="isSubmitting">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        {{ isEditMode ? 'Updating...' : 'Creating...' }}
+      </span>
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- DELETE MODAL -->
+<c-modal #deleteModal [visible]="showDeleteModal" (visibleChange)="showDeleteModal = $event" size="sm">
+  <c-modal-header class="modal-header-danger">
+    <h5 cModalTitle class="text-white">
+      <i class="cil-warning me-2"></i>
+      Confirm Delete
+    </h5>
+    <button (click)="showDeleteModal = false" cButtonClose class="text-white"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <p class="mb-3">Delete <strong>{{ selectedUser?.fullName }}</strong>?</p>
+    <div class="alert alert-warning">
+      <i class="cil-info me-2"></i>
+      <small>Soft delete - user will be marked inactive.</small>
+    </div>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="showDeleteModal = false" [disabled]="isDeleting">
+      Cancel
+    </button>
+    <button cButton color="danger" (click)="deleteUser()" [disabled]="isDeleting">
+      <span *ngIf="!isDeleting">
+        <i class="cil-trash me-2"></i>
+        Delete
+      </span>
+      <span *ngIf="isDeleting">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Deleting...
+      </span>
+    </button>
+  </c-modal-footer>
+</c-modal>

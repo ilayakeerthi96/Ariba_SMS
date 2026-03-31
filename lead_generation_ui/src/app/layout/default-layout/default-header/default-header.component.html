@@ -1,0 +1,237 @@
+<!-- <ng-container>
+  <c-container [fluid]="true" class="border-bottom header-wrapper">
+    
+    <div class="header-flex-container">
+      
+      <div class="header-section header-left">
+        <button
+          [cSidebarToggle]="sidebarId()"
+          cHeaderToggler
+          class="sidebar-toggle-btn"
+          toggle="visible"
+          aria-label="Toggle sidebar navigation"
+        >
+           <span class="menu-icon">☰</span>
+        </button>
+
+        <div class="company-logo-wrapper">
+          <img 
+            *ngIf="companyLogo" 
+            [src]="companyLogo" 
+            alt="Company Logo" 
+            class="company-logo"
+            [title]="companyName" />
+          
+          <div *ngIf="!companyLogo && companyName" class="company-name-badge">
+            {{ companyName }} 
+          </div>
+          
+        
+        </div>
+      </div>
+
+      <div class="header-section header-center">
+        <h5 class="system-title">SUPPLIER MANAGEMENT SYSTEM</h5>
+        <div class="user-info-line">
+          <span class="user-name">{{ userName }}</span>
+          <span class="separator">-</span>
+          <span class="user-designation">{{ designationDisplay }}</span>
+          <span *ngIf="departmentName" class="department-info">
+            <span class="separator">•</span>
+            {{ departmentName }}
+          </span>
+        </div>
+      </div>
+
+      <div class="header-section header-right">
+        <div class="timer-wrapper">
+          <app-session-timer></app-session-timer>
+        </div>
+        <div class="avatar-wrapper">
+          <ng-container *ngTemplateOutlet="userDropdown"></ng-container>
+        </div>
+      </div>
+
+    </div>
+  </c-container>
+
+  <c-container [fluid]="true" class="px-4 py-2 bg-light">
+    <c-breadcrumb-router></c-breadcrumb-router>
+  </c-container>
+</ng-container>
+
+
+<ng-template #userDropdown>
+  <c-dropdown [popperOptions]="{ placement: 'bottom-end' }" variant="nav-item">
+    <button [caret]="false" cDropdownToggle class="avatar-btn" aria-label="Open user menu">
+      <c-avatar
+        shape="rounded-circle"
+        [size]="'md'"
+        src="assets/images/profile.jpg"
+        status="success"
+        textColor="primary"
+        alt="User avatar"
+        class="user-avatar"
+      />
+    </button>
+    <ul cDropdownMenu class="dropdown-menu-custom">
+      
+      <li class="dropdown-header">
+        <div class="fw-bold text-dark">{{ userName }}</div>
+        <small class="text-muted">{{ designationDisplay }}</small>
+        <small *ngIf="departmentName" class="text-muted d-block">{{ departmentName }}</small>
+      </li>
+
+      <li><hr class="dropdown-divider m-0"></li>
+
+      <li>
+        <a cDropdownItem routerLink="/change-password" class="dropdown-item-custom">
+          <svg cIcon class="me-2" name="cilLockLocked"></svg>
+          Change Password
+        </a>
+      </li>
+      
+      <li><hr class="dropdown-divider m-0"></li>
+      
+      <li>
+        <a cDropdownItem (click)="logout()" class="dropdown-item-custom text-danger">
+          <svg cIcon class="me-2" name="cilAccountLogout"></svg>
+          Logout
+        </a>
+      </li>
+    </ul>
+  </c-dropdown>
+</ng-template>
+
+<app-session-expiry-dialog
+  *ngIf="showSessionDialog"
+  [expiryMs]="sessionExpiryMs"
+  (extend)="onExtendSession()"
+  (logout)="logout()"
+></app-session-expiry-dialog> -->
+
+<ng-container>
+  <c-container [fluid]="true" class="border-bottom header-wrapper">
+    
+    <div class="header-flex-container">
+      
+      <div class="header-section header-left">
+        <button
+          [cSidebarToggle]="sidebarId()"
+          cHeaderToggler
+          class="sidebar-toggle-btn"
+          toggle="visible"
+          aria-label="Toggle sidebar navigation"
+        >
+           <span class="menu-icon">☰</span>
+        </button>
+
+        <div class="company-logo-wrapper">
+          <img 
+            *ngIf="companyLogo" 
+            [src]="companyLogo" 
+            alt="Company Logo" 
+            class="company-logo"
+            [title]="companyName" />
+          
+          <div *ngIf="!companyLogo && companyName" class="company-name-badge">
+            {{ companyName }} 
+          </div>
+          
+          <!-- <div *ngIf="!companyLogo && !companyName" class="company-name-badge">
+            ITTI Pvt Ltd Bangalore
+          </div> -->
+        </div>
+      </div>
+
+      <div class="header-section header-center">
+        <h5 class="system-title">SUPPLIER MANAGEMENT SYSTEM</h5>
+        <div class="user-info-line">
+          <span class="user-name">{{ userName }}</span>
+          <span class="separator">-</span>
+          <span class="user-designation">{{ designationDisplay }}</span>
+          <span *ngIf="departmentName" class="department-info">
+            <span class="separator">•</span>
+            {{ departmentName }}
+          </span>
+        </div>
+      </div>
+
+      <div class="header-section header-right">
+        <div class="timer-wrapper">
+          <app-session-timer></app-session-timer>
+        </div>
+        <div class="avatar-wrapper">
+          <ng-container *ngTemplateOutlet="userDropdown"></ng-container>
+        </div>
+      </div>
+
+    </div>
+  </c-container>
+
+  <c-container [fluid]="true" class="px-4 py-2 bg-light">
+    <c-breadcrumb-router></c-breadcrumb-router>
+  </c-container>
+</ng-container>
+
+
+<ng-template #userDropdown>
+  <c-dropdown [popperOptions]="{ placement: 'bottom-end' }" variant="nav-item">
+    <button [caret]="false" cDropdownToggle class="avatar-btn" aria-label="Open user menu">
+      <c-avatar
+        shape="rounded-circle"
+        [size]="'md'"
+        src="assets/images/profile.jpg"
+        status="success"
+        textColor="primary"
+        alt="User avatar"
+        class="user-avatar"
+      />
+    </button>
+    <ul cDropdownMenu class="dropdown-menu-custom">
+      
+      <li class="dropdown-header">
+        <div class="fw-bold text-dark">{{ userName }}</div>
+        <small class="text-muted">{{ designationDisplay }}</small>
+        <small *ngIf="departmentName" class="text-muted d-block">{{ departmentName }}</small>
+      </li>
+
+      <li><hr class="dropdown-divider m-0"></li>
+
+      <li>
+        <a cDropdownItem routerLink="/change-password" class="dropdown-item-custom">
+          <svg cIcon class="me-2" name="cilLockLocked"></svg>
+          Change Password
+        </a>
+      </li>
+      
+      <li><hr class="dropdown-divider m-0"></li>
+      
+      <li>
+        <a cDropdownItem (click)="logout()" class="dropdown-item-custom text-danger">
+          <svg cIcon class="me-2" name="cilAccountLogout"></svg>
+          Logout
+        </a>
+      </li>
+    </ul>
+  </c-dropdown>
+</ng-template>
+
+<app-session-expiry-dialog
+  *ngIf="showSessionDialog"
+  [expiryMs]="sessionExpiryMs"
+  (extend)="onExtendSession()"
+  (logout)="logout()"
+></app-session-expiry-dialog>
+
+<!-- Add this block at the very end, alongside the session expiry dialog -->
+<div *ngIf="showLogoutConfirm" class="logout-confirm-overlay">
+  <div class="logout-confirm-dialog">
+    <p class="logout-confirm-title">Confirm Logout</p>
+    <p class="logout-confirm-message">Are you sure you want to logout?</p>
+    <div class="logout-confirm-actions">
+      <button class="btn-confirm-yes" (click)="performLogout()">Yes, Logout</button>
+      <button class="btn-confirm-no" (click)="showLogoutConfirm = false">No, Stay</button>
+    </div>
+  </div>
+</div>

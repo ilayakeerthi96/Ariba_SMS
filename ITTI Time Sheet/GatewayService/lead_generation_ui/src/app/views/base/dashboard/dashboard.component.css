@@ -1,0 +1,209 @@
+/* ==========================================================================
+   1. DASHBOARD TOOLBAR
+   ========================================================================== */
+.dashboard-toolbar {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #edf2f7;
+}
+
+/* The container for the Action Buttons (Export/Refresh) */
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* The container for the Filters (Period, Team, Tech, etc.) */
+.filters-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem; 
+  /* ⭐ KEY CHANGE: No overflow, force single line */
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+/* Individual Filter Item */
+.filter-item {
+  /* ⭐ KEY CHANGE: Allow items to shrink (1) and grow (1) to fit */
+  flex: 1 1 auto; 
+  /* Set a small min-width so they don't disappear completely, 
+     but small enough to allow squeezing */
+  min-width: 100px; 
+  max-width: 100%;
+}
+
+.form-label-custom {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+  display: block;
+  /* Prevent label text from wrapping */
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-select-custom, .form-control-custom {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.85rem; /* Slightly smaller font to fit content better */
+  height: 42px;
+  border-radius: 8px;
+  width: 100%;
+  padding-left: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  /* Ensure text truncation inside inputs so they don't force width expansion */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-select-custom:hover, .form-control-custom:hover {
+  background-color: #fff;
+  border-color: #d1d5db;
+}
+
+.form-select-custom:focus, .form-control-custom:focus {
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* ==========================================================================
+   2. KPI CARDS (Existing Styles)
+   ========================================================================== */
+.kpi-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   3. MODERN TABLES & BADGES (Existing Styles)
+   ========================================================================== */
+.table-modern {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-modern th {
+  background-color: #f8fafc;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-modern td {
+  vertical-align: middle;
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.table-modern tr:last-child td {
+  border-bottom: none;
+}
+
+/* Soft Badges */
+.badge-soft {
+  padding: 0.35em 0.8em;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
+.badge-soft-success { background-color: #d1fae5; color: #065f46; }
+.badge-soft-danger  { background-color: #fee2e2; color: #991b1b; }
+.badge-soft-info    { background-color: #dbeafe; color: #1e40af; }
+.badge-soft-primary { background-color: #e0e7ff; color: #3730a3; }
+.badge-soft-warning { background-color: #fef3c7; color: #92400e; }
+.badge-soft-secondary { background-color: #f3f4f6; color: #374151; }
+.badge-soft-dark    { background-color: #e2e8f0; color: #1e293b; }
+
+/* ==========================================================================
+   4. AVATARS & FUNNEL (Existing Styles)
+   ========================================================================== */
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background-color: #e0e7ff;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-right: 10px;
+  text-transform: uppercase;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.funnel-container::-webkit-scrollbar {
+  width: 6px;
+}
+.funnel-container::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+.funnel-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.text-name-large {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #374151;
+}

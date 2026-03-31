@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .container { max-width:600px; margin:30px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    .header { background:#34a853; color:#fff; padding:28px 32px; }
+    .header h1 { margin:0; font-size:22px; }
+    .body { padding:28px 32px; color:#333; line-height:1.6; }
+    .info-box { background:#f0faf4; border-left:4px solid #34a853; padding:16px 20px; border-radius:4px; margin:20px 0; }
+    .info-box p { margin:4px 0; font-size:14px; }
+    .remarks { background:#fffde7; border-left:4px solid #fbbc04; padding:12px 16px; border-radius:4px; margin:16px 0; font-style:italic; }
+    .btn { display:inline-block; margin-top:20px; padding:12px 28px; background:#34a853; color:#fff; text-decoration:none; border-radius:5px; font-weight:bold; }
+    .footer { background:#f4f4f4; color:#999; font-size:12px; padding:16px 32px; text-align:center; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>✅ Invoice Approved</h1>
+  </div>
+  <div class="body">
+    <p>Hello <strong th:text="${supplierName}">Supplier</strong>,</p>
+    <p>Great news! Your invoice has been <strong>approved</strong>.</p>
+    <div class="info-box">
+      <p><strong>Invoice Number:</strong> <span th:text="${invoiceNumber}"></span></p>
+      <p><strong>PO Number:</strong> <span th:text="${poNumber}"></span></p>
+      <p><strong>Amount:</strong> <span th:text="${currency + ' ' + totalAmount}"></span></p>
+      <p><strong>Approved By:</strong> <span th:text="${approvedBy}"></span></p>
+      <p><strong>Approved At:</strong> <span th:text="${approvedAt}"></span></p>
+    </div>
+    <div class="remarks" th:if="${remarks != null and !#strings.isEmpty(remarks)}">
+      <strong>Remarks:</strong> <span th:text="${remarks}"></span>
+    </div>
+    <p>Payment will be processed in accordance with the agreed payment terms.</p>
+    <a th:href="${invoiceLink}" class="btn">View Invoice</a>
+  </div>
+  <div class="footer">This is an automated notification. Please do not reply to this email.</div>
+</div>
+</body>
+</html>

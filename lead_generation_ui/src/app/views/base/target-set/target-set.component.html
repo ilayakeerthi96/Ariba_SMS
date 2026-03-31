@@ -1,0 +1,126 @@
+<div class="container mt-4">
+
+  <div class="mb-3">
+    <h4>Sales Target Setting</h4>
+  </div>
+
+  <form [formGroup]="targetForm" (ngSubmit)="submitTargets()" *ngIf="filteredTeams.length > 0">
+
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <label class="form-label">Target Type <span class="text-danger">*</span></label>
+
+        <select class="form-select" formControlName="targetType" (change)="onTargetTypeChange()"
+          [ngClass]="{'is-invalid': formSubmitted && targetForm.get('targetType')?.invalid}">
+          <option value="">Select...</option>
+          <option value="ANNUAL">Annual</option>
+          </select>
+      </div>
+    </div>
+
+    <div class="row mb-3" *ngIf="targetForm.get('targetType')?.value === 'ANNUAL'">
+      <div class="col-md-4">
+        <label class="form-label">Select Year <span class="text-danger">*</span></label>
+
+        <select class="form-select" formControlName="year" (change)="updateTargetTable()"
+          [ngClass]="{'is-invalid': formSubmitted && targetForm.get('year')?.invalid}">
+          <option value="">Select...</option>
+          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 20%">Employee</th>
+              <th style="width: 20%">Target Unit</th>
+              <th style="width: 15%">Currency</th>
+              <th style="width: 25%">Target Amount / Count</th>
+              <th style="width: 10%" class="text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody formArrayName="targets">
+            <tr *ngFor="let t of targets.controls; let i=index" [formGroupName]="i">
+
+              <td>
+                <strong>{{ t.value.employeeName }}</strong><br>
+                <small class="text-muted">{{ t.value.teamName }}</small>
+              </td>
+
+              <td>
+                <select class="form-select" formControlName="targetUnit" (change)="onUnitChange(i)"
+                  [ngClass]="{'is-invalid': formSubmitted && t.get('targetUnit')?.invalid}">
+                  <option value="AMOUNT">Amount (Revenue)</option>
+                  <option value="LEADS">Leads (Count)</option>
+                </select>
+                <div *ngIf="formSubmitted && t.get('targetUnit')?.invalid" class="text-danger small">
+                  Required
+                </div>
+              </td>
+
+              <td>
+                <select class="form-select" formControlName="currency"
+                  [ngClass]="{'is-invalid': formSubmitted && t.get('currency')?.invalid}">
+                  <option value="INR">INR</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="AED">AED</option>
+                  <option value="SAR">SAR</option>
+                </select>
+                <div *ngIf="formSubmitted && t.get('currency')?.invalid" class="text-danger small">
+                  Required
+                </div>
+              </td>
+
+              <td>
+                <input type="number" class="form-control" formControlName="targetAmount"
+                  placeholder="Enter value..."
+                  [ngClass]="{'is-invalid': formSubmitted && t.get('targetAmount')?.invalid}">
+
+                <div *ngIf="formSubmitted && t.get('targetAmount')?.invalid" class="text-danger small">
+                   Target is required (≥ 0)
+                </div>
+              </td>
+
+              <td class="text-center">
+                <div class="d-flex gap-2 justify-content-center">
+                  <button type="button" class="btn btn-outline-primary btn-sm" 
+                          title="Add another target for {{t.value.employeeName}}"
+                          (click)="addTargetRow(i)">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                  
+                  <button type="button" class="btn btn-outline-danger btn-sm" 
+                          title="Remove this target"
+                          (click)="removeTargetRow(i)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+      <button class="btn btn-primary" type="submit" [disabled]="isSaving">
+        <span *ngIf="!isSaving">Save Targets</span>
+        <span *ngIf="isSaving">Saving...</span>
+      </button>
+    </div>
+
+  </form>
+
+  <div *ngIf="filteredTeams.length === 0">
+    <p class="text-danger">You do not have permissions to set targets.</p>
+  </div>
+
+</div>

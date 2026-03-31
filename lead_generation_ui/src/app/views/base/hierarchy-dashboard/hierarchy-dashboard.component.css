@@ -1,0 +1,317 @@
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+
+.stat-card-blue .stat-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-card-warning .stat-icon {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.stat-card-success .stat-icon {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.stat-card-info .stat-icon {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+.stat-info h4 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #2d3748;
+}
+
+.stat-info p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+
+.table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  padding: 1rem 0.75rem;
+  border: none;
+}
+
+.table tbody td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  text-decoration: underline;
+}
+
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  font-weight: 600;
+}
+
+
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .stat-info h4 {
+    font-size: 1.5rem;
+  }
+}
+
+.gradient-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.avatar-circle-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.info-card {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.info-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.info-card-content {
+  flex: 1;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .avatar-circle-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .info-card {
+    margin-bottom: 10px;
+  }
+
+  .info-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .info-label {
+    font-size: 0.7rem;
+  }
+
+  .info-value {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .gradient-header {
+    padding: 15px;
+  }
+
+  .avatar-circle-large {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    border-width: 2px;
+  }
+}
+
+/* ==================== ADD THESE TO YOUR EXISTING CSS ==================== */
+
+/* Section Label Row */
+.section-label-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+}
+
+.section-label-line {
+  flex-grow: 1;
+  margin: 0;
+  border-color: #e2e8f0;
+}
+
+/* Table Row Hover */
+.table-row-hover {
+  transition: background-color 0.15s;
+}
+.table-row-hover:hover {
+  background-color: #f0f4ff;
+}
+
+/* Dashboard Tabs */
+.dash-tab-btn {
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #718096;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-tab-btn:hover {
+  color: #4a5568;
+  background-color: #f7fafc;
+}
+
+.dash-tab-btn.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  background-color: #fff;
+}
+
+/* Tab Count Badge */
+.tab-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  transition: all 0.2s;
+}
+
+.tab-count-badge.badge-active {
+  background-color: #667eea;
+  color: white;
+}
+
+.tab-count-badge.badge-alert {
+  background-color: #fed7d7;
+  color: #c53030;
+}
+
+/* PO Status Badges */
+.po-status-badge {
+  display: inline-block;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.badge-po-draft      { background: #edf2f7; color: #4a5568; }
+.badge-po-pending    { background: #fefcbf; color: #744210; }
+.badge-po-approved   { background: #c6f6d5; color: #22543d; }
+.badge-po-rejected   { background: #fed7d7; color: #822727; }
+.badge-po-hold       { background: #feebc8; color: #7b341e; }
+.badge-po-sent       { background: #bee3f8; color: #2a4365; }
+.badge-po-ack        { background: #d6f5d6; color: #276749; }
+.badge-po-done       { background: #b2f5ea; color: #234e52; }
+.badge-po-cancelled  { background: #e2e8f0; color: #2d3748; }

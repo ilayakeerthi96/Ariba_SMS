@@ -1,0 +1,296 @@
+<div class="container-fluid p-4" style="background-color: #f8f9fa; min-height: 100vh;">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-dark mb-1">Requests for Quotation (RFQs)</h2>
+      <p class="text-muted small mb-0">Manage and track all your RFQs</p>
+    </div>
+    <button 
+      class="btn btn-primary btn-lg shadow-sm px-4" 
+      (click)="createRFQ()"
+      style="border-radius: 8px;">
+      <i class="bi bi-plus-circle"></i> Create New RFQ
+    </button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+    <!-- Card Header with Filters -->
+    <div class="card-header bg-white border-bottom-light pt-4 px-4 pb-0">
+      <div class="row g-3 mb-4">
+        <!-- Search -->
+        <div class="col-md-4">
+          <div class="input-group shadow-sm" style="border-radius: 8px;">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control border-start-0" 
+              placeholder="Search by RFQ number, title, or description..."
+              [(ngModel)]="searchText"
+              (input)="onSearch()"
+              style="border-radius: 0 8px 8px 0;">
+          </div>
+        </div>
+
+        <!-- Buyer Filter -->
+        <div class="col-md-4">
+          <select 
+            class="form-select shadow-sm" 
+            [(ngModel)]="selectedBuyer"
+            (change)="onBuyerChange()"
+            style="border-radius: 8px; border: 1px solid #dee2e6;">
+            <option [value]="null">All Buyers</option>
+            <option *ngFor="let buyer of buyers" [value]="buyer.id">
+              {{ buyer.companyName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-md-4">
+          <select 
+            class="form-select shadow-sm" 
+            [(ngModel)]="selectedStatus"
+            (change)="onStatusChange()"
+            style="border-radius: 8px; border: 1px solid #dee2e6;">
+            <option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Results Info -->
+      <div class="d-flex justify-content-between align-items-center pb-3 border-bottom">
+        <div class="text-muted small fw-bold">
+          Showing {{ pagedRFQs.length }} of {{ displayRFQs.length }} RFQs
+          <span *ngIf="selectedBuyer || selectedStatus || searchText" class="ms-2">
+            (Filtered from {{ rfqs.length }} total)
+          </span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small">Items per page:</span>
+          <select 
+            class="form-select form-select-sm" 
+            [(ngModel)]="pageSize"
+            (change)="onPageSizeChange()"
+            style="width: 70px;">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="card-body p-0">
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2">Loading RFQs...</p>
+      </div>
+
+      <div *ngIf="!isLoading && pagedRFQs.length === 0" class="text-center py-5">
+        <i class="bi bi-inbox display-6 text-muted mb-3 d-block" style="opacity: 0.5;"></i>
+        <h5 class="text-muted mb-2">No RFQs Found</h5>
+        <p class="text-muted small mb-3">
+          {{ searchText || selectedBuyer || selectedStatus ? 'No RFQs match your filters.' : 'Create your first RFQ to get started.' }}
+        </p>
+        <button 
+          *ngIf="!searchText && !selectedBuyer && !selectedStatus"
+          class="btn btn-primary btn-sm" 
+          (click)="createRFQ()">
+          <i class="bi bi-plus-circle"></i> Create RFQ
+        </button>
+      </div>
+
+      <!-- RFQs Table -->
+      <div class="table-responsive" *ngIf="!isLoading && pagedRFQs.length > 0">
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.95rem;">
+          <thead style="background-color: #f8f9fa; border-top: 1px solid #dee2e6; border-bottom: 2px solid #dee2e6;">
+            <tr>
+              <th class="ps-4 fw-bold text-dark">RFQ Number</th>
+              <th class="fw-bold text-dark">Title</th>
+              <th class="fw-bold text-dark">Buyer</th>
+              <th class="fw-bold text-dark">Due Date</th>
+              <th class="fw-bold text-dark">Status</th>
+              <th class="fw-bold text-dark">Priority</th>
+              <th class="fw-bold text-dark">Items</th>
+              <th class="text-center fw-bold text-dark">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let rfq of pagedRFQs" class="border-bottom" style="transition: background-color 0.2s;">
+              <!-- RFQ Number -->
+              <td class="ps-4">
+                <span class="badge bg-light text-dark fw-bold" style="cursor: pointer; font-size: 0.85rem;"
+                  (click)="viewRFQ(rfq)">
+                  {{ rfq.rfqNumber || 'N/A' }}
+                </span>
+              </td>
+
+              <!-- Title -->
+              <td>
+                <div class="fw-bold text-dark" (click)="viewRFQ(rfq)" style="cursor: pointer;">
+                  {{ rfq.rfqTitle }}
+                </div>
+                <small class="text-muted" *ngIf="rfq.rfqDescription">
+                  {{ rfq.rfqDescription | slice:0:50 }}{{ rfq.rfqDescription?.length > 50 ? '...' : '' }}
+                </small>
+              </td>
+
+              <!-- Buyer -->
+              <td>
+                <small class="text-muted">{{ getBuyerName(rfq.buyerId) }}</small>
+              </td>
+
+              <!-- Due Date -->
+              <td>
+                <small class="fw-bold" [ngClass]="{'text-danger': new Date(rfq.dueDate || '') < new Date()}">
+                  {{ formatDate(rfq.dueDate) }}
+                </small>
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span [ngClass]="'badge ' + getStatusBadgeClass(rfq.status)" 
+                  style="font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                  {{ rfq.status || 'N/A' }}
+                </span>
+              </td>
+
+              <!-- Priority -->
+              <td>
+                <span [ngClass]="'badge ' + getPriorityBadgeClass(rfq.priority)" 
+                  style="font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                  {{ rfq.priority || 'N/A' }}
+                </span>
+              </td>
+
+              <!-- Items Count -->
+              <td class="text-center">
+                <span class="badge bg-secondary">{{ rfq.items?.length || 0 }}</span>
+              </td>
+
+              <!-- Actions -->
+              <td class="text-center pe-4">
+                <div class="btn-group btn-group-sm" role="group">
+                  <!-- View -->
+                  <button 
+                    class="btn btn-light border" 
+                    title="View Details"
+                    (click)="viewRFQ(rfq)">
+                    <i class="bi bi-eye text-primary"></i>
+                  </button>
+
+                  <!-- Edit (DRAFT only) -->
+                  <button 
+                    *ngIf="canEdit(rfq)"
+                    class="btn btn-light border" 
+                    title="Edit RFQ"
+                    (click)="editRFQ(rfq)">
+                    <i class="bi bi-pencil text-warning"></i>
+                  </button>
+
+                  <!-- Publish (DRAFT only) -->
+                  <button 
+                    *ngIf="canPublish(rfq)"
+                    class="btn btn-light border" 
+                    title="Publish RFQ"
+                    (click)="publishRFQ(rfq)">
+                    <i class="bi bi-send text-success"></i>
+                  </button>
+
+                  <!-- Close -->
+                  <button 
+                    *ngIf="rfq.status !== RFQStatus.CLOSED && rfq.status !== RFQStatus.CANCELLED && rfq.status !== RFQStatus.DRAFT"
+                    class="btn btn-light border" 
+                    title="Close RFQ"
+                    (click)="closeRFQ(rfq)">
+                    <i class="bi bi-x-circle text-info"></i>
+                  </button>
+
+                  <!-- Delete (DRAFT only) -->
+                  <button 
+                    *ngIf="canDelete(rfq)"
+                    class="btn btn-light border" 
+                    title="Delete RFQ"
+                    (click)="deleteRFQ(rfq)">
+                    <i class="bi bi-trash text-danger"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer bg-white border-top py-3 px-4" *ngIf="!isLoading && pagedRFQs.length > 0">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small fw-bold">
+          Page {{ currentPage }} of {{ totalPages }}
+        </div>
+        <div class="d-flex gap-2">
+          <button 
+            class="btn btn-sm btn-outline-secondary" 
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)">
+            <i class="bi bi-chevron-left"></i> Previous
+          </button>
+          
+          <div class="d-flex gap-1">
+            <button 
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              class="btn btn-sm" 
+              [ngClass]="{'btn-primary': currentPage === i + 1, 'btn-outline-secondary': currentPage !== i + 1}"
+              (click)="goToPage(i + 1)"
+              *ngIf="Math.abs(currentPage - (i + 1)) <= 2 || i === 0 || i === totalPages - 1">
+              {{ i + 1 }}
+            </button>
+          </div>
+
+          <button 
+            class="btn btn-sm btn-outline-secondary" 
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)">
+            Next <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .border-bottom-light {
+    border-bottom: 1px solid #e9ecef !important;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .btn-group-sm .btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+    border: 1px solid #dee2e6 !important;
+  }
+
+  .btn-group-sm .btn:not(:last-child) {
+    border-right: none !important;
+  }
+
+  .form-control:focus,
+  .form-select:focus,
+  .input-group-text {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+  }
+</style>
