@@ -34,9 +34,16 @@
 //   approvalRemarksMap: Map<number, any> = new Map();
 //   loadingRemarks: boolean = false;
 
-//   // ✅ Currency — read from PO list (all POs share the same buyer location currency)
+//   // Buyer's local currency (from their location, e.g. INR for India)
 //   currencyCode: string = 'INR';
 //   currencySymbol: string = '₹';
+
+//   // ✅ Exchange rates — loaded once, keyed by currency code (base = buyer's currency)
+//   // e.g. if buyer is INR: { USD: 0.012, EUR: 0.011, ... } meaning 1 INR = 0.012 USD
+//   // We actually store rates as: 1 USD = X INR, so we store { USD: 83.5, EUR: 89.2 }
+//   // i.e. base currency is USD from the API, then we re-base to buyer's currency
+//   exchangeRates: Record<string, number> = {};
+//   exchangeRatesLoaded: boolean = false;
 
 //   // ── Filter ───────────────────────────────────────────────────
 //   statusFilter: string = 'ALL';
@@ -108,8 +115,42 @@
 //       ? (parts[0][0] + parts[1][0]).toUpperCase()
 //       : name.substring(0, 2).toUpperCase();
 //   }
+//   hasCrossBorderPOs(): boolean {
+//   return this.purchaseOrders.some(po => this.isCrossBorderPO(po));
+// }
 
-//   // ── Currency helper ──────────────────────────────────────────
+//   // ── Exchange Rates ────────────────────────────────────────────
+//   // Load rates with buyer's currency as base.
+//   // e.g. buyer is INR → fetch base=INR → rates.USD = how many USD per 1 INR
+//   // Then: to convert $4770 USD → INR: amount / rates.USD
+//   // i.e. converted = amount * (1 / rates[poCurrency])
+//   //
+//   // Simpler: store as "1 poCurrency = X buyerCurrency"
+//   // We use open.er-api.com with base=buyerCurrency → rates[poCurrency] = how many poCurrency per 1 buyerCurrency
+//   // So: convertedInBuyerCurrency = poAmount / rates[poCurrency]
+//   // e.g. base=INR, rates.USD=0.01199 → $4770 / 0.01199 = ₹3,97,831
+
+//   private loadExchangeRates(): void {
+//     if (!this.currencyCode || this.currencyCode === 'INR') {
+//       // Use INR as base — fetch from open.er-api.com
+//     }
+//     const base = this.currencyCode;
+//     fetch(`https://open.er-api.com/v6/latest/${base}`)
+//       .then(r => r.json())
+//       .then(data => {
+//         if (data && data.rates) {
+//           this.exchangeRates = data.rates;
+//           this.exchangeRatesLoaded = true;
+//           console.log(`[POList] Exchange rates loaded (base=${base}):`, data.rates);
+//         }
+//       })
+//       .catch(err => {
+//         console.warn('[POList] Exchange rate fetch failed:', err);
+//         this.exchangeRatesLoaded = false;
+//       });
+//   }
+
+//   // ── Currency helpers ──────────────────────────────────────────
 
 //   private getSymbolForCode(code: string): string {
 //     const map: Record<string, string> = {
@@ -122,13 +163,76 @@
 //     return map[code] || code;
 //   }
 
-//   // ✅ formatCurrency uses buyer's location currency
+//   // Format an amount in the buyer's own currency
 //   formatCurrencyAmount(amount: number): string {
 //     const val = Number(amount || 0);
 //     const formatted = val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 //     const rtlCodes = ['AED', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'IRR', 'IQD', 'JOD', 'LBP'];
 //     if (rtlCodes.includes(this.currencyCode)) return `${formatted} ${this.currencySymbol}`;
 //     return `${this.currencySymbol} ${formatted}`;
+//   }
+
+//   // Format any amount with an explicit currency code/symbol
+//   formatInCurrency(amount: number, code: string): string {
+//     const sym = this.getSymbolForCode(code);
+//     const val = Number(amount || 0);
+//     const formatted = val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+//     const rtlCodes = ['AED', 'SAR', 'QAR', 'KWD', 'BHD', 'OMR', 'IRR', 'IQD', 'JOD', 'LBP'];
+//     if (rtlCodes.includes(code)) return `${formatted} ${sym}`;
+//     return `${sym} ${formatted}`;
+//   }
+
+//   /**
+//    * ✅ Returns true if this PO's currency is different from buyer's local currency.
+//    * e.g. PO is in USD but buyer is in INR → cross-border → show conversion
+//    */
+//   isCrossBorderPO(po: any): boolean {
+//     const poCode = po.currencyCode || this.currencyCode;
+//     return poCode !== this.currencyCode;
+//   }
+
+//   /**
+//    * ✅ Convert po.grandTotal from PO currency (e.g. USD) → buyer's local currency (e.g. INR).
+//    *
+//    * Rate source: open.er-api.com with base = buyer's currency (e.g. INR)
+//    * Response: { rates: { USD: 0.01199, EUR: 0.01089, ... } }
+//    * Meaning: 1 INR = 0.01199 USD
+//    * So: USD amount → INR = usdAmount / rates.USD
+//    */
+//   convertToLocalCurrency(amount: number, fromCurrencyCode: string): number {
+//     if (!this.exchangeRatesLoaded || !this.exchangeRates) return 0;
+//     if (fromCurrencyCode === this.currencyCode) return amount;
+//     const rate = this.exchangeRates[fromCurrencyCode];
+//     if (!rate || rate === 0) return 0;
+//     // rate = how many fromCurrency per 1 buyerCurrency
+//     // so buyerCurrency = fromCurrencyAmount / rate
+//     return amount / rate;
+//   }
+
+//   /**
+//    * ✅ Returns the formatted converted amount string for display.
+//    * e.g. "≈ ₹ 3,97,832.50"
+//    */
+//   getConvertedDisplay(po: any): string {
+//     if (!this.isCrossBorderPO(po)) return '';
+//     if (!this.exchangeRatesLoaded) return 'Loading...';
+//     const converted = this.convertToLocalCurrency(po.grandTotal, po.currencyCode || 'USD');
+//     if (converted === 0) return '';
+//     return `≈ ${this.formatCurrencyAmount(converted)}`;
+//   }
+
+//   /**
+//    * ✅ For the Total Value stat card — convert all POs to buyer currency for summing
+//    */
+//   getTotalValueInLocalCurrency(): number {
+//     return this.purchaseOrders.reduce((sum, po) => {
+//       const code = po.currencyCode || this.currencyCode;
+//       if (code === this.currencyCode) {
+//         return sum + (po.grandTotal || 0);
+//       }
+//       const converted = this.convertToLocalCurrency(po.grandTotal || 0, code);
+//       return sum + converted;
+//     }, 0);
 //   }
 
 //   // ── Status Filter ────────────────────────────────────────────
@@ -160,12 +264,17 @@
 //           this.purchaseOrders = [];
 //         }
 
-//         // ✅ Read currency from the first PO (all share same buyer location currency)
+//         // Read buyer's local currency from first PO
 //         if (this.purchaseOrders.length > 0) {
-//           const firstPO = this.purchaseOrders[0];
-//           if (firstPO.currencyCode) {
-//             this.currencyCode   = firstPO.currencyCode;
-//             this.currencySymbol = firstPO.currencySymbol || this.getSymbolForCode(firstPO.currencyCode);
+//           // Find a same-country PO first (its currency IS the buyer's local currency)
+//           // Fallback: use first PO currency
+//           const sameCurrencyPO = this.purchaseOrders.find(po =>
+//             po.currencyCode && po.currencyCode !== 'USD'
+//           );
+//           const refPO = sameCurrencyPO || this.purchaseOrders[0];
+//           if (refPO.currencyCode) {
+//             this.currencyCode   = refPO.currencyCode;
+//             this.currencySymbol = refPO.currencySymbol || this.getSymbolForCode(refPO.currencyCode);
 //           }
 //         }
 
@@ -177,6 +286,9 @@
 //         this.applyStatusFilter();
 //         this.isLoading = false;
 //         this.loadApprovalRemarks();
+
+//         // ✅ Load exchange rates after we know the buyer's currency
+//         this.loadExchangeRates();
 //       },
 //       error: () => {
 //         this.messageService.showMessage('error', 'Error', 'Failed to load Purchase Orders');
@@ -355,9 +467,9 @@
 // }
 
 
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   CardComponent, CardBodyComponent, CardHeaderComponent,
@@ -368,11 +480,19 @@ import { DataService } from '../../../shared/service/DataService';
 import { MessageService } from '../../../shared/service/message.service';
 import { BuyerService } from '../dashboard/buyer-b.service';
 
+// ── Financial Year option shape ──────────────────────────────
+interface FYOption {
+  value: string;   // e.g. 'FY2025-26'
+  label: string;   // e.g. 'FY 2025-26 (Apr 2025 – Mar 2026)'
+  from: Date;
+  to: Date;
+}
+
 @Component({
   selector: 'app-po-list',
   standalone: true,
   imports: [
-    CommonModule, ContainerComponent, RowComponent, ColComponent,
+    CommonModule, FormsModule, ContainerComponent, RowComponent, ColComponent,
     CardComponent, CardBodyComponent, CardHeaderComponent,
     ButtonDirective, BadgeComponent, TableModule, SpinnerComponent
   ],
@@ -381,7 +501,9 @@ import { BuyerService } from '../dashboard/buyer-b.service';
 })
 export class POListComponent implements OnInit {
 
-  purchaseOrders: any[] = [];
+  purchaseOrders: any[] = [];           // raw data from API
+  dateFilteredOrders: any[] = [];       // after date filter (stat cards use this)
+  filteredOrders: any[] = [];           // after status/search filter (table uses this)
   isLoading: boolean = false;
   deletingId: number | null = null;
   buyerId: number | null = null;
@@ -390,25 +512,27 @@ export class POListComponent implements OnInit {
   approvalRemarksMap: Map<number, any> = new Map();
   loadingRemarks: boolean = false;
 
-  // Buyer's local currency (from their location, e.g. INR for India)
+  // Buyer's local currency
   currencyCode: string = 'INR';
   currencySymbol: string = '₹';
 
-  // ✅ Exchange rates — loaded once, keyed by currency code (base = buyer's currency)
-  // e.g. if buyer is INR: { USD: 0.012, EUR: 0.011, ... } meaning 1 INR = 0.012 USD
-  // We actually store rates as: 1 USD = X INR, so we store { USD: 83.5, EUR: 89.2 }
-  // i.e. base currency is USD from the API, then we re-base to buyer's currency
   exchangeRates: Record<string, number> = {};
   exchangeRatesLoaded: boolean = false;
 
   // ── Filter ───────────────────────────────────────────────────
   statusFilter: string = 'ALL';
-  filteredOrders: any[] = [];
 
   // ── Pagination ──────────────────────────────────────────────
   currentPage: number = 1;
   pageSize: number = 10;
   pageSizeOptions: number[] = [5, 10, 25, 50];
+
+  // ── Date Filter State ────────────────────────────────────────
+  financialYearOptions: FYOption[] = [];
+  selectedFYOption: string = '';
+  customFromDate: string = '';
+  customToDate: string = '';
+  activeDateRangeLabel: string = '';
 
   constructor(
     private router: Router,
@@ -424,11 +548,151 @@ export class POListComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
+    this.buildFinancialYearOptions();
+    this.selectedFYOption = this.getCurrentFYValue();
+    this.updateActiveDateRangeLabel();
     this.loadLoggedInBuyer();
     this.loadPurchaseOrders();
   }
 
-  // ── Buyer Info ───────────────────────────────────────────────
+  // =========================================================================
+  //  FINANCIAL YEAR HELPERS
+  // =========================================================================
+
+  private buildFinancialYearOptions(): void {
+    const today = new Date();
+    const currentFYStartYear = today.getMonth() >= 3 ? today.getFullYear() : today.getFullYear() - 1;
+    this.financialYearOptions = [];
+    for (let i = 0; i < 4; i++) {
+      const startYear = currentFYStartYear - i;
+      const endYear   = startYear + 1;
+      const from = new Date(startYear, 3, 1, 0, 0, 0, 0);
+      const to   = new Date(endYear,   2, 31, 23, 59, 59, 999);
+      this.financialYearOptions.push({
+        value: `FY${startYear}-${String(endYear).slice(-2)}`,
+        label: `FY ${startYear}-${String(endYear).slice(-2)}  (Apr ${startYear} – Mar ${endYear})`,
+        from,
+        to
+      });
+    }
+  }
+
+  getCurrentFYValue(): string {
+    return this.financialYearOptions.length > 0 ? this.financialYearOptions[0].value : 'ALL';
+  }
+
+  onFYOptionChange(): void {
+    if (this.selectedFYOption !== 'CUSTOM') {
+      this.customFromDate = '';
+      this.customToDate   = '';
+    }
+    this.updateActiveDateRangeLabel();
+    this.applyFiltersAndPagination();
+  }
+
+  resetDateFilter(): void {
+    this.selectedFYOption = this.getCurrentFYValue();
+    this.customFromDate   = '';
+    this.customToDate     = '';
+    this.updateActiveDateRangeLabel();
+    this.applyFiltersAndPagination();
+  }
+
+  private updateActiveDateRangeLabel(): void {
+    if (this.selectedFYOption === 'ALL') { this.activeDateRangeLabel = 'All Time'; return; }
+    if (this.selectedFYOption === 'CUSTOM') {
+      if (this.customFromDate && this.customToDate)
+        this.activeDateRangeLabel = `${this.formatDisplayDate(this.customFromDate)} – ${this.formatDisplayDate(this.customToDate)}`;
+      else if (this.customFromDate)
+        this.activeDateRangeLabel = `From ${this.formatDisplayDate(this.customFromDate)}`;
+      else if (this.customToDate)
+        this.activeDateRangeLabel = `Up to ${this.formatDisplayDate(this.customToDate)}`;
+      else
+        this.activeDateRangeLabel = 'Custom Range';
+      return;
+    }
+    const fy = this.financialYearOptions.find(f => f.value === this.selectedFYOption);
+    this.activeDateRangeLabel = fy ? fy.label : '';
+  }
+
+  private formatDisplayDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  private getActiveDateRange(): { from: Date; to: Date } | null {
+    if (this.selectedFYOption === 'ALL') return null;
+    if (this.selectedFYOption === 'CUSTOM') {
+      const from = this.customFromDate ? new Date(this.customFromDate + 'T00:00:00') : null;
+      const to   = this.customToDate   ? new Date(this.customToDate   + 'T23:59:59') : null;
+      if (!from && !to) return null;
+      return { from: from ?? new Date(0), to: to ?? new Date(8640000000000000) };
+    }
+    const fy = this.financialYearOptions.find(f => f.value === this.selectedFYOption);
+    return fy ? { from: fy.from, to: fy.to } : null;
+  }
+
+  private applyDateFilter(orders: any[]): any[] {
+    const range = this.getActiveDateRange();
+    if (!range) return orders;
+    return orders.filter((po: any) => {
+      const dateStr = po.createdAt || po.poDate;
+      if (!dateStr) return false;
+      const created = new Date(dateStr);
+      return created >= range.from && created <= range.to;
+    });
+  }
+
+  // ── Stat card counts (based on date-filtered data) ───────────
+  countByStatus(status: string): number {
+    return this.dateFilteredOrders.filter((po: any) => po.status === status).length;
+  }
+
+  get dateFilteredHoldCount(): number {
+    return this.dateFilteredOrders.filter(
+      po => po.status === 'PENDING_APPROVAL' && po.internalNotes?.toLowerCase().includes('hold')
+    ).length;
+  }
+
+  getTotalValueInLocalCurrency(): number {
+    return this.dateFilteredOrders.reduce((sum, po) => {
+      const code = po.currencyCode || this.currencyCode;
+      if (code === this.currencyCode) return sum + (po.grandTotal || 0);
+      const converted = this.convertToLocalCurrency(po.grandTotal || 0, code);
+      return sum + converted;
+    }, 0);
+  }
+
+  // =========================================================================
+  //  FILTERING & PAGINATION
+  // =========================================================================
+
+  applyFiltersAndPagination(): void {
+    this.updateActiveDateRangeLabel();
+
+    // Step 1: date filter → used by stat cards
+    this.dateFilteredOrders = this.applyDateFilter(this.purchaseOrders);
+
+    // Step 2: status filter → used by table
+    let data = [...this.dateFilteredOrders];
+    if (this.statusFilter === 'HOLD') {
+      data = data.filter(po => po.status === 'PENDING_APPROVAL' && po.internalNotes?.toLowerCase().includes('hold'));
+    } else if (this.statusFilter !== 'ALL') {
+      data = data.filter(po => po.status === this.statusFilter);
+    }
+
+    this.filteredOrders = data;
+    this.currentPage = 1;
+  }
+
+  applyStatusFilter(): void {
+    this.applyFiltersAndPagination();
+  }
+
+  // =========================================================================
+  //  BUYER INFO
+  // =========================================================================
 
   private loadLoggedInBuyer(): void {
     if (!this.buyerId) return;
@@ -471,25 +735,16 @@ export class POListComponent implements OnInit {
       ? (parts[0][0] + parts[1][0]).toUpperCase()
       : name.substring(0, 2).toUpperCase();
   }
-  hasCrossBorderPOs(): boolean {
-  return this.purchaseOrders.some(po => this.isCrossBorderPO(po));
-}
 
-  // ── Exchange Rates ────────────────────────────────────────────
-  // Load rates with buyer's currency as base.
-  // e.g. buyer is INR → fetch base=INR → rates.USD = how many USD per 1 INR
-  // Then: to convert $4770 USD → INR: amount / rates.USD
-  // i.e. converted = amount * (1 / rates[poCurrency])
-  //
-  // Simpler: store as "1 poCurrency = X buyerCurrency"
-  // We use open.er-api.com with base=buyerCurrency → rates[poCurrency] = how many poCurrency per 1 buyerCurrency
-  // So: convertedInBuyerCurrency = poAmount / rates[poCurrency]
-  // e.g. base=INR, rates.USD=0.01199 → $4770 / 0.01199 = ₹3,97,831
+  hasCrossBorderPOs(): boolean {
+    return this.purchaseOrders.some(po => this.isCrossBorderPO(po));
+  }
+
+  // =========================================================================
+  //  EXCHANGE RATES
+  // =========================================================================
 
   private loadExchangeRates(): void {
-    if (!this.currencyCode || this.currencyCode === 'INR') {
-      // Use INR as base — fetch from open.er-api.com
-    }
     const base = this.currencyCode;
     fetch(`https://open.er-api.com/v6/latest/${base}`)
       .then(r => r.json())
@@ -497,7 +752,6 @@ export class POListComponent implements OnInit {
         if (data && data.rates) {
           this.exchangeRates = data.rates;
           this.exchangeRatesLoaded = true;
-          console.log(`[POList] Exchange rates loaded (base=${base}):`, data.rates);
         }
       })
       .catch(err => {
@@ -506,7 +760,9 @@ export class POListComponent implements OnInit {
       });
   }
 
-  // ── Currency helpers ──────────────────────────────────────────
+  // =========================================================================
+  //  CURRENCY HELPERS
+  // =========================================================================
 
   private getSymbolForCode(code: string): string {
     const map: Record<string, string> = {
@@ -519,7 +775,6 @@ export class POListComponent implements OnInit {
     return map[code] || code;
   }
 
-  // Format an amount in the buyer's own currency
   formatCurrencyAmount(amount: number): string {
     const val = Number(amount || 0);
     const formatted = val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -528,7 +783,6 @@ export class POListComponent implements OnInit {
     return `${this.currencySymbol} ${formatted}`;
   }
 
-  // Format any amount with an explicit currency code/symbol
   formatInCurrency(amount: number, code: string): string {
     const sym = this.getSymbolForCode(code);
     const val = Number(amount || 0);
@@ -538,37 +792,19 @@ export class POListComponent implements OnInit {
     return `${sym} ${formatted}`;
   }
 
-  /**
-   * ✅ Returns true if this PO's currency is different from buyer's local currency.
-   * e.g. PO is in USD but buyer is in INR → cross-border → show conversion
-   */
   isCrossBorderPO(po: any): boolean {
     const poCode = po.currencyCode || this.currencyCode;
     return poCode !== this.currencyCode;
   }
 
-  /**
-   * ✅ Convert po.grandTotal from PO currency (e.g. USD) → buyer's local currency (e.g. INR).
-   *
-   * Rate source: open.er-api.com with base = buyer's currency (e.g. INR)
-   * Response: { rates: { USD: 0.01199, EUR: 0.01089, ... } }
-   * Meaning: 1 INR = 0.01199 USD
-   * So: USD amount → INR = usdAmount / rates.USD
-   */
   convertToLocalCurrency(amount: number, fromCurrencyCode: string): number {
     if (!this.exchangeRatesLoaded || !this.exchangeRates) return 0;
     if (fromCurrencyCode === this.currencyCode) return amount;
     const rate = this.exchangeRates[fromCurrencyCode];
     if (!rate || rate === 0) return 0;
-    // rate = how many fromCurrency per 1 buyerCurrency
-    // so buyerCurrency = fromCurrencyAmount / rate
     return amount / rate;
   }
 
-  /**
-   * ✅ Returns the formatted converted amount string for display.
-   * e.g. "≈ ₹ 3,97,832.50"
-   */
   getConvertedDisplay(po: any): string {
     if (!this.isCrossBorderPO(po)) return '';
     if (!this.exchangeRatesLoaded) return 'Loading...';
@@ -577,36 +813,9 @@ export class POListComponent implements OnInit {
     return `≈ ${this.formatCurrencyAmount(converted)}`;
   }
 
-  /**
-   * ✅ For the Total Value stat card — convert all POs to buyer currency for summing
-   */
-  getTotalValueInLocalCurrency(): number {
-    return this.purchaseOrders.reduce((sum, po) => {
-      const code = po.currencyCode || this.currencyCode;
-      if (code === this.currencyCode) {
-        return sum + (po.grandTotal || 0);
-      }
-      const converted = this.convertToLocalCurrency(po.grandTotal || 0, code);
-      return sum + converted;
-    }, 0);
-  }
-
-  // ── Status Filter ────────────────────────────────────────────
-
-  applyStatusFilter(): void {
-    if (this.statusFilter === 'ALL') {
-      this.filteredOrders = [...this.purchaseOrders];
-    } else if (this.statusFilter === 'HOLD') {
-      this.filteredOrders = this.purchaseOrders.filter(
-        po => po.status === 'PENDING_APPROVAL' && po.internalNotes?.toLowerCase().includes('hold')
-      );
-    } else {
-      this.filteredOrders = this.purchaseOrders.filter(po => po.status === this.statusFilter);
-    }
-    this.currentPage = 1;
-  }
-
-  // ── Purchase Orders ──────────────────────────────────────────
+  // =========================================================================
+  //  PURCHASE ORDERS
+  // =========================================================================
 
   loadPurchaseOrders(): void {
     if (!this.buyerId) return;
@@ -620,10 +829,8 @@ export class POListComponent implements OnInit {
           this.purchaseOrders = [];
         }
 
-        // Read buyer's local currency from first PO
+        // Detect buyer's local currency from POs
         if (this.purchaseOrders.length > 0) {
-          // Find a same-country PO first (its currency IS the buyer's local currency)
-          // Fallback: use first PO currency
           const sameCurrencyPO = this.purchaseOrders.find(po =>
             po.currencyCode && po.currencyCode !== 'USD'
           );
@@ -638,12 +845,9 @@ export class POListComponent implements OnInit {
           po => po.status === 'PENDING_APPROVAL' && po.internalNotes?.toLowerCase().includes('hold')
         ).length;
 
-        this.currentPage = 1;
-        this.applyStatusFilter();
+        this.applyFiltersAndPagination();
         this.isLoading = false;
         this.loadApprovalRemarks();
-
-        // ✅ Load exchange rates after we know the buyer's currency
         this.loadExchangeRates();
       },
       error: () => {
@@ -705,7 +909,9 @@ export class POListComponent implements OnInit {
   getApprovalRemark(poId: number): any | null { return this.approvalRemarksMap.get(poId) || null; }
   hasRemark(po: any): boolean { return this.approvalRemarksMap.has(po.id); }
 
-  // ── Pagination ───────────────────────────────────────────────
+  // =========================================================================
+  //  PAGINATION
+  // =========================================================================
 
   get totalPages(): number { return Math.max(1, Math.ceil(this.filteredOrders.length / this.pageSize)); }
 
@@ -739,7 +945,9 @@ export class POListComponent implements OnInit {
   }
   onPageSizeChange(size: number): void { this.pageSize = size; this.currentPage = 1; }
 
-  // ── Actions ──────────────────────────────────────────────────
+  // =========================================================================
+  //  ACTIONS
+  // =========================================================================
 
   viewPO(poId: number): void { this.router.navigate(['/po-details', poId]); }
 
@@ -758,7 +966,7 @@ export class POListComponent implements OnInit {
           this.holdCount = this.purchaseOrders.filter(
             p => p.status === 'PENDING_APPROVAL' && p.internalNotes?.toLowerCase().includes('hold')
           ).length;
-          this.applyStatusFilter();
+          this.applyFiltersAndPagination();
           if (this.paginatedOrders.length === 0 && this.currentPage > 1) this.currentPage--;
         }
         this.deletingId = null;
@@ -793,9 +1001,9 @@ export class POListComponent implements OnInit {
   goToQuoteComparison(): void { this.router.navigate(['/rfq-dashboard']); }
   goBack(): void { this.router.navigate(['/rfq-dashboard']); }
 
-  // ── Helpers ──────────────────────────────────────────────────
-
-  countByStatus(status: string): number { return this.purchaseOrders.filter(po => po.status === status).length; }
+  // =========================================================================
+  //  HELPERS
+  // =========================================================================
 
   getTotalValue(): number { return this.purchaseOrders.reduce((sum, po) => sum + (po.grandTotal || 0), 0); }
 

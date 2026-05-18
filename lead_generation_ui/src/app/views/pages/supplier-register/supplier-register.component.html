@@ -1,0 +1,678 @@
+<div class="bg-light min-vh-100 d-flex flex-column align-items-center py-5">
+  <c-container breakpoint="md">
+    <c-row class="justify-content-center">
+      <c-col lg="9" xl="8">
+
+        <c-card class="shadow-lg border-0" style="border-radius: 14px;">
+          <c-card-body class="p-4 p-lg-5">
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+              <img src="assets/images/ITTI-Logo.png" alt="Logo" style="height: 52px;" class="mb-3" />
+              <h4 class="fw-semibold mb-1">Supplier Registration</h4>
+              <p class="text-muted small mb-0">Register your company to start working with our platform</p>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="d-flex align-items-center justify-content-center mb-4">
+              <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                  [ngStyle]="{'background': currentStep >= 1 ? '#0d6efd' : '#e9ecef',
+                              'color': currentStep >= 1 ? '#fff' : '#6c757d',
+                              'width': '36px', 'height': '36px', 'font-size': '14px'}">
+                  <span *ngIf="currentStep > 1">&#10003;</span>
+                  <span *ngIf="currentStep <= 1">1</span>
+                </div>
+                <div class="ms-2 me-3">
+                  <div class="fw-semibold small" [class.text-primary]="currentStep >= 1">Company Info</div>
+                  <div class="text-muted" style="font-size:11px">Details &amp; address</div>
+                </div>
+              </div>
+
+              <div class="flex-grow-1 mx-2" style="height:2px; max-width: 80px;"
+                [ngStyle]="{'background': currentStep > 1 ? '#0d6efd' : '#dee2e6'}"></div>
+
+              <div class="d-flex align-items-center">
+                <div class="ms-2 me-3 rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                  [ngStyle]="{'background': currentStep >= 2 ? '#0d6efd' : '#e9ecef',
+                              'color': currentStep >= 2 ? '#fff' : '#6c757d',
+                              'width': '36px', 'height': '36px', 'font-size': '14px'}">
+                  <span *ngIf="currentStep > 2">&#10003;</span>
+                  <span *ngIf="currentStep <= 2">2</span>
+                </div>
+                <div class="me-3">
+                  <div class="fw-semibold small" [class.text-primary]="currentStep >= 2">Company Details</div>
+                  <div class="text-muted" style="font-size:11px">Logo &amp; registration</div>
+                </div>
+              </div>
+
+              <div class="flex-grow-1 mx-2" style="height:2px; max-width: 80px;"
+                [ngStyle]="{'background': currentStep > 2 ? '#0d6efd' : '#dee2e6'}"></div>
+
+              <div class="d-flex align-items-center">
+                <div class="ms-2 me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                  [ngStyle]="{'background': currentStep >= 3 ? '#0d6efd' : '#e9ecef',
+                              'color': currentStep >= 3 ? '#fff' : '#6c757d',
+                              'width': '36px', 'height': '36px', 'font-size': '14px'}">3</div>
+                <div>
+                  <div class="fw-semibold small" [class.text-primary]="currentStep >= 3">Your Account</div>
+                  <div class="text-muted" style="font-size:11px">Contact &amp; login</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="registerForm">
+
+              <!-- ========== STEP 1: Company Info ========== -->
+              <div *ngIf="currentStep === 1">
+
+                <div class="section-label mb-3">
+                  <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                    Company Information
+                  </span>
+                </div>
+
+                <div class="row g-3 mb-2">
+                  <!-- Company Name -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Company Name <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="companyName"
+                      placeholder="Your registered company name"
+                      [class.is-invalid]="submitted && f['companyName'].errors" />
+                    <div class="invalid-feedback">Company name is required (min. 2 characters)</div>
+                  </div>
+
+                  <!-- Company Type -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Company Type <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" formControlName="companyType"
+                      [class.is-invalid]="submitted && f['companyType'].errors"
+                      (change)="onCompanyTypeChange($event)">
+                      <option value="">Select type</option>
+                      <option *ngFor="let t of companyTypes" [value]="t">{{ t }}</option>
+                    </select>
+                    <div class="invalid-feedback">Please select a company type</div>
+                  </div>
+
+                  <!-- Other Company Type -->
+                  <div class="col-md-6" *ngIf="f['companyType'].value === 'Others'">
+                    <label class="form-label fw-semibold small">
+                      Specify Company Type <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="otherCompanyType"
+                      placeholder="e.g., Joint Venture, Partnership"
+                      [class.is-invalid]="submitted && f['otherCompanyType'].errors" />
+                    <div class="invalid-feedback">Please specify the company type</div>
+                  </div>
+
+                  <!-- Industry Sector — filtered based on company type -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Industry Sector <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" formControlName="industrySector"
+                      [class.is-invalid]="submitted && f['industrySector'].errors"
+                      (change)="onIndustrySectorChange($event)">
+                      <option value="">
+                        {{ f['companyType'].value ? 'Select sector' : 'Select Company Type first' }}
+                      </option>
+                      <option *ngFor="let s of filteredIndustrySectors" [value]="s">{{ s }}</option>
+                    </select>
+                    <div class="invalid-feedback">Please select an industry sector</div>
+                    <div class="form-text text-muted small" *ngIf="f['companyType'].value">
+                      Showing sectors relevant to <strong>{{ f['companyType'].value }}</strong>
+                    </div>
+                  </div>
+
+                  <!-- Other Industry Sector -->
+                  <div class="col-md-6" *ngIf="f['industrySector'].value === 'Others'">
+                    <label class="form-label fw-semibold small">
+                      Specify Industry Sector <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="otherIndustrySector"
+                      placeholder="e.g., Consulting, Manufacturing"
+                      [class.is-invalid]="submitted && f['otherIndustrySector'].errors" />
+                    <div class="invalid-feedback">Please specify the industry sector</div>
+                  </div>
+
+                  <!-- Website -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Website</label>
+                    <input type="url" class="form-control" formControlName="website"
+                      placeholder="https://yourcompany.com" />
+                  </div>
+                </div>
+
+                <!-- Primary Contact Person -->
+                <div class="section-label mt-4 mb-3">
+                  <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                    Primary Contact Person
+                  </span>
+                </div>
+
+                <div class="row g-3 mb-2">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Contact Person Name <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="contactPersonName"
+                      placeholder="Full name"
+                      [class.is-invalid]="submitted && f['contactPersonName'].errors" />
+                    <div class="invalid-feedback">Contact person name is required</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Designation <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="contactPersonDesignation"
+                      placeholder="e.g., Supply Manager, Director"
+                      [class.is-invalid]="submitted && f['contactPersonDesignation'].errors" />
+                    <div class="invalid-feedback">Designation is required</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Contact Email <span class="text-danger">*</span>
+                    </label>
+                    <input type="email" class="form-control" formControlName="contactPersonEmail"
+                      placeholder="contact@company.com"
+                      [class.is-invalid]="submitted && f['contactPersonEmail'].errors" />
+                    <div class="invalid-feedback" *ngIf="f['contactPersonEmail'].errors?.['required']">Email is required</div>
+                    <div class="invalid-feedback" *ngIf="f['contactPersonEmail'].errors?.['email']">Enter a valid email</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Contact Phone <span class="text-danger">*</span>
+                    </label>
+                    <input type="tel" class="form-control" formControlName="contactPersonPhone"
+                      placeholder="10-digit number" maxlength="10"
+                      [class.is-invalid]="submitted && f['contactPersonPhone'].errors" />
+                    <div class="invalid-feedback" *ngIf="f['contactPersonPhone'].errors?.['required']">Phone is required</div>
+                    <div class="invalid-feedback" *ngIf="f['contactPersonPhone'].errors?.['pattern']">Must be exactly 10 digits</div>
+                  </div>
+                </div>
+
+                <!-- Registered Address -->
+                <div class="section-label mt-4 mb-3">
+                  <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                    Registered Address
+                  </span>
+                </div>
+
+                <div class="row g-3 mb-2">
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">
+                      Address Line 1 <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="addressLine1"
+                      placeholder="Street address, door number"
+                      [class.is-invalid]="submitted && f['addressLine1'].errors" />
+                    <div class="invalid-feedback">Address is required</div>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">Address Line 2</label>
+                    <input type="text" class="form-control" formControlName="addressLine2"
+                      placeholder="Building name, floor, landmark (optional)" />
+                  </div>
+
+                  <!-- Country -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Country <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" formControlName="country"
+                      [class.is-invalid]="submitted && f['country'].errors"
+                      (change)="onCountryChange($event)">
+                      <option value="">Select Country</option>
+                      <option *ngFor="let c of allCountries" [value]="c">{{ c }}</option>
+                    </select>
+                    <div class="invalid-feedback">Country is required</div>
+                  </div>
+
+                  <!-- State -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      State / Province <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" formControlName="state"
+                      [class.is-invalid]="submitted && f['state'].errors"
+                      (change)="onStateChange($event)">
+                      <option value="">
+                        {{ f['country'].value ? 'Select State' : 'Select Country first' }}
+                      </option>
+                      <option *ngFor="let s of availableStates" [value]="s">{{ s }}</option>
+                    </select>
+                    <div class="invalid-feedback">State is required</div>
+                  </div>
+
+                  <!-- City -->
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold small">
+                      City <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" formControlName="city"
+                      [class.is-invalid]="submitted && f['city'].errors"
+                      (change)="onCityChange($event)">
+                      <option value="">
+                        {{ f['state'].value ? 'Select City' : 'Select State first' }}
+                      </option>
+                      <option *ngFor="let c of availableCities" [value]="c">{{ c }}</option>
+                      <option value="__others__" *ngIf="availableCities.length > 0">— Others (type your city) —</option>
+                    </select>
+                    <div class="invalid-feedback">City is required</div>
+                  </div>
+
+                  <!-- Custom City (Others) -->
+                  <div class="col-md-4" *ngIf="cityIsOthers">
+                    <label class="form-label fw-semibold small">
+                      Specify City <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="otherCity"
+                      placeholder="Enter your city name"
+                      [class.is-invalid]="submitted && f['otherCity'].errors" />
+                    <div class="invalid-feedback">City name is required</div>
+                  </div>
+
+                  <!-- Postal Code -->
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold small">
+                      Postal Code <span class="text-danger">*</span>
+                      <small class="text-muted ms-1">{{ cityIsOthers ? '(enter manually)' : '(auto-filled, editable)' }}</small>
+                    </label>
+                    <input type="text" class="form-control" formControlName="postalCode"
+                      placeholder="PIN / ZIP" maxlength="10"
+                      [class.is-invalid]="submitted && f['postalCode'].errors" />
+                    <div class="invalid-feedback">Valid postal code required (3–10 characters)</div>
+                  </div>
+                </div>
+
+                <!-- Register With Organization -->
+                <div class="section-label mt-4 mb-3">
+                  <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
+                    Register With Organization
+                  </span>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">
+                      Select Buying Organization <span class="text-danger">*</span>
+                    </label>
+
+                    <div *ngIf="isLoadingOrgs" class="text-muted small py-2">
+                      <span class="spinner-border spinner-border-sm me-2"></span>
+                      Loading organizations...
+                    </div>
+
+                    <select *ngIf="!isLoadingOrgs" class="form-select" formControlName="organizationCompanyName"
+                      [class.is-invalid]="submitted && f['organizationCompanyName'].errors">
+                      <option value="">&#8212; Select the organization you want to supply to &#8212;</option>
+                      <option *ngFor="let org of organizations" [value]="org">{{ org }}</option>
+                    </select>
+
+                    <div *ngIf="!isLoadingOrgs && organizations.length === 0"
+                      class="alert alert-warning py-2 mt-2 small mb-0">
+                      No organizations available at the moment. Please contact the administrator.
+                    </div>
+
+                    <div class="form-text text-muted small mt-1">
+                      Your registration will be sent to this organization's approval team.
+                    </div>
+                    <div class="invalid-feedback">Please select an organization</div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                  <button type="button" class="btn btn-outline-secondary" (click)="goToLogin()">
+                    &larr; Back to Login
+                  </button>
+                  <button type="button" class="btn btn-primary px-4" (click)="nextStep()">
+                    Next: Company Details &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- ========== STEP 2: Company Logo & Registration Details ========== -->
+              <div *ngIf="currentStep === 2">
+
+                <!-- Company Logo -->
+                <div class="section-label mb-3">
+                  <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                    Company Logo <span class="text-muted fw-normal">(Optional)</span>
+                  </span>
+                </div>
+
+                <div class="logo-upload-container mb-4">
+                  <!-- Preview -->
+                  <div class="logo-preview-section" *ngIf="logoPreview">
+                    <div class="logo-preview-wrapper">
+                      <img [src]="logoPreview" alt="Company Logo" class="logo-preview-image" />
+                      <button type="button" class="btn btn-sm btn-danger logo-remove-btn"
+                        (click)="removeLogo()" title="Remove logo">&#x2715;</button>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">&#10003; Logo selected</p>
+                  </div>
+
+                  <div class="logo-upload-section" [class.has-logo]="logoPreview">
+                    <label class="form-label fw-semibold small">
+                      Upload Company Logo
+                      <span class="text-muted fw-normal">(Max 5MB, JPG/PNG/GIF/SVG)</span>
+                    </label>
+                    <div class="custom-file-upload">
+                      <input type="file" id="logoFileInput" class="file-input"
+                        accept="image/jpeg,image/jpg,image/png,image/gif,image/svg+xml"
+                        (change)="onLogoSelected($event)" #logoInput />
+                      <label for="logoFileInput" class="file-upload-label">
+                        <div class="upload-icon">&#9650;</div>
+                        <div class="upload-text"><strong>Click to upload</strong> or drag and drop</div>
+                        <div class="upload-hint text-muted small">JPG, PNG, GIF or SVG (Max 5MB)</div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Company Registration Details -->
+                <div class="section-label mb-3">
+                  <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                    Company Registration Details
+                  </span>
+                </div>
+
+                <div class="row g-3">
+                  <!-- GST Number + Document Upload -->
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold small">GST Number</label>
+                    <input type="text" class="form-control" formControlName="gstNumber"
+                      placeholder="15-digit GST number" maxlength="15"
+                      (input)="onGstInput($event)" />
+                  </div>
+
+                  <div class="col-md-8">
+                    <label class="form-label fw-semibold small">
+                      GST Certificate
+                      <span class="text-muted fw-normal small">(PDF/JPG/PNG, Max 5MB)</span>
+                    </label>
+                    <div class="doc-upload-row d-flex align-items-center gap-2">
+                      <div class="custom-file-upload flex-grow-1" [class.has-file]="gstDocFile">
+                        <input type="file" id="gstDocInput" class="file-input"
+                          accept=".pdf,image/jpeg,image/jpg,image/png"
+                          (change)="onDocSelected($event, 'gst')" />
+                        <label for="gstDocInput" class="file-upload-label file-upload-label-sm">
+                          <span *ngIf="!gstDocFile">
+                            <span class="upload-icon-sm">&#128206;</span>
+                            Upload GST Certificate
+                          </span>
+                          <span *ngIf="gstDocFile" class="text-success">
+                            &#10003; {{ gstDocFile.name }}
+                          </span>
+                        </label>
+                      </div>
+                      <button *ngIf="gstDocFile" type="button"
+                        class="btn btn-sm btn-outline-danger" (click)="removeDoc('gst')">&#x2715;</button>
+                    </div>
+                    <div class="form-text text-muted small mt-1" *ngIf="!f['gstNumber'].value">
+                      Enter GST number above before uploading certificate
+                    </div>
+                  </div>
+
+                  <!-- PAN Number + Document Upload -->
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold small">PAN Number</label>
+                    <input type="text" class="form-control" formControlName="panNumber"
+                      placeholder="10-digit PAN" maxlength="10"
+                      style="text-transform: uppercase" />
+                  </div>
+
+                  <div class="col-md-8">
+                    <label class="form-label fw-semibold small">
+                      PAN Card
+                      <span class="text-muted fw-normal small">(PDF/JPG/PNG, Max 5MB)</span>
+                    </label>
+                    <div class="doc-upload-row d-flex align-items-center gap-2">
+                      <div class="custom-file-upload flex-grow-1" [class.has-file]="panDocFile">
+                        <input type="file" id="panDocInput" class="file-input"
+                          accept=".pdf,image/jpeg,image/jpg,image/png"
+                          (change)="onDocSelected($event, 'pan')" />
+                        <label for="panDocInput" class="file-upload-label file-upload-label-sm">
+                          <span *ngIf="!panDocFile">
+                            <span class="upload-icon-sm">&#128206;</span>
+                            Upload PAN Card
+                          </span>
+                          <span *ngIf="panDocFile" class="text-success">
+                            &#10003; {{ panDocFile.name }}
+                          </span>
+                        </label>
+                      </div>
+                      <button *ngIf="panDocFile" type="button"
+                        class="btn btn-sm btn-outline-danger" (click)="removeDoc('pan')">&#x2715;</button>
+                    </div>
+                  </div>
+
+                  <!-- TAN Number + Document Upload -->
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold small">TAN Number</label>
+                    <input type="text" class="form-control" formControlName="tanNumber"
+                      placeholder="Tax Account Number" />
+                  </div>
+
+                  <div class="col-md-8">
+                    <label class="form-label fw-semibold small">
+                      TAN Document
+                      <span class="text-muted fw-normal small">(PDF/JPG/PNG, Max 5MB)</span>
+                    </label>
+                    <div class="doc-upload-row d-flex align-items-center gap-2">
+                      <div class="custom-file-upload flex-grow-1" [class.has-file]="tanDocFile">
+                        <input type="file" id="tanDocInput" class="file-input"
+                          accept=".pdf,image/jpeg,image/jpg,image/png"
+                          (change)="onDocSelected($event, 'tan')" />
+                        <label for="tanDocInput" class="file-upload-label file-upload-label-sm">
+                          <span *ngIf="!tanDocFile">
+                            <span class="upload-icon-sm">&#128206;</span>
+                            Upload TAN Document
+                          </span>
+                          <span *ngIf="tanDocFile" class="text-success">
+                            &#10003; {{ tanDocFile.name }}
+                          </span>
+                        </label>
+                      </div>
+                      <button *ngIf="tanDocFile" type="button"
+                        class="btn btn-sm btn-outline-danger" (click)="removeDoc('tan')">&#x2715;</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Uploaded documents summary -->
+                <div class="alert alert-light border mt-3 py-2 small"
+                     *ngIf="gstDocFile || panDocFile || tanDocFile">
+                  <strong>Documents queued for upload:</strong>
+                  <ul class="mb-0 mt-1">
+                    <li *ngIf="gstDocFile">GST Certificate — {{ gstDocFile.name }} ({{ (gstDocFile.size/1024).toFixed(1) }} KB)</li>
+                    <li *ngIf="panDocFile">PAN Card — {{ panDocFile.name }} ({{ (panDocFile.size/1024).toFixed(1) }} KB)</li>
+                    <li *ngIf="tanDocFile">TAN Document — {{ tanDocFile.name }} ({{ (tanDocFile.size/1024).toFixed(1) }} KB)</li>
+                  </ul>
+                  <div class="text-muted mt-1">Documents will be uploaded upon final submission.</div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                  <button type="button" class="btn btn-outline-secondary" (click)="prevStep()">
+                    &larr; Back
+                  </button>
+                  <button type="button" class="btn btn-primary px-4" (click)="nextStep()">
+                    Next: Your Account &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- ========== STEP 3: Account Details ========== -->
+              <div *ngIf="currentStep === 3">
+
+                <div class="section-label mb-3">
+                  <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                    Login Account Details
+                  </span>
+                </div>
+
+                <div class="row g-3 mb-2">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      First Name <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="firstName" placeholder="First name"
+                      [class.is-invalid]="submitted && f['firstName'].errors" />
+                    <div class="invalid-feedback">First name is required (min. 2 characters)</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Last Name <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="lastName" placeholder="Last name"
+                      [class.is-invalid]="submitted && f['lastName'].errors" />
+                    <div class="invalid-feedback">Last name is required</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Designation <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" formControlName="designation"
+                      placeholder="e.g., Supply Manager, Director"
+                      [class.is-invalid]="submitted && f['designation'].errors" />
+                    <div class="invalid-feedback">Designation is required</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Phone Number <span class="text-danger">*</span>
+                    </label>
+                    <input type="tel" class="form-control" formControlName="phone"
+                      placeholder="10-digit mobile number" maxlength="10"
+                      [class.is-invalid]="submitted && f['phone'].errors" />
+                    <div class="invalid-feedback" *ngIf="f['phone'].errors?.['required']">Phone is required</div>
+                    <div class="invalid-feedback" *ngIf="f['phone'].errors?.['pattern']">Must be exactly 10 digits</div>
+                  </div>
+                </div>
+
+                <div class="section-label mt-4 mb-3">
+                  <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill fw-normal">
+                    Login Credentials
+                  </span>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small">
+                      Email Address (Login ID) <span class="text-danger">*</span>
+                    </label>
+                    <input type="email" class="form-control" formControlName="email"
+                      placeholder="you@yourcompany.com"
+                      [class.is-invalid]="submitted && f['email'].errors" />
+                    <div class="form-text text-muted small">This email will be your username to log in.</div>
+                    <div class="invalid-feedback" *ngIf="f['email'].errors?.['required']">Email is required</div>
+                    <div class="invalid-feedback" *ngIf="f['email'].errors?.['email']">Enter a valid email address</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Password <span class="text-danger">*</span>
+                    </label>
+                    <input type="password" class="form-control" formControlName="password"
+                      placeholder="Minimum 6 characters"
+                      [class.is-invalid]="submitted && f['password'].errors" />
+                    <div class="invalid-feedback" *ngIf="f['password'].errors?.['required']">Password is required</div>
+                    <div class="invalid-feedback" *ngIf="f['password'].errors?.['minlength']">Minimum 6 characters required</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">
+                      Confirm Password <span class="text-danger">*</span>
+                    </label>
+                    <input type="password" class="form-control" formControlName="confirmPassword"
+                      placeholder="Repeat your password"
+                      [class.is-invalid]="submitted && (f['confirmPassword'].errors ||
+                        registerForm.errors?.['passwordMismatch'])" />
+                    <div class="invalid-feedback">
+                      <span *ngIf="f['confirmPassword'].errors?.['required']">Confirm password is required</span>
+                      <span *ngIf="!f['confirmPassword'].errors?.['required'] && registerForm.errors?.['passwordMismatch']">
+                        Passwords do not match
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Info box -->
+                <div class="alert alert-info d-flex align-items-start gap-2 mt-4 py-3" style="font-size:13px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-1">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  <div>
+                    After registration, your company will be reviewed by
+                    <strong>{{ f['organizationCompanyName'].value || 'the selected organization' }}</strong>.
+                    You can log in <strong>only after</strong> your account is approved by their team.
+                  </div>
+                </div>
+
+                <!-- Document upload progress indicator -->
+                <div class="alert alert-secondary mt-3 py-2 small"
+                     *ngIf="(gstDocFile || panDocFile || tanDocFile) && isSubmitting">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Uploading documents&hellip; please wait.
+                </div>
+
+                <!-- Error Message -->
+                <div class="alert alert-danger mt-3 py-2 small" *ngIf="errorMessage">
+                  {{ errorMessage }}
+                </div>
+
+                <!-- Success Message -->
+                <div class="alert alert-success mt-3 py-2" *ngIf="successMessage">
+                  {{ successMessage }}
+                  <div class="small mt-1 text-muted">Redirecting to login page in 5 seconds&hellip;</div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                  <button type="button" class="btn btn-outline-secondary" (click)="prevStep()"
+                    [disabled]="isSubmitting">&larr; Back</button>
+                  <button type="button" class="btn btn-success px-5" (click)="onSubmit()"
+                    [disabled]="isSubmitting || !!successMessage">
+                    <span *ngIf="!isSubmitting">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      Register
+                    </span>
+                    <span *ngIf="isSubmitting">
+                      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Registering&hellip;
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+            </form>
+          </c-card-body>
+
+          <div class="text-center small text-muted pb-3">
+            Already have an account?
+            <a href="#" (click)="goToLogin(); $event.preventDefault()" class="text-primary text-decoration-none">
+              Sign in here
+            </a>
+          </div>
+        </c-card>
+
+        <p class="text-center text-muted small mt-3">&copy; 2025 ITTI. All Rights Reserved.</p>
+      </c-col>
+    </c-row>
+  </c-container>
+</div>

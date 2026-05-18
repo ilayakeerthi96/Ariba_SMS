@@ -1,3 +1,4 @@
+
 <div class="container-fluid p-4">
 
   <!-- ==================== COMPANY INFO CARD ==================== -->
@@ -62,7 +63,7 @@
           <h3 class="fw-bold text-dark mb-1">
             <i class="bi bi-speedometer2"></i>&nbsp;&nbsp;{{ hierarchyLevelName }} Dashboard
           </h3>
-          <p class="text-muted small mb-0">Review and manage RFQs and Purchase Orders awaiting approval.</p>
+          <p class="text-muted small mb-0">Review and manage RFQs, Purchase Orders and Suppliers awaiting approval.</p>
         </div>
         <div class="d-flex gap-2">
           <button class="btn btn-warning position-relative"
@@ -80,6 +81,74 @@
     </div>
   </div>
 
+  <!-- ==================== DATE FILTER BAR ==================== -->
+  <div class="date-filter-card mb-4">
+    <div class="date-filter-accent"></div>
+    <div class="date-filter-inner">
+
+      <div class="date-filter-title-wrap">
+        <div class="date-filter-icon-wrap"><i class="bi bi-calendar3-range"></i></div>
+        <div>
+          <div class="date-filter-title">Date Range</div>
+          <div class="date-filter-subtitle">Filter RFQs &amp; POs by creation date</div>
+        </div>
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-controls">
+        <div class="date-filter-field">
+          <label class="date-filter-label">
+            <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+          </label>
+          <div class="date-filter-select-wrap">
+            <select class="date-filter-select" [(ngModel)]="selectedFYOption" (change)="onFYOptionChange()">
+              <option value="ALL">All Time</option>
+              <option *ngFor="let fy of financialYearOptions" [value]="fy.value">{{ fy.label }}</option>
+              <option value="CUSTOM">Custom Range</option>
+            </select>
+            <i class="bi bi-chevron-down date-filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event me-1"></i>From Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input" [(ngModel)]="customFromDate" (change)="onFYOptionChange()" />
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event-fill me-1"></i>To Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input" [(ngModel)]="customToDate" (change)="onFYOptionChange()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-right">
+        <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+          <div class="date-filter-badge-icon"><i class="bi bi-funnel-fill"></i></div>
+          <div>
+            <div class="date-filter-badge-label">Active Filter</div>
+            <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+          </div>
+        </div>
+        <button class="date-filter-reset-btn"
+                *ngIf="selectedFYOption !== getCurrentFYValue()"
+                (click)="resetDateFilter()"
+                title="Reset to current financial year">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ==================== RFQ STAT CARDS ==================== -->
   <div class="section-label-row mb-2">
     <span class="section-label-text"><i class="bi bi-file-text me-1"></i>RFQ Overview</span>
@@ -91,7 +160,7 @@
         <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white;">
           <i class="bi bi-file-earmark-text"></i>
         </div>
-        <div class="stat-info"><h4>{{ allRFQs.length }}</h4><p>Total RFQs</p></div>
+        <div class="stat-info"><h4>{{ dateFilteredRFQs.length }}</h4><p>Total RFQs</p></div>
       </div>
     </div>
     <div class="col-6 col-md-3">
@@ -128,7 +197,7 @@
           <i class="bi bi-check-circle"></i>
         </div>
         <div class="stat-info">
-          <h4>{{ (filteredRFQs | filter:'approvalStatus':'APPROVED').length }}</h4>
+          <h4>{{ (dateFilteredRFQs | filter:'approvalStatus':'APPROVED').length }}</h4>
           <p>Approved RFQs</p>
         </div>
       </div>
@@ -146,7 +215,7 @@
         <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white;">
           <i class="bi bi-file-earmark-text"></i>
         </div>
-        <div class="stat-info"><h4>{{ allPOs.length }}</h4><p>Total POs</p></div>
+        <div class="stat-info"><h4>{{ dateFilteredPOs.length }}</h4><p>Total POs</p></div>
       </div>
     </div>
     <div class="col-6 col-md-3">
@@ -187,6 +256,71 @@
     </div>
   </div>
 
+  <!-- ==================== ✅ SUPPLIER STAT CARDS ==================== -->
+  <div class="section-label-row mb-2">
+    <span class="section-label-text"><i class="bi bi-building me-1"></i>Supplier Approvals Overview</span>
+    <hr class="section-label-line">
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); color:white;">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="pendingSupplierCount > 0 ? '#0d47a1' : '#2d3748'">{{ pendingSupplierCount }}</h4>
+          <p>Pending Supplier Approvals</p>
+          <small *ngIf="pendingSupplierCount > 0" class="text-danger fw-bold" style="font-size:0.72rem;">
+            <i class="bi bi-exclamation-circle-fill me-1"></i>Action Required
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f9a825 0%, #e65100 100%); color:white;">
+          <i class="bi bi-building-slash"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="holdSupplierCount > 0 ? '#e65100' : '#2d3748'">{{ holdSupplierCount }}</h4>
+          <p>Suppliers On HOLD</p>
+          <small *ngIf="holdSupplierCount > 0" class="fw-bold" style="font-size:0.72rem; color:#e65100;">
+            <i class="bi bi-info-circle-fill me-1"></i>Awaiting Release
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <!-- Placeholder — can show total approved suppliers if needed -->
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #1a8a3c 100%); color:white;">
+          <i class="bi bi-building-check"></i>
+        </div>
+        <div class="stat-info">
+          <h4 class="text-muted" style="font-size:1rem;">—</h4>
+          <p>Approved Suppliers</p>
+          <small class="text-muted" style="font-size:0.72rem;">View in dashboard</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="navigateToPendingApprovals()">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #7b1fa2 0%, #4a148c 100%); color:white;">
+          <i class="bi bi-building-exclamation"></i>
+        </div>
+        <div class="stat-info">
+          <h4 [style.color]="(pendingSupplierCount + holdSupplierCount) > 0 ? '#7b1fa2' : '#2d3748'">
+            {{ pendingSupplierCount + holdSupplierCount }}
+          </h4>
+          <p>Total Supplier Actions</p>
+          <small *ngIf="(pendingSupplierCount + holdSupplierCount) > 0" class="fw-bold" style="font-size:0.72rem; color:#7b1fa2;">
+            <i class="bi bi-arrow-right-circle-fill me-1"></i>Click to Review
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== TAB NAV ==================== -->
   <div class="card border-0 shadow-sm" style="border-radius: 12px;">
     <div class="card-header bg-white border-0 pt-3 px-4 pb-0" style="border-radius: 12px 12px 0 0;">
@@ -195,7 +329,7 @@
           <li class="nav-item">
             <button class="nav-link dash-tab-btn" [class.active]="activeTab === 'rfq'" (click)="switchTab('rfq')">
               <i class="bi bi-file-text me-1"></i>RFQs
-              <span class="tab-count-badge" [class.badge-active]="activeTab === 'rfq'">{{ allRFQs.length }}</span>
+              <span class="tab-count-badge" [class.badge-active]="activeTab === 'rfq'">{{ dateFilteredRFQs.length }}</span>
             </button>
           </li>
           <li class="nav-item">
@@ -203,7 +337,7 @@
               <i class="bi bi-cart-check me-1"></i>Purchase Orders
               <span class="tab-count-badge" [class.badge-active]="activeTab === 'po'"
                     [class.badge-alert]="pendingPOCount > 0 && activeTab !== 'po'">
-                {{ allPOs.length }}
+                {{ dateFilteredPOs.length }}
               </span>
             </button>
           </li>
@@ -238,7 +372,10 @@
       <!-- ==================== RFQ TAB ==================== -->
       <div *ngIf="activeTab === 'rfq'">
         <div class="px-4 py-2 border-bottom" style="background:#f8f9fa;">
-          <small class="text-muted">Showing {{ pagedRFQs.length }} of {{ filteredRFQs.length }} RFQs</small>
+          <small class="text-muted">
+            Showing {{ pagedRFQs.length }} of {{ filteredRFQs.length }} RFQs
+            <span *ngIf="activeDateRangeLabel"> — {{ activeDateRangeLabel }}</span>
+          </small>
         </div>
         <div *ngIf="isLoading" class="text-center py-5">
           <div class="spinner-border text-primary" role="status"></div>
@@ -250,8 +387,8 @@
               <tr>
                 <th class="ps-4">Sl No</th><th>RFQ Number</th><th>RFQ Details</th>
                 <th>Created Date</th><th class="text-center">Suppliers</th>
-                <!-- <th class="text-center">Responses</th> -->
                 <th>Approval Status</th>
+                <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -273,11 +410,25 @@
                 </td>
                 <td><span class="text-muted small">{{ formatDate(rfq.createdAt) }}</span></td>
                 <td class="text-center"><span class="badge bg-info">{{ rfq.suppliersCount || 0 }}</span></td>
-                <!-- <td class="text-center"><span class="badge bg-success">0</span></td> -->
                 <td>
                   <span [class]="'badge ' + getApprovalStatusClass(rfq.approvalStatus)">
                     {{ rfq.approvalStatus | titlecase }}
                   </span>
+                </td>
+                <td class="text-center">
+                  <div class="position-relative d-inline-block">
+                    <button class="btn btn-sm btn-light text-secondary shadow-sm"
+                            type="button"
+                            title="Download RFQ Excel"
+                            [disabled]="isRowDownloading(rfq.id)"
+                            (click)="downloadRFQExcel(rfq)">
+                      <span *ngIf="isRowDownloading(rfq.id)"
+                            class="spinner-border spinner-border-sm"
+                            style="width: 0.75rem; height: 0.75rem;"
+                            role="status"></span>
+                      <i *ngIf="!isRowDownloading(rfq.id)" class="bi bi-download"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
               <tr *ngIf="pagedRFQs.length === 0">
@@ -304,7 +455,10 @@
       <!-- ==================== PO TAB ==================== -->
       <div *ngIf="activeTab === 'po'">
         <div class="px-4 py-2 border-bottom" style="background:#f8f9fa;">
-          <small class="text-muted">Showing {{ pagedPOs.length }} of {{ filteredPOs.length }} Purchase Orders</small>
+          <small class="text-muted">
+            Showing {{ pagedPOs.length }} of {{ filteredPOs.length }} Purchase Orders
+            <span *ngIf="activeDateRangeLabel"> — {{ activeDateRangeLabel }}</span>
+          </small>
         </div>
         <div *ngIf="isPOLoading" class="text-center py-5">
           <div class="spinner-border text-warning" role="status"></div>
@@ -316,7 +470,6 @@
               <tr>
                 <th class="ps-4">Sl No</th><th>PO Number</th><th>RFQ Reference</th>
                 <th>Supplier</th><th class="text-center">Items</th>
-                <!-- ✅ Grand Total column — no hardcoded INR -->
                 <th class="text-end">Grand Total</th>
                 <th>PO Date</th><th>Status</th><th class="text-center">Action</th>
               </tr>
@@ -343,11 +496,8 @@
                 <td class="text-center">
                   <span class="badge bg-secondary">{{ po.itemsCount }}</span>
                 </td>
-                <!-- ✅ Use formatCurrency with po.currencyCode (buyer's location currency) -->
                 <td class="text-end">
-                  <span class="fw-bold text-success">
-                    {{ formatCurrency(po.grandTotal, po.currencyCode) }}
-                  </span>
+                  <span class="fw-bold text-success">{{ formatCurrency(po.grandTotal, po.currencyCode) }}</span>
                 </td>
                 <td><span class="text-muted small">{{ formatDate(po.createdDate) }}</span></td>
                 <td>

@@ -1,6 +1,5 @@
 
 
-
 // import { Component, OnInit } from '@angular/core';
 // import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 // import { Router, ActivatedRoute } from '@angular/router';
@@ -9,152 +8,79 @@
 // import { BuyerService } from '../dashboard/buyer-b.service';
 // import { MessageService } from '../../../shared/service/message.service';
 // import { Buyer, Location, Department, User } from '../dashboard/buyer-b.model';
-// import { COUNTRY_STATE_DATA, getAllCountryNames, getStatesForCountry, CountryData } from '../../../shared/data/country-state.data';
 
-// // ✅ World Currencies list
+// // ✅ Import from NEW unified data file
+// import {
+//   getAllCountryNames,
+//   getStatesForCountry,
+//   getCityNamesForState,
+//   getPostalCodeForCity,
+//   CityData
+// } from '../../../shared/data/country-state.data';
+
 // export const WORLD_CURRENCIES = [
 //   { code: 'AFN', symbol: '؋', name: 'Afghan Afghani' },
 //   { code: 'ALL', symbol: 'L', name: 'Albanian Lek' },
 //   { code: 'DZD', symbol: 'د.ج', name: 'Algerian Dinar' },
-//   { code: 'AOA', symbol: 'Kz', name: 'Angolan Kwanza' },
 //   { code: 'ARS', symbol: '$', name: 'Argentine Peso' },
 //   { code: 'AMD', symbol: '֏', name: 'Armenian Dram' },
-//   { code: 'AWG', symbol: 'ƒ', name: 'Aruban Florin' },
 //   { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
 //   { code: 'AZN', symbol: '₼', name: 'Azerbaijani Manat' },
-//   { code: 'BSD', symbol: 'B$', name: 'Bahamian Dollar' },
 //   { code: 'BHD', symbol: '.د.ب', name: 'Bahraini Dinar' },
 //   { code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka' },
-//   { code: 'BBD', symbol: 'Bds$', name: 'Barbadian Dollar' },
-//   { code: 'BYN', symbol: 'Br', name: 'Belarusian Ruble' },
-//   { code: 'BZD', symbol: 'BZ$', name: 'Belize Dollar' },
-//   { code: 'BMD', symbol: 'BD$', name: 'Bermudian Dollar' },
-//   { code: 'BTN', symbol: 'Nu', name: 'Bhutanese Ngultrum' },
-//   { code: 'BOB', symbol: 'Bs.', name: 'Bolivian Boliviano' },
-//   { code: 'BAM', symbol: 'KM', name: 'Bosnia-Herzegovina Convertible Mark' },
-//   { code: 'BWP', symbol: 'P', name: 'Botswana Pula' },
 //   { code: 'BRL', symbol: 'R$', name: 'Brazilian Real' },
 //   { code: 'GBP', symbol: '£', name: 'British Pound Sterling' },
-//   { code: 'BND', symbol: 'B$', name: 'Brunei Dollar' },
-//   { code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev' },
-//   { code: 'BIF', symbol: 'Fr', name: 'Burundian Franc' },
-//   { code: 'KHR', symbol: '៛', name: 'Cambodian Riel' },
 //   { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
-//   { code: 'CVE', symbol: '$', name: 'Cape Verdean Escudo' },
-//   { code: 'KYD', symbol: 'CI$', name: 'Cayman Islands Dollar' },
-//   { code: 'XAF', symbol: 'Fr', name: 'Central African CFA Franc' },
 //   { code: 'CLP', symbol: '$', name: 'Chilean Peso' },
 //   { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
 //   { code: 'COP', symbol: '$', name: 'Colombian Peso' },
-//   { code: 'KMF', symbol: 'Fr', name: 'Comorian Franc' },
-//   { code: 'CDF', symbol: 'Fr', name: 'Congolese Franc' },
-//   { code: 'CRC', symbol: '₡', name: 'Costa Rican Colón' },
-//   { code: 'HRK', symbol: 'kn', name: 'Croatian Kuna' },
-//   { code: 'CUP', symbol: '$', name: 'Cuban Peso' },
 //   { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
 //   { code: 'DKK', symbol: 'kr', name: 'Danish Krone' },
-//   { code: 'DJF', symbol: 'Fr', name: 'Djiboutian Franc' },
-//   { code: 'DOP', symbol: 'RD$', name: 'Dominican Peso' },
 //   { code: 'EGP', symbol: '£', name: 'Egyptian Pound' },
-//   { code: 'ERN', symbol: 'Nfk', name: 'Eritrean Nakfa' },
 //   { code: 'ETB', symbol: 'Br', name: 'Ethiopian Birr' },
 //   { code: 'EUR', symbol: '€', name: 'Euro' },
-//   { code: 'FJD', symbol: 'FJ$', name: 'Fijian Dollar' },
-//   { code: 'GMD', symbol: 'D', name: 'Gambian Dalasi' },
 //   { code: 'GEL', symbol: '₾', name: 'Georgian Lari' },
 //   { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
-//   { code: 'GTQ', symbol: 'Q', name: 'Guatemalan Quetzal' },
-//   { code: 'GNF', symbol: 'Fr', name: 'Guinean Franc' },
-//   { code: 'GYD', symbol: 'G$', name: 'Guyanese Dollar' },
-//   { code: 'HTG', symbol: 'G', name: 'Haitian Gourde' },
-//   { code: 'HNL', symbol: 'L', name: 'Honduran Lempira' },
-//   { code: 'HKD', symbol: 'HK$', name: 'Hong Kong Dollar' },
 //   { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint' },
-//   { code: 'ISK', symbol: 'kr', name: 'Icelandic Króna' },
 //   { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
 //   { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
 //   { code: 'IRR', symbol: '﷼', name: 'Iranian Rial' },
 //   { code: 'IQD', symbol: 'ع.د', name: 'Iraqi Dinar' },
 //   { code: 'ILS', symbol: '₪', name: 'Israeli New Shekel' },
-//   { code: 'JMD', symbol: 'J$', name: 'Jamaican Dollar' },
 //   { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
 //   { code: 'JOD', symbol: 'د.ا', name: 'Jordanian Dinar' },
 //   { code: 'KZT', symbol: '₸', name: 'Kazakhstani Tenge' },
 //   { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
 //   { code: 'KWD', symbol: 'د.ك', name: 'Kuwaiti Dinar' },
-//   { code: 'KGS', symbol: 'с', name: 'Kyrgyzstani Som' },
-//   { code: 'LAK', symbol: '₭', name: 'Laotian Kip' },
-//   { code: 'LBP', symbol: 'ل.ل', name: 'Lebanese Pound' },
-//   { code: 'LSL', symbol: 'L', name: 'Lesotho Loti' },
-//   { code: 'LRD', symbol: 'L$', name: 'Liberian Dollar' },
-//   { code: 'LYD', symbol: 'ل.د', name: 'Libyan Dinar' },
-//   { code: 'MOP', symbol: 'P', name: 'Macanese Pataca' },
-//   { code: 'MKD', symbol: 'ден', name: 'Macedonian Denar' },
-//   { code: 'MGA', symbol: 'Ar', name: 'Malagasy Ariary' },
-//   { code: 'MWK', symbol: 'MK', name: 'Malawian Kwacha' },
 //   { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit' },
-//   { code: 'MVR', symbol: 'Rf', name: 'Maldivian Rufiyaa' },
-//   { code: 'MRU', symbol: 'UM', name: 'Mauritanian Ouguiya' },
-//   { code: 'MUR', symbol: '₨', name: 'Mauritian Rupee' },
 //   { code: 'MXN', symbol: '$', name: 'Mexican Peso' },
-//   { code: 'MDL', symbol: 'L', name: 'Moldovan Leu' },
-//   { code: 'MNT', symbol: '₮', name: 'Mongolian Tögrög' },
 //   { code: 'MAD', symbol: 'د.م.', name: 'Moroccan Dirham' },
-//   { code: 'MZN', symbol: 'MT', name: 'Mozambican Metical' },
-//   { code: 'MMK', symbol: 'K', name: 'Myanmar Kyat' },
-//   { code: 'NAD', symbol: 'N$', name: 'Namibian Dollar' },
 //   { code: 'NPR', symbol: '₨', name: 'Nepalese Rupee' },
 //   { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
-//   { code: 'NIO', symbol: 'C$', name: 'Nicaraguan Córdoba' },
 //   { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
 //   { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone' },
 //   { code: 'OMR', symbol: 'ر.ع.', name: 'Omani Rial' },
 //   { code: 'PKR', symbol: '₨', name: 'Pakistani Rupee' },
-//   { code: 'PAB', symbol: 'B/.', name: 'Panamanian Balboa' },
-//   { code: 'PGK', symbol: 'K', name: 'Papua New Guinean Kina' },
-//   { code: 'PYG', symbol: '₲', name: 'Paraguayan Guaraní' },
-//   { code: 'PEN', symbol: 'S/.', name: 'Peruvian Sol' },
 //   { code: 'PHP', symbol: '₱', name: 'Philippine Peso' },
 //   { code: 'PLN', symbol: 'zł', name: 'Polish Złoty' },
 //   { code: 'QAR', symbol: 'ر.ق', name: 'Qatari Riyal' },
 //   { code: 'RON', symbol: 'lei', name: 'Romanian Leu' },
 //   { code: 'RUB', symbol: '₽', name: 'Russian Ruble' },
-//   { code: 'RWF', symbol: 'Fr', name: 'Rwandan Franc' },
 //   { code: 'SAR', symbol: 'ر.س', name: 'Saudi Riyal' },
-//   { code: 'RSD', symbol: 'дин.', name: 'Serbian Dinar' },
-//   { code: 'SLL', symbol: 'Le', name: 'Sierra Leonean Leone' },
 //   { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
-//   { code: 'SOS', symbol: 'Sh', name: 'Somali Shilling' },
 //   { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
 //   { code: 'KRW', symbol: '₩', name: 'South Korean Won' },
-//   { code: 'SSP', symbol: '£', name: 'South Sudanese Pound' },
 //   { code: 'LKR', symbol: '₨', name: 'Sri Lankan Rupee' },
-//   { code: 'SDG', symbol: '£', name: 'Sudanese Pound' },
-//   { code: 'SRD', symbol: '$', name: 'Surinamese Dollar' },
 //   { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
 //   { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
-//   { code: 'SYP', symbol: '£', name: 'Syrian Pound' },
 //   { code: 'TWD', symbol: 'NT$', name: 'New Taiwan Dollar' },
-//   { code: 'TJS', symbol: 'SM', name: 'Tajikistani Somoni' },
-//   { code: 'TZS', symbol: 'Sh', name: 'Tanzanian Shilling' },
 //   { code: 'THB', symbol: '฿', name: 'Thai Baht' },
-//   { code: 'TOP', symbol: 'T$', name: 'Tongan Paʻanga' },
-//   { code: 'TTD', symbol: 'TT$', name: 'Trinidad & Tobago Dollar' },
-//   { code: 'TND', symbol: 'د.ت', name: 'Tunisian Dinar' },
 //   { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
-//   { code: 'TMT', symbol: 'T', name: 'Turkmenistani Manat' },
-//   { code: 'UGX', symbol: 'Sh', name: 'Ugandan Shilling' },
-//   { code: 'UAH', symbol: '₴', name: 'Ukrainian Hryvnia' },
 //   { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
 //   { code: 'USD', symbol: '$', name: 'US Dollar' },
-//   { code: 'UYU', symbol: '$U', name: 'Uruguayan Peso' },
 //   { code: 'UZS', symbol: 'лв', name: 'Uzbekistani Som' },
-//   { code: 'VUV', symbol: 'Vt', name: 'Vanuatu Vatu' },
-//   { code: 'VEF', symbol: 'Bs.F', name: 'Venezuelan Bolívar' },
 //   { code: 'VND', symbol: '₫', name: 'Vietnamese Đồng' },
-//   { code: 'YER', symbol: '﷼', name: 'Yemeni Rial' },
 //   { code: 'ZMW', symbol: 'ZK', name: 'Zambian Kwacha' },
-//   { code: 'ZWL', symbol: 'Z$', name: 'Zimbabwean Dollar' },
 // ];
 
 // @Component({
@@ -183,20 +109,29 @@
 //   maxLogoSize = 5 * 1024 * 1024;
 //   allowedLogoTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
 
-//   // ✅ World currencies for location dropdown
 //   worldCurrencies = WORLD_CURRENCIES;
-
-//   // ✅ All countries list (for dropdowns)
 //   allCountries: string[] = getAllCountryNames();
 
-//   // ✅ HQ address states — dynamically loaded based on selected country
+//   // ===== HQ cascades =====
 //   hqStates: string[] = [];
+//   hqCities: string[] = [];
+//   hqCityIsOthers = false;          // ✅ true when "Others" selected for HQ city
 
-//   // ✅ Per-location states — array indexed by location index
+//   // ===== Per-location cascades =====
 //   locationStates: string[][] = [];
+//   locationCities: string[][] = [];
+//   locationCityIsOthers: boolean[] = [];  // ✅ per-location Others flag
+
+//   // ===== Per-user cascades =====
+//   userCities: string[][] = [];
+//   userCityIsOthers: boolean[] = [];      // ✅ per-user Others flag
 
 //   companyTypes = ['Manufacturing', 'Trading', 'Services', 'Distribution', 'Retail', 'Others'];
 //   locationTypes = ['Branch', 'Regional', 'Warehouse', 'Service Center', 'Others'];
+
+//   email: string = '';
+//   companyName: string = '';
+//   fullName: string = '';
 
 //   constructor(
 //     private fb: FormBuilder,
@@ -206,16 +141,11 @@
 //     private route: ActivatedRoute
 //   ) {}
 
-//   email: string = '';
-//   companyName: string = '';
-//   fullName: string = '';
-
 //   ngOnInit(): void {
 //     this.checkOrgAdminMode();
 //     this.loadUserHeaderInfo();
 //     this.initializeForm();
 //     this.checkEditMode();
-//     // ✅ Load HQ states for default country (India)
 //     this.hqStates = getStatesForCountry('India');
 //   }
 
@@ -247,10 +177,9 @@
 //       addressLine1: ['', [Validators.required, Validators.minLength(5)]],
 //       addressLine2: [''],
 //       city: ['', Validators.required],
-//       // ✅ HQ state — free text fallback, but driven by dropdown
+//       otherCity: [''],                 // ✅ HQ custom city text
 //       state: ['', Validators.required],
 //       postalCode: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\s\-]{3,10}$/)]],
-//       // ✅ HQ country — dropdown
 //       country: ['India', Validators.required],
 //       gstNumber: [''],
 //       panNumber: [''],
@@ -266,33 +195,151 @@
 //     }
 //   }
 
-//   // ===================== HQ COUNTRY / STATE CHANGE =====================
+//   // ======================================================================
+//   // HQ: COUNTRY → STATE → CITY (+ Others) → POSTAL
+//   // ======================================================================
 
-//   // ✅ When HQ country changes, reload HQ states
 //   onHQCountryChange(event: any): void {
-//     const selectedCountry = event.target.value;
-//     this.hqStates = getStatesForCountry(selectedCountry);
-//     // Reset state when country changes
-//     this.buyerForm.patchValue({ state: '' });
+//     const country = event.target.value;
+//     this.hqStates = getStatesForCountry(country);
+//     this.hqCities = [];
+//     this.hqCityIsOthers = false;
+//     this.buyerForm.get('otherCity')?.clearValidators();
+//     this.buyerForm.get('otherCity')?.setValue('');
+//     this.buyerForm.get('otherCity')?.updateValueAndValidity();
+//     this.buyerForm.patchValue({ state: '', city: '', postalCode: '' });
 //   }
 
-//   // ===================== LOCATION COUNTRY / STATE CHANGE =====================
-
-//   // ✅ When location country changes, reload that location's states
-//   onLocationCountryChange(event: any, locationIndex: number): void {
-//     const selectedCountry = event.target.value;
-//     this.locationStates[locationIndex] = getStatesForCountry(selectedCountry);
-//     // Reset state for this location
-//     const locationGroup = this.locations.at(locationIndex);
-//     locationGroup.patchValue({ state: '' });
+//   onHQStateChange(event: any): void {
+//     const country = this.buyerForm.get('country')?.value;
+//     const state = event.target.value;
+//     this.hqCities = getCityNamesForState(country, state);
+//     this.hqCityIsOthers = false;
+//     this.buyerForm.get('otherCity')?.clearValidators();
+//     this.buyerForm.get('otherCity')?.setValue('');
+//     this.buyerForm.get('otherCity')?.updateValueAndValidity();
+//     this.buyerForm.patchValue({ city: '', postalCode: '' });
 //   }
 
-//   // ✅ Get states for a specific location index
-//   getStatesForLocation(locationIndex: number): string[] {
-//     return this.locationStates[locationIndex] || [];
+//   onHQCityChange(event: any): void {
+//     const selected = event.target.value;
+//     if (selected === '__others__') {
+//       // ✅ Show custom city input — postal must be typed manually
+//       this.hqCityIsOthers = true;
+//       this.buyerForm.patchValue({ city: '__others__', otherCity: '', postalCode: '' });
+//       this.buyerForm.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+//       this.buyerForm.get('otherCity')?.updateValueAndValidity();
+//     } else {
+//       this.hqCityIsOthers = false;
+//       this.buyerForm.get('otherCity')?.clearValidators();
+//       this.buyerForm.get('otherCity')?.setValue('');
+//       this.buyerForm.get('otherCity')?.updateValueAndValidity();
+//       const country = this.buyerForm.get('country')?.value;
+//       const state = this.buyerForm.get('state')?.value;
+//       const postal = getPostalCodeForCity(country, state, selected);
+//       this.buyerForm.patchValue({ city: selected, postalCode: postal || '' });
+//     }
 //   }
 
-//   // ===================== CURRENCY METHODS =====================
+//   // ======================================================================
+//   // LOCATION: COUNTRY → STATE → CITY (+ Others) → POSTAL
+//   // ======================================================================
+
+//   onLocationCountryChange(event: any, idx: number): void {
+//     const country = event.target.value;
+//     this.locationStates[idx] = getStatesForCountry(country);
+//     this.locationCities[idx] = [];
+//     this.locationCityIsOthers[idx] = false;
+//     const loc = this.locations.at(idx);
+//     loc.get('otherCity')?.clearValidators();
+//     loc.get('otherCity')?.setValue('');
+//     loc.get('otherCity')?.updateValueAndValidity();
+//     loc.patchValue({ state: '', city: '', postalCode: '' });
+//   }
+
+//   onLocationStateChange(event: any, idx: number): void {
+//     const country = this.locations.at(idx).get('country')?.value;
+//     const state = event.target.value;
+//     this.locationCities[idx] = getCityNamesForState(country, state);
+//     this.locationCityIsOthers[idx] = false;
+//     const loc = this.locations.at(idx);
+//     loc.get('otherCity')?.clearValidators();
+//     loc.get('otherCity')?.setValue('');
+//     loc.get('otherCity')?.updateValueAndValidity();
+//     loc.patchValue({ city: '', postalCode: '' });
+//   }
+
+//   onLocationCityChange(event: any, idx: number): void {
+//     const selected = event.target.value;
+//     const loc = this.locations.at(idx);
+//     if (selected === '__others__') {
+//       this.locationCityIsOthers[idx] = true;
+//       loc.patchValue({ city: '__others__', otherCity: '', postalCode: '' });
+//       loc.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+//       loc.get('otherCity')?.updateValueAndValidity();
+//     } else {
+//       this.locationCityIsOthers[idx] = false;
+//       loc.get('otherCity')?.clearValidators();
+//       loc.get('otherCity')?.setValue('');
+//       loc.get('otherCity')?.updateValueAndValidity();
+//       const country = loc.get('country')?.value;
+//       const state = loc.get('state')?.value;
+//       const postal = getPostalCodeForCity(country, state, selected);
+//       loc.patchValue({ city: selected, postalCode: postal || '' });
+//     }
+//   }
+
+//   getStatesForLocation(idx: number): string[] { return this.locationStates[idx] || []; }
+//   getCitiesForLocation(idx: number): string[] { return this.locationCities[idx] || []; }
+//   isLocationCityOthers(idx: number): boolean { return this.locationCityIsOthers[idx] || false; }
+
+//   // ======================================================================
+//   // USER: STATE → CITY (+ Others) → POSTAL
+//   // ======================================================================
+
+//   onUserStateChange(event: any, userIdx: number): void {
+//     const userGroup = this.users.at(userIdx);
+//     const country = userGroup.get('country')?.value || 'India';
+//     const state = event.target.value;
+//     this.userCities[userIdx] = getCityNamesForState(country, state);
+//     this.userCityIsOthers[userIdx] = false;
+//     userGroup.get('otherCity')?.clearValidators();
+//     userGroup.get('otherCity')?.setValue('');
+//     userGroup.get('otherCity')?.updateValueAndValidity();
+//     userGroup.patchValue({ city: '', postalCode: '' });
+//   }
+
+//   onUserCityChange(event: any, userIdx: number): void {
+//     const selected = event.target.value;
+//     const userGroup = this.users.at(userIdx);
+//     if (selected === '__others__') {
+//       this.userCityIsOthers[userIdx] = true;
+//       userGroup.patchValue({ city: '__others__', otherCity: '', postalCode: '' });
+//       userGroup.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+//       userGroup.get('otherCity')?.updateValueAndValidity();
+//     } else {
+//       this.userCityIsOthers[userIdx] = false;
+//       userGroup.get('otherCity')?.clearValidators();
+//       userGroup.get('otherCity')?.setValue('');
+//       userGroup.get('otherCity')?.updateValueAndValidity();
+//       const country = userGroup.get('country')?.value || 'India';
+//       const state = userGroup.get('state')?.value || '';
+//       const postal = getPostalCodeForCity(country, state, selected);
+//       userGroup.patchValue({ city: selected, postalCode: postal || '' });
+//     }
+//   }
+
+//   getUserCities(userIdx: number): string[] { return this.userCities[userIdx] || []; }
+//   isUserCityOthers(userIdx: number): boolean { return this.userCityIsOthers[userIdx] || false; }
+
+//   getStatesForCountryDynamic(countryName: string): string[] {
+//     if (!countryName?.trim()) return [];
+//     return getStatesForCountry(countryName);
+//   }
+
+//   // ======================================================================
+//   // CURRENCY
+//   // ======================================================================
 
 //   getCurrencySymbolForCode(code: string): string {
 //     const found = this.worldCurrencies.find(c => c.code === code);
@@ -300,13 +347,13 @@
 //   }
 
 //   onCurrencyChange(event: any, locationIndex: number): void {
-//     const selectedCode = event.target.value;
-//     const symbol = this.getCurrencySymbolForCode(selectedCode);
-//     const locationGroup = this.locations.at(locationIndex) as FormGroup;
-//     locationGroup.patchValue({ currencySymbol: symbol });
+//     const symbol = this.getCurrencySymbolForCode(event.target.value);
+//     (this.locations.at(locationIndex) as FormGroup).patchValue({ currencySymbol: symbol });
 //   }
 
-//   // ===================== LOGO METHODS =====================
+//   // ======================================================================
+//   // LOGO
+//   // ======================================================================
 
 //   onLogoSelected(event: any): void {
 //     const file = event.target.files[0];
@@ -355,7 +402,9 @@
 //   get departments(): FormArray { return this.buyerForm.get('departments') as FormArray; }
 //   get users(): FormArray { return this.buyerForm.get('users') as FormArray; }
 
-//   // ===================== LOCATION METHODS =====================
+//   // ======================================================================
+//   // LOCATION FORM ARRAY
+//   // ======================================================================
 
 //   addLocation(): void {
 //     const locationGroup = this.fb.group({
@@ -369,29 +418,29 @@
 //       addressLine1: ['', [Validators.required, Validators.minLength(5)]],
 //       addressLine2: [''],
 //       city: ['', Validators.required],
-//       // ✅ state — text driven by dropdown
+//       otherCity: [''],               // ✅ custom city per location
 //       state: ['', Validators.required],
 //       postalCode: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\s\-]{3,10}$/)]],
-//       // ✅ country — dropdown, default India
 //       country: ['India', Validators.required],
 //       landlineNumber: [''],
 //       faxNumber: [''],
-//       // ✅ Currency fields per location
 //       currencyCode: ['INR', Validators.required],
 //       currencySymbol: ['₹']
 //     });
 
 //     const newIndex = this.locations.length;
 //     this.locations.push(locationGroup);
-
-//     // ✅ Initialize states for this new location (default India)
 //     this.locationStates[newIndex] = getStatesForCountry('India');
+//     this.locationCities[newIndex] = [];
+//     this.locationCityIsOthers[newIndex] = false;
 //   }
 
 //   removeLocation(index: number): void {
 //     if (this.locations.length > 1) {
 //       this.locations.removeAt(index);
 //       this.locationStates.splice(index, 1);
+//       this.locationCities.splice(index, 1);
+//       this.locationCityIsOthers.splice(index, 1);
 //     } else {
 //       this.messageService.showMessage('warning', 'Warning', 'At least one location is required');
 //     }
@@ -399,9 +448,8 @@
 
 //   onLocationTypeChange(event: any, locationIndex: number): void {
 //     const locationGroup = this.locations.at(locationIndex) as FormGroup;
-//     const selectedValue = event.target.value;
 //     const customTypeControl = locationGroup.get('otherLocationType');
-//     if (selectedValue === 'Others') {
+//     if (event.target.value === 'Others') {
 //       customTypeControl?.setValidators([Validators.required, Validators.minLength(2)]);
 //       customTypeControl?.setValue('');
 //     } else {
@@ -411,7 +459,9 @@
 //     customTypeControl?.updateValueAndValidity();
 //   }
 
-//   // ===================== DEPARTMENT METHODS =====================
+//   // ======================================================================
+//   // DEPARTMENT FORM ARRAY
+//   // ======================================================================
 
 //   addDepartment(): void {
 //     const departmentGroup = this.fb.group({
@@ -441,12 +491,14 @@
 //     return '';
 //   }
 
-//   // ===================== USER METHODS =====================
+//   // ======================================================================
+//   // USER FORM ARRAY
+//   // ======================================================================
 
-//   addUser(userData?: Partial<User>): void {
+//   addUser(userData?: any): void {
 //     const userGroup = this.fb.group({
 //       id: [userData?.id || null],
-//       departmentIndex: [userData ? (userData as any).departmentIndex : '', Validators.required],
+//       departmentIndex: [userData?.departmentIndex ?? '', Validators.required],
 //       firstName: [userData?.firstName || '', [Validators.required, Validators.minLength(2)]],
 //       lastName: [userData?.lastName || '', [Validators.required, Validators.minLength(1)]],
 //       email: [userData?.email || '', [Validators.required, Validators.email]],
@@ -457,26 +509,33 @@
 //       dateOfBirth: [userData?.dateOfBirth || ''],
 //       addressLine1: [userData?.addressLine1 || ''],
 //       addressLine2: [userData?.addressLine2 || ''],
-//       city: [userData?.city || ''],
+//       country: [userData?.country || 'India'],
 //       state: [userData?.state || ''],
+//       city: [userData?.city || ''],
+//       otherCity: [''],               // ✅ custom city per user
 //       postalCode: [userData?.postalCode || ''],
 //       password: [userData?.password || '', [Validators.required, Validators.minLength(6)]]
 //     });
+
+//     const newIndex = this.users.length;
 //     this.users.push(userGroup);
+//     this.userCities[newIndex] = [];
+//     this.userCityIsOthers[newIndex] = false;
 //   }
 
 //   removeUser(userIndex: number): void {
 //     if (this.users.length > 1) {
 //       this.users.removeAt(userIndex);
+//       this.userCities.splice(userIndex, 1);
+//       this.userCityIsOthers.splice(userIndex, 1);
 //     } else {
 //       this.messageService.showMessage('warning', 'Warning', 'At least one user is required');
 //     }
 //   }
 
 //   onCompanyTypeChange(event: any): void {
-//     const selectedValue = event.target.value;
 //     const customTypeControl = this.buyerForm.get('otherCompanyType');
-//     if (selectedValue === 'Others') {
+//     if (event.target.value === 'Others') {
 //       customTypeControl?.setValidators([Validators.required, Validators.minLength(2)]);
 //       customTypeControl?.setValue('');
 //     } else {
@@ -486,7 +545,9 @@
 //     customTypeControl?.updateValueAndValidity();
 //   }
 
-//   // ===================== LOAD BUYER DATA (EDIT MODE) =====================
+//   // ======================================================================
+//   // EDIT MODE — LOAD BUYER DATA
+//   // ======================================================================
 
 //   private loadBuyerData(id: number): void {
 //     this.buyerService.getBuyerById(id).subscribe({
@@ -507,7 +568,6 @@
 //           contactPersonPhone: buyer.contactPersonPhone,
 //           addressLine1: buyer.addressLine1,
 //           addressLine2: buyer.addressLine2,
-//           city: buyer.city,
 //           state: buyer.state,
 //           postalCode: buyer.postalCode,
 //           country: buyer.country,
@@ -517,9 +577,21 @@
 //           website: buyer.website
 //         });
 
-//         // ✅ Load HQ states for the buyer's country
-//         if (buyer.country) {
-//           this.hqStates = getStatesForCountry(buyer.country);
+//         if (buyer.country) this.hqStates = getStatesForCountry(buyer.country);
+//         if (buyer.country && buyer.state) {
+//           this.hqCities = getCityNamesForState(buyer.country, buyer.state);
+//         }
+
+//         // ✅ If city not in known list → treat as Others
+//         const knownCities = this.hqCities;
+//         if (buyer.city && knownCities.length > 0 && !knownCities.includes(buyer.city)) {
+//           this.hqCityIsOthers = true;
+//           this.buyerForm.patchValue({ city: '__others__', otherCity: buyer.city });
+//           this.buyerForm.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+//           this.buyerForm.get('otherCity')?.updateValueAndValidity();
+//         } else {
+//           this.hqCityIsOthers = false;
+//           this.buyerForm.patchValue({ city: buyer.city });
 //         }
 
 //         this.onCompanyTypeChange({ target: { value: companyTypeForForm } });
@@ -535,12 +607,16 @@
 //         while (this.departments.length) this.departments.removeAt(0);
 //         while (this.users.length) this.users.removeAt(0);
 //         this.locationStates = [];
+//         this.locationCities = [];
+//         this.locationCityIsOthers = [];
+//         this.userCities = [];
+//         this.userCityIsOthers = [];
 
 //         if (buyer.locations && Array.isArray(buyer.locations)) {
 //           this.populateLocations(buyer.locations);
 //         }
 //       },
-//       error: (err: any) => {
+//       error: () => {
 //         this.messageService.showMessage('error', 'Error', 'Failed to load buyer data');
 //         setTimeout(() => this.router.navigate(['/dashboard']), 2000);
 //       }
@@ -549,7 +625,7 @@
 
 //   private populateLocations(locations: Location[]): void {
 //     locations.forEach((loc: any, locIndex: number) => {
-//       this.addLocation(); // this also initializes locationStates[locIndex] to India states
+//       this.addLocation();
 
 //       let locationTypeForForm = loc.locationType;
 //       let otherLocationType = null;
@@ -558,9 +634,21 @@
 //         otherLocationType = loc.locationType;
 //       }
 
-//       // ✅ Reload states for the location's actual country
-//       if (loc.country) {
-//         this.locationStates[locIndex] = getStatesForCountry(loc.country);
+//       if (loc.country) this.locationStates[locIndex] = getStatesForCountry(loc.country);
+//       if (loc.country && loc.state) {
+//         this.locationCities[locIndex] = getCityNamesForState(loc.country, loc.state);
+//       }
+
+//       // ✅ Detect custom city
+//       const knownCities = this.locationCities[locIndex] || [];
+//       let cityValue = loc.city;
+//       let otherCityValue = '';
+//       if (loc.city && knownCities.length > 0 && !knownCities.includes(loc.city)) {
+//         this.locationCityIsOthers[locIndex] = true;
+//         cityValue = '__others__';
+//         otherCityValue = loc.city;
+//       } else {
+//         this.locationCityIsOthers[locIndex] = false;
 //       }
 
 //       this.locations.at(locIndex).patchValue({
@@ -573,16 +661,22 @@
 //         locationContactPhone: loc.locationContactPhone,
 //         addressLine1: loc.addressLine1,
 //         addressLine2: loc.addressLine2,
-//         city: loc.city,
+//         city: cityValue,
+//         otherCity: otherCityValue,
 //         state: loc.state,
 //         postalCode: loc.postalCode,
 //         country: loc.country,
 //         landlineNumber: loc.landlineNumber,
 //         faxNumber: loc.faxNumber,
-//         // ✅ Restore saved currency
 //         currencyCode: loc.currencyCode || 'INR',
 //         currencySymbol: loc.currencySymbol || '₹'
 //       });
+
+//       if (this.locationCityIsOthers[locIndex]) {
+//         this.locations.at(locIndex).get('otherCity')
+//           ?.setValidators([Validators.required, Validators.minLength(2)]);
+//         this.locations.at(locIndex).get('otherCity')?.updateValueAndValidity();
+//       }
 
 //       this.onLocationTypeChange({ target: { value: locationTypeForForm } }, locIndex);
 
@@ -596,26 +690,35 @@
 //             departmentName: dept.departmentName,
 //             departmentDescription: dept.departmentDescription
 //           });
+
 //           if (dept.users && dept.users.length > 0) {
 //             dept.users.forEach((user: any) => {
+//               const userIdx = this.users.length;
 //               this.addUser({
 //                 id: user.id,
 //                 departmentIndex: deptIndex,
-//                 firstName: user.firstName,
-//                 lastName: user.lastName,
-//                 email: user.email,
-//                 phone: user.phone,
-//                 designation: user.designation,
-//                 employeeId: user.employeeId,
-//                 gender: user.gender,
-//                 dateOfBirth: user.dateOfBirth,
-//                 addressLine1: user.addressLine1,
-//                 addressLine2: user.addressLine2,
-//                 city: user.city,
-//                 state: user.state,
-//                 postalCode: user.postalCode,
-//                 password: ''
+//                 firstName: user.firstName, lastName: user.lastName,
+//                 email: user.email, phone: user.phone,
+//                 designation: user.designation, employeeId: user.employeeId,
+//                 gender: user.gender, dateOfBirth: user.dateOfBirth,
+//                 addressLine1: user.addressLine1, addressLine2: user.addressLine2,
+//                 country: user.country || 'India',
+//                 state: user.state, city: user.city,
+//                 postalCode: user.postalCode, password: ''
 //               });
+
+//               if (user.state) {
+//                 const uCountry = user.country || 'India';
+//                 this.userCities[userIdx] = getCityNamesForState(uCountry, user.state);
+//                 const knownUserCities = this.userCities[userIdx];
+//                 if (user.city && knownUserCities.length > 0 && !knownUserCities.includes(user.city)) {
+//                   this.userCityIsOthers[userIdx] = true;
+//                   this.users.at(userIdx).patchValue({ city: '__others__', otherCity: user.city });
+//                   this.users.at(userIdx).get('otherCity')
+//                     ?.setValidators([Validators.required, Validators.minLength(2)]);
+//                   this.users.at(userIdx).get('otherCity')?.updateValueAndValidity();
+//                 }
+//               }
 //             });
 //           }
 //         });
@@ -623,7 +726,9 @@
 //     });
 //   }
 
-//   // ===================== STEP VALIDATION =====================
+//   // ======================================================================
+//   // STEP VALIDATION
+//   // ======================================================================
 
 //   private isCurrentStepValid(): boolean {
 //     switch (this.currentStep) {
@@ -639,27 +744,27 @@
 //     const fields = ['companyName', 'companyType', 'contactPersonName', 'contactPersonDesignation',
 //       'contactPersonEmail', 'contactPersonPhone', 'addressLine1', 'city', 'state',
 //       'postalCode', 'country'];
-//     const standardFieldsValid = fields.every(field => this.buyerForm.get(field)?.valid);
-//     const companyTypeControl = this.buyerForm.get('companyType');
-//     const otherCompanyTypeControl = this.buyerForm.get('otherCompanyType');
-//     const otherFieldValid: boolean = companyTypeControl?.value === 'Others'
-//       ? (otherCompanyTypeControl?.valid ?? false) : true;
-//     return standardFieldsValid && otherFieldValid;
+//     const standardValid = fields.every(f => this.buyerForm.get(f)?.valid);
+//     const otherCompanyValid: boolean = this.buyerForm.get('companyType')?.value === 'Others'
+//       ? (this.buyerForm.get('otherCompanyType')?.valid ?? false) : true;
+//     const otherCityValid: boolean = this.hqCityIsOthers
+//       ? (this.buyerForm.get('otherCity')?.valid ?? false) : true;
+//     return standardValid && otherCompanyValid && otherCityValid;
 //   }
 
 //   private locationsBasicsValid(): boolean {
 //     return this.locations.length > 0 &&
-//            this.locations.controls.every(loc => {
-//              const fields = ['locationName', 'locationType', 'locationContactName',
-//                              'locationContactEmail', 'locationContactPhone', 'addressLine1',
-//                              'city', 'state', 'postalCode', 'country', 'currencyCode'];
-//              const standardFieldsValid = fields.every(field => loc.get(field)?.valid);
-//              const locationTypeControl = loc.get('locationType');
-//              const otherLocationTypeControl = loc.get('otherLocationType');
-//              const otherFieldValid: boolean = locationTypeControl?.value === 'Others'
-//                ? (otherLocationTypeControl?.valid ?? false) : true;
-//              return standardFieldsValid && otherFieldValid;
-//            });
+//       this.locations.controls.every((loc, idx) => {
+//         const fields = ['locationName', 'locationType', 'locationContactName',
+//           'locationContactEmail', 'locationContactPhone', 'addressLine1',
+//           'city', 'state', 'postalCode', 'country', 'currencyCode'];
+//         const standardValid = fields.every(f => loc.get(f)?.valid);
+//         const otherTypeValid: boolean = loc.get('locationType')?.value === 'Others'
+//           ? (loc.get('otherLocationType')?.valid ?? false) : true;
+//         const otherCityValid: boolean = this.locationCityIsOthers[idx]
+//           ? (loc.get('otherCity')?.valid ?? false) : true;
+//         return standardValid && otherTypeValid && otherCityValid;
+//       });
 //   }
 
 //   private departmentsValid(): boolean {
@@ -670,18 +775,12 @@
 
 //   private usersValid(): boolean {
 //     return this.users.length > 0 && this.users.controls.every(user =>
-//       user.get('firstName')?.valid &&
-//       user.get('lastName')?.valid &&
-//       user.get('email')?.valid &&
-//       user.get('phone')?.valid &&
-//       user.get('designation')?.valid &&
-//       user.get('employeeId')?.valid &&
-//       user.get('departmentIndex')?.valid &&
-//       user.get('password')?.valid
+//       user.get('firstName')?.valid && user.get('lastName')?.valid &&
+//       user.get('email')?.valid && user.get('phone')?.valid &&
+//       user.get('designation')?.valid && user.get('employeeId')?.valid &&
+//       user.get('departmentIndex')?.valid && user.get('password')?.valid
 //     );
 //   }
-
-//   // ===================== STEP NAVIGATION =====================
 
 //   saveStep(): void {
 //     if (!this.isCurrentStepValid()) {
@@ -696,7 +795,9 @@
 //   prevStep(): void { if (this.currentStep > 1) this.currentStep--; }
 //   nextStep(): void { if (this.currentStep < this.maxStep) this.currentStep++; }
 
-//   // ===================== SUBMIT =====================
+//   // ======================================================================
+//   // SUBMIT — resolve all "Others" values before sending to API
+//   // ======================================================================
 
 //   async onSubmit(): Promise<void> {
 //     if (this.buyerForm.invalid) {
@@ -708,13 +809,15 @@
 //       this.messageService.showMessage('error', 'Error', 'Organization Admin ID not found. Please login again.');
 //       return;
 //     }
-//     if (this.isOrgAdminMode && !this.orgAdminCompanyName) {
-//       this.messageService.showMessage('error', 'Error', 'Organization Company Name not found. Please login again.');
-//       return;
-//     }
 
 //     this.isSubmitting = true;
 //     const formValue = this.buyerForm.getRawValue();
+
+//     // ✅ Resolve HQ Others city
+//     if (formValue.city === '__others__' && formValue.otherCity) {
+//       formValue.city = formValue.otherCity;
+//     }
+//     delete formValue.otherCity;
 
 //     if (formValue.companyType === 'Others' && formValue.otherCompanyType) {
 //       formValue.companyType = formValue.otherCompanyType;
@@ -724,9 +827,10 @@
 //     const processedLocations: any[] = [];
 //     if (formValue.locations && Array.isArray(formValue.locations)) {
 //       formValue.locations.forEach((loc: any) => {
-//         if (loc.locationType === 'Others' && loc.otherLocationType) {
-//           loc.locationType = loc.otherLocationType;
-//         }
+//         // ✅ Resolve location Others city
+//         if (loc.city === '__others__' && loc.otherCity) loc.city = loc.otherCity;
+//         delete loc.otherCity;
+//         if (loc.locationType === 'Others' && loc.otherLocationType) loc.locationType = loc.otherLocationType;
 //         delete loc.otherLocationType;
 //         loc.departments = [];
 //         processedLocations.push(loc);
@@ -746,18 +850,22 @@
 
 //     if (formValue.users && Array.isArray(formValue.users)) {
 //       formValue.users.forEach((user: any) => {
+//         // ✅ Resolve user Others city
+//         if (user.city === '__others__' && user.otherCity) user.city = user.otherCity;
+//         delete user.otherCity;
+
 //         const deptIdx = parseInt(user.departmentIndex, 10);
 //         let targetDepartment: any = null;
-//         let globalDeptCounter = 0;
+//         let counter = 0;
 //         for (let location of processedLocations) {
 //           for (let dept of location.departments) {
-//             if (globalDeptCounter === deptIdx) { targetDepartment = dept; break; }
-//             globalDeptCounter++;
+//             if (counter === deptIdx) { targetDepartment = dept; break; }
+//             counter++;
 //           }
 //           if (targetDepartment) break;
 //         }
 //         if (targetDepartment) {
-//           const { departmentIndex: _, ...userData } = user;
+//           const { departmentIndex: _, country: _c, ...userData } = user;
 //           if (this.mode === 'edit' && (!userData.password || !userData.password.trim())) {
 //             delete userData.password;
 //           }
@@ -784,45 +892,56 @@
 //       }
 //     }
 
-//     if (this.isOrgAdminMode) {
-//       payload.organizationCompanyName = this.orgAdminCompanyName;
-//     }
+//     if (this.isOrgAdminMode) payload.organizationCompanyName = this.orgAdminCompanyName;
 
 //     if (this.mode === 'create') {
 //       this.buyerService.createCompleteHierarchy(
 //         payload,
 //         this.isOrgAdminMode ? this.orgAdminId! : undefined
 //       ).subscribe({
-//         next: (response) => {
+//         next: () => {
 //           this.messageService.showMessage('success', 'Success',
-//             this.isOrgAdminMode
-//               ? 'Buyer created and linked to your organization'
-//               : 'Buyer created successfully');
+//             this.isOrgAdminMode ? 'Buyer created and linked to your organization' : 'Buyer created successfully');
 //           this.isSubmitting = false;
 //           setTimeout(() => this.router.navigate(['/dashboard']), 1500);
 //         },
 //         error: (err: any) => {
-//           const errorMsg = err.error?.message || err.message || 'Failed to create buyer';
-//           this.messageService.showMessage('error', 'Error', errorMsg);
+//           this.messageService.showMessage('error', 'Error', err.error?.message || err.message || 'Failed to create buyer');
 //           this.isSubmitting = false;
 //         }
 //       });
 //     } else if (this.buyerId) {
 //       this.buyerService.updateCompleteHierarchy(this.buyerId, payload).subscribe({
-//         next: (response) => {
+//         next: () => {
 //           this.messageService.showMessage('success', 'Success', 'Buyer updated');
 //           this.isSubmitting = false;
 //           setTimeout(() => this.router.navigate(['/dashboard']), 1500);
 //         },
 //         error: (err: any) => {
-//           const errorMsg = err.error?.message || err.message || 'Update failed';
-//           this.messageService.showMessage('error', 'Error', errorMsg);
+//           this.messageService.showMessage('error', 'Error', err.error?.message || err.message || 'Update failed');
 //           this.isSubmitting = false;
 //         }
 //       });
 //     }
 //   }
 // }
+
+// create-b.component.ts
+// MODIFIED:
+// - Removed selectedLogoFile, logoPreview, logo-related fields and methods.
+// - Removed onLogoSelected(), removeLogo(), convertFileToBase64() calls.
+// - onSubmit(): no longer attaches logo to payload — payload has no logo fields.
+// - initializeForm(): removed 'logo' form control.
+// - Step 1 no longer shows the logo upload section.
+
+
+
+// create-b.component.ts
+// FIXED:
+// - companyName has NO validators (hidden field, auto-set from OrgAdmin at submit time)
+// - isBuyerDetailsValid() does NOT check companyName
+// - onSubmit() sets companyName = orgAdminCompanyName BEFORE validity check
+// - Safety net: if companyName still empty after above, fallback to orgAdminCompanyName
 
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
@@ -833,7 +952,6 @@ import { BuyerService } from '../dashboard/buyer-b.service';
 import { MessageService } from '../../../shared/service/message.service';
 import { Buyer, Location, Department, User } from '../dashboard/buyer-b.model';
 
-// ✅ Import from the NEW unified data file
 import {
   getAllCountryNames,
   getStatesForCountry,
@@ -842,150 +960,69 @@ import {
   CityData
 } from '../../../shared/data/country-state.data';
 
-// ✅ World Currencies list
 export const WORLD_CURRENCIES = [
   { code: 'AFN', symbol: '؋', name: 'Afghan Afghani' },
   { code: 'ALL', symbol: 'L', name: 'Albanian Lek' },
   { code: 'DZD', symbol: 'د.ج', name: 'Algerian Dinar' },
-  { code: 'AOA', symbol: 'Kz', name: 'Angolan Kwanza' },
   { code: 'ARS', symbol: '$', name: 'Argentine Peso' },
   { code: 'AMD', symbol: '֏', name: 'Armenian Dram' },
-  { code: 'AWG', symbol: 'ƒ', name: 'Aruban Florin' },
   { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
   { code: 'AZN', symbol: '₼', name: 'Azerbaijani Manat' },
-  { code: 'BSD', symbol: 'B$', name: 'Bahamian Dollar' },
   { code: 'BHD', symbol: '.د.ب', name: 'Bahraini Dinar' },
   { code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka' },
-  { code: 'BBD', symbol: 'Bds$', name: 'Barbadian Dollar' },
-  { code: 'BYN', symbol: 'Br', name: 'Belarusian Ruble' },
-  { code: 'BZD', symbol: 'BZ$', name: 'Belize Dollar' },
-  { code: 'BMD', symbol: 'BD$', name: 'Bermudian Dollar' },
-  { code: 'BTN', symbol: 'Nu', name: 'Bhutanese Ngultrum' },
-  { code: 'BOB', symbol: 'Bs.', name: 'Bolivian Boliviano' },
-  { code: 'BAM', symbol: 'KM', name: 'Bosnia-Herzegovina Convertible Mark' },
-  { code: 'BWP', symbol: 'P', name: 'Botswana Pula' },
   { code: 'BRL', symbol: 'R$', name: 'Brazilian Real' },
   { code: 'GBP', symbol: '£', name: 'British Pound Sterling' },
-  { code: 'BND', symbol: 'B$', name: 'Brunei Dollar' },
-  { code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev' },
-  { code: 'BIF', symbol: 'Fr', name: 'Burundian Franc' },
-  { code: 'KHR', symbol: '៛', name: 'Cambodian Riel' },
   { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
-  { code: 'CVE', symbol: '$', name: 'Cape Verdean Escudo' },
-  { code: 'KYD', symbol: 'CI$', name: 'Cayman Islands Dollar' },
-  { code: 'XAF', symbol: 'Fr', name: 'Central African CFA Franc' },
   { code: 'CLP', symbol: '$', name: 'Chilean Peso' },
   { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
   { code: 'COP', symbol: '$', name: 'Colombian Peso' },
-  { code: 'KMF', symbol: 'Fr', name: 'Comorian Franc' },
-  { code: 'CDF', symbol: 'Fr', name: 'Congolese Franc' },
-  { code: 'CRC', symbol: '₡', name: 'Costa Rican Colón' },
-  { code: 'HRK', symbol: 'kn', name: 'Croatian Kuna' },
-  { code: 'CUP', symbol: '$', name: 'Cuban Peso' },
   { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
   { code: 'DKK', symbol: 'kr', name: 'Danish Krone' },
-  { code: 'DJF', symbol: 'Fr', name: 'Djiboutian Franc' },
-  { code: 'DOP', symbol: 'RD$', name: 'Dominican Peso' },
   { code: 'EGP', symbol: '£', name: 'Egyptian Pound' },
-  { code: 'ERN', symbol: 'Nfk', name: 'Eritrean Nakfa' },
   { code: 'ETB', symbol: 'Br', name: 'Ethiopian Birr' },
   { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'FJD', symbol: 'FJ$', name: 'Fijian Dollar' },
-  { code: 'GMD', symbol: 'D', name: 'Gambian Dalasi' },
   { code: 'GEL', symbol: '₾', name: 'Georgian Lari' },
   { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
-  { code: 'GTQ', symbol: 'Q', name: 'Guatemalan Quetzal' },
-  { code: 'GNF', symbol: 'Fr', name: 'Guinean Franc' },
-  { code: 'GYD', symbol: 'G$', name: 'Guyanese Dollar' },
-  { code: 'HTG', symbol: 'G', name: 'Haitian Gourde' },
-  { code: 'HNL', symbol: 'L', name: 'Honduran Lempira' },
-  { code: 'HKD', symbol: 'HK$', name: 'Hong Kong Dollar' },
   { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint' },
-  { code: 'ISK', symbol: 'kr', name: 'Icelandic Króna' },
   { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
   { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
   { code: 'IRR', symbol: '﷼', name: 'Iranian Rial' },
   { code: 'IQD', symbol: 'ع.د', name: 'Iraqi Dinar' },
   { code: 'ILS', symbol: '₪', name: 'Israeli New Shekel' },
-  { code: 'JMD', symbol: 'J$', name: 'Jamaican Dollar' },
   { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
   { code: 'JOD', symbol: 'د.ا', name: 'Jordanian Dinar' },
   { code: 'KZT', symbol: '₸', name: 'Kazakhstani Tenge' },
   { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
   { code: 'KWD', symbol: 'د.ك', name: 'Kuwaiti Dinar' },
-  { code: 'KGS', symbol: 'с', name: 'Kyrgyzstani Som' },
-  { code: 'LAK', symbol: '₭', name: 'Laotian Kip' },
-  { code: 'LBP', symbol: 'ل.ل', name: 'Lebanese Pound' },
-  { code: 'LSL', symbol: 'L', name: 'Lesotho Loti' },
-  { code: 'LRD', symbol: 'L$', name: 'Liberian Dollar' },
-  { code: 'LYD', symbol: 'ل.د', name: 'Libyan Dinar' },
-  { code: 'MOP', symbol: 'P', name: 'Macanese Pataca' },
-  { code: 'MKD', symbol: 'ден', name: 'Macedonian Denar' },
-  { code: 'MGA', symbol: 'Ar', name: 'Malagasy Ariary' },
-  { code: 'MWK', symbol: 'MK', name: 'Malawian Kwacha' },
   { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit' },
-  { code: 'MVR', symbol: 'Rf', name: 'Maldivian Rufiyaa' },
-  { code: 'MRU', symbol: 'UM', name: 'Mauritanian Ouguiya' },
-  { code: 'MUR', symbol: '₨', name: 'Mauritian Rupee' },
   { code: 'MXN', symbol: '$', name: 'Mexican Peso' },
-  { code: 'MDL', symbol: 'L', name: 'Moldovan Leu' },
-  { code: 'MNT', symbol: '₮', name: 'Mongolian Tögrög' },
   { code: 'MAD', symbol: 'د.م.', name: 'Moroccan Dirham' },
-  { code: 'MZN', symbol: 'MT', name: 'Mozambican Metical' },
-  { code: 'MMK', symbol: 'K', name: 'Myanmar Kyat' },
-  { code: 'NAD', symbol: 'N$', name: 'Namibian Dollar' },
   { code: 'NPR', symbol: '₨', name: 'Nepalese Rupee' },
   { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
-  { code: 'NIO', symbol: 'C$', name: 'Nicaraguan Córdoba' },
   { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
   { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone' },
   { code: 'OMR', symbol: 'ر.ع.', name: 'Omani Rial' },
   { code: 'PKR', symbol: '₨', name: 'Pakistani Rupee' },
-  { code: 'PAB', symbol: 'B/.', name: 'Panamanian Balboa' },
-  { code: 'PGK', symbol: 'K', name: 'Papua New Guinean Kina' },
-  { code: 'PYG', symbol: '₲', name: 'Paraguayan Guaraní' },
-  { code: 'PEN', symbol: 'S/.', name: 'Peruvian Sol' },
   { code: 'PHP', symbol: '₱', name: 'Philippine Peso' },
   { code: 'PLN', symbol: 'zł', name: 'Polish Złoty' },
   { code: 'QAR', symbol: 'ر.ق', name: 'Qatari Riyal' },
   { code: 'RON', symbol: 'lei', name: 'Romanian Leu' },
   { code: 'RUB', symbol: '₽', name: 'Russian Ruble' },
-  { code: 'RWF', symbol: 'Fr', name: 'Rwandan Franc' },
   { code: 'SAR', symbol: 'ر.س', name: 'Saudi Riyal' },
-  { code: 'RSD', symbol: 'дин.', name: 'Serbian Dinar' },
-  { code: 'SLL', symbol: 'Le', name: 'Sierra Leonean Leone' },
   { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
-  { code: 'SOS', symbol: 'Sh', name: 'Somali Shilling' },
   { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
   { code: 'KRW', symbol: '₩', name: 'South Korean Won' },
-  { code: 'SSP', symbol: '£', name: 'South Sudanese Pound' },
   { code: 'LKR', symbol: '₨', name: 'Sri Lankan Rupee' },
-  { code: 'SDG', symbol: '£', name: 'Sudanese Pound' },
-  { code: 'SRD', symbol: '$', name: 'Surinamese Dollar' },
   { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
   { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
-  { code: 'SYP', symbol: '£', name: 'Syrian Pound' },
   { code: 'TWD', symbol: 'NT$', name: 'New Taiwan Dollar' },
-  { code: 'TJS', symbol: 'SM', name: 'Tajikistani Somoni' },
-  { code: 'TZS', symbol: 'Sh', name: 'Tanzanian Shilling' },
   { code: 'THB', symbol: '฿', name: 'Thai Baht' },
-  { code: 'TOP', symbol: 'T$', name: 'Tongan Paʻanga' },
-  { code: 'TTD', symbol: 'TT$', name: 'Trinidad & Tobago Dollar' },
-  { code: 'TND', symbol: 'د.ت', name: 'Tunisian Dinar' },
   { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
-  { code: 'TMT', symbol: 'T', name: 'Turkmenistani Manat' },
-  { code: 'UGX', symbol: 'Sh', name: 'Ugandan Shilling' },
-  { code: 'UAH', symbol: '₴', name: 'Ukrainian Hryvnia' },
   { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
   { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'UYU', symbol: '$U', name: 'Uruguayan Peso' },
   { code: 'UZS', symbol: 'лв', name: 'Uzbekistani Som' },
-  { code: 'VUV', symbol: 'Vt', name: 'Vanuatu Vatu' },
-  { code: 'VEF', symbol: 'Bs.F', name: 'Venezuelan Bolívar' },
   { code: 'VND', symbol: '₫', name: 'Vietnamese Đồng' },
-  { code: 'YER', symbol: '﷼', name: 'Yemeni Rial' },
   { code: 'ZMW', symbol: 'ZK', name: 'Zambian Kwacha' },
-  { code: 'ZWL', symbol: 'Z$', name: 'Zimbabwean Dollar' },
 ];
 
 @Component({
@@ -1009,27 +1046,29 @@ export class CreateBComponent implements OnInit {
   orgAdminId: number | null = null;
   orgAdminCompanyName: string = '';
 
-  selectedLogoFile: File | null = null;
-  logoPreview: string | null = null;
-  maxLogoSize = 5 * 1024 * 1024;
-  allowedLogoTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
-
   worldCurrencies = WORLD_CURRENCIES;
   allCountries: string[] = getAllCountryNames();
 
-  // ========== HQ address cascades ==========
+  // HQ cascades
   hqStates: string[] = [];
   hqCities: string[] = [];
+  hqCityIsOthers = false;
 
-  // ========== Per-location cascades ==========
+  // Per-location cascades
   locationStates: string[][] = [];
   locationCities: string[][] = [];
+  locationCityIsOthers: boolean[] = [];
 
-  // ========== Per-user cascades (Step 4 residential) ==========
+  // Per-user cascades
   userCities: string[][] = [];
+  userCityIsOthers: boolean[] = [];
 
   companyTypes = ['Manufacturing', 'Trading', 'Services', 'Distribution', 'Retail', 'Others'];
   locationTypes = ['Branch', 'Regional', 'Warehouse', 'Service Center', 'Others'];
+
+  email: string = '';
+  companyName: string = '';
+  fullName: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -1039,16 +1078,11 @@ export class CreateBComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  email: string = '';
-  companyName: string = '';
-  fullName: string = '';
-
   ngOnInit(): void {
     this.checkOrgAdminMode();
     this.loadUserHeaderInfo();
     this.initializeForm();
     this.checkEditMode();
-    // Load HQ states + cities for default country India
     this.hqStates = getStatesForCountry('India');
   }
 
@@ -1068,11 +1102,13 @@ export class CreateBComponent implements OnInit {
   }
 
   private initializeForm(): void {
+    // ✅ FIX: companyName has NO validators — it is hidden from the buyer creation form.
+    // It is auto-populated from orgAdminCompanyName in onSubmit() before sending to backend.
+    // The backend also has a safety-net fallback in BuyerService.java.
     this.buyerForm = this.fb.group({
-      companyName: ['', [Validators.required, Validators.minLength(2)]],
+      companyName: [''],   // ← NO Validators.required — field is hidden, set programmatically
       companyType: ['', Validators.required],
       otherCompanyType: [''],
-      logo: [null],
       contactPersonName: ['', [Validators.required, Validators.minLength(2)]],
       contactPersonDesignation: ['', Validators.required],
       contactPersonEmail: ['', [Validators.required, Validators.email]],
@@ -1080,11 +1116,12 @@ export class CreateBComponent implements OnInit {
       addressLine1: ['', [Validators.required, Validators.minLength(5)]],
       addressLine2: [''],
       city: ['', Validators.required],
+      otherCity: [''],
       state: ['', Validators.required],
       postalCode: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\s\-]{3,10}$/)]],
       country: ['India', Validators.required],
-     gstNumber: ['', Validators.required],
-panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/)]],
+      gstNumber: [''],
+      panNumber: [''],
       cinNumber: [''],
       website: [''],
       locations: this.fb.array([], Validators.minLength(1)),
@@ -1097,12 +1134,18 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     }
   }
 
-  // ===================== HQ COUNTRY → STATE → CITY → POSTAL =====================
+  // ======================================================================
+  // HQ: COUNTRY → STATE → CITY (+ Others) → POSTAL
+  // ======================================================================
 
   onHQCountryChange(event: any): void {
     const country = event.target.value;
     this.hqStates = getStatesForCountry(country);
     this.hqCities = [];
+    this.hqCityIsOthers = false;
+    this.buyerForm.get('otherCity')?.clearValidators();
+    this.buyerForm.get('otherCity')?.setValue('');
+    this.buyerForm.get('otherCity')?.updateValueAndValidity();
     this.buyerForm.patchValue({ state: '', city: '', postalCode: '' });
   }
 
@@ -1110,26 +1153,45 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     const country = this.buyerForm.get('country')?.value;
     const state = event.target.value;
     this.hqCities = getCityNamesForState(country, state);
+    this.hqCityIsOthers = false;
+    this.buyerForm.get('otherCity')?.clearValidators();
+    this.buyerForm.get('otherCity')?.setValue('');
+    this.buyerForm.get('otherCity')?.updateValueAndValidity();
     this.buyerForm.patchValue({ city: '', postalCode: '' });
   }
 
   onHQCityChange(event: any): void {
-    const country = this.buyerForm.get('country')?.value;
-    const state = this.buyerForm.get('state')?.value;
-    const city = event.target.value;
-    const postal = getPostalCodeForCity(country, state, city);
-    if (postal) {
-      this.buyerForm.patchValue({ postalCode: postal });
+    const selected = event.target.value;
+    if (selected === '__others__') {
+      this.hqCityIsOthers = true;
+      this.buyerForm.patchValue({ city: '__others__', otherCity: '', postalCode: '' });
+      this.buyerForm.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+      this.buyerForm.get('otherCity')?.updateValueAndValidity();
+    } else {
+      this.hqCityIsOthers = false;
+      this.buyerForm.get('otherCity')?.clearValidators();
+      this.buyerForm.get('otherCity')?.setValue('');
+      this.buyerForm.get('otherCity')?.updateValueAndValidity();
+      const country = this.buyerForm.get('country')?.value;
+      const state = this.buyerForm.get('state')?.value;
+      const postal = getPostalCodeForCity(country, state, selected);
+      this.buyerForm.patchValue({ city: selected, postalCode: postal || '' });
     }
   }
 
-  // ===================== LOCATION COUNTRY → STATE → CITY → POSTAL =====================
+  // ======================================================================
+  // LOCATION: COUNTRY → STATE → CITY (+ Others) → POSTAL
+  // ======================================================================
 
   onLocationCountryChange(event: any, idx: number): void {
     const country = event.target.value;
     this.locationStates[idx] = getStatesForCountry(country);
     this.locationCities[idx] = [];
+    this.locationCityIsOthers[idx] = false;
     const loc = this.locations.at(idx);
+    loc.get('otherCity')?.clearValidators();
+    loc.get('otherCity')?.setValue('');
+    loc.get('otherCity')?.updateValueAndValidity();
     loc.patchValue({ state: '', city: '', postalCode: '' });
   }
 
@@ -1137,62 +1199,85 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     const country = this.locations.at(idx).get('country')?.value;
     const state = event.target.value;
     this.locationCities[idx] = getCityNamesForState(country, state);
-    this.locations.at(idx).patchValue({ city: '', postalCode: '' });
+    this.locationCityIsOthers[idx] = false;
+    const loc = this.locations.at(idx);
+    loc.get('otherCity')?.clearValidators();
+    loc.get('otherCity')?.setValue('');
+    loc.get('otherCity')?.updateValueAndValidity();
+    loc.patchValue({ city: '', postalCode: '' });
   }
 
   onLocationCityChange(event: any, idx: number): void {
+    const selected = event.target.value;
     const loc = this.locations.at(idx);
-    const country = loc.get('country')?.value;
-    const state = loc.get('state')?.value;
-    const city = event.target.value;
-    const postal = getPostalCodeForCity(country, state, city);
-    if (postal) {
-      loc.patchValue({ postalCode: postal });
+    if (selected === '__others__') {
+      this.locationCityIsOthers[idx] = true;
+      loc.patchValue({ city: '__others__', otherCity: '', postalCode: '' });
+      loc.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+      loc.get('otherCity')?.updateValueAndValidity();
+    } else {
+      this.locationCityIsOthers[idx] = false;
+      loc.get('otherCity')?.clearValidators();
+      loc.get('otherCity')?.setValue('');
+      loc.get('otherCity')?.updateValueAndValidity();
+      const country = loc.get('country')?.value;
+      const state = loc.get('state')?.value;
+      const postal = getPostalCodeForCity(country, state, selected);
+      loc.patchValue({ city: selected, postalCode: postal || '' });
     }
   }
 
-  getStatesForLocation(idx: number): string[] {
-    return this.locationStates[idx] || [];
-  }
+  getStatesForLocation(idx: number): string[] { return this.locationStates[idx] || []; }
+  getCitiesForLocation(idx: number): string[] { return this.locationCities[idx] || []; }
+  isLocationCityOthers(idx: number): boolean { return this.locationCityIsOthers[idx] || false; }
 
-  getCitiesForLocation(idx: number): string[] {
-    return this.locationCities[idx] || [];
-  }
-
-  // ===================== USER RESIDENTIAL COUNTRY → CITY → POSTAL =====================
+  // ======================================================================
+  // USER: STATE → CITY (+ Others) → POSTAL
+  // ======================================================================
 
   onUserStateChange(event: any, userIdx: number): void {
-    // User address has a free-text country field, but we can derive cities
-    // from the country field if it's set
     const userGroup = this.users.at(userIdx);
-    const country = userGroup.get('country')?.value || '';
+    const country = userGroup.get('country')?.value || 'India';
     const state = event.target.value;
     this.userCities[userIdx] = getCityNamesForState(country, state);
+    this.userCityIsOthers[userIdx] = false;
+    userGroup.get('otherCity')?.clearValidators();
+    userGroup.get('otherCity')?.setValue('');
+    userGroup.get('otherCity')?.updateValueAndValidity();
     userGroup.patchValue({ city: '', postalCode: '' });
   }
 
   onUserCityChange(event: any, userIdx: number): void {
+    const selected = event.target.value;
     const userGroup = this.users.at(userIdx);
-    const country = userGroup.get('country')?.value || '';
-    const state = userGroup.get('state')?.value || '';
-    const city = event.target.value;
-    const postal = getPostalCodeForCity(country, state, city);
-    if (postal) {
-      userGroup.patchValue({ postalCode: postal });
+    if (selected === '__others__') {
+      this.userCityIsOthers[userIdx] = true;
+      userGroup.patchValue({ city: '__others__', otherCity: '', postalCode: '' });
+      userGroup.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+      userGroup.get('otherCity')?.updateValueAndValidity();
+    } else {
+      this.userCityIsOthers[userIdx] = false;
+      userGroup.get('otherCity')?.clearValidators();
+      userGroup.get('otherCity')?.setValue('');
+      userGroup.get('otherCity')?.updateValueAndValidity();
+      const country = userGroup.get('country')?.value || 'India';
+      const state = userGroup.get('state')?.value || '';
+      const postal = getPostalCodeForCity(country, state, selected);
+      userGroup.patchValue({ city: selected, postalCode: postal || '' });
     }
   }
 
-  getUserCities(userIdx: number): string[] {
-    return this.userCities[userIdx] || [];
-  }
+  getUserCities(userIdx: number): string[] { return this.userCities[userIdx] || []; }
+  isUserCityOthers(userIdx: number): boolean { return this.userCityIsOthers[userIdx] || false; }
 
-  /** Used in the HTML template for user residential state dropdown */
   getStatesForCountryDynamic(countryName: string): string[] {
     if (!countryName?.trim()) return [];
     return getStatesForCountry(countryName);
   }
 
-  // ===================== CURRENCY =====================
+  // ======================================================================
+  // CURRENCY
+  // ======================================================================
 
   getCurrencySymbolForCode(code: string): string {
     const found = this.worldCurrencies.find(c => c.code === code);
@@ -1204,35 +1289,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     (this.locations.at(locationIndex) as FormGroup).patchValue({ currencySymbol: symbol });
   }
 
-  // ===================== LOGO =====================
-
-  onLogoSelected(event: any): void {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (!this.allowedLogoTypes.includes(file.type)) {
-      this.messageService.showMessage('error', 'Invalid File Type',
-        'Please select a valid image file (JPG, PNG, GIF, SVG)');
-      event.target.value = '';
-      return;
-    }
-    if (file.size > this.maxLogoSize) {
-      this.messageService.showMessage('error', 'File Too Large', 'Logo must be smaller than 5MB');
-      event.target.value = '';
-      return;
-    }
-    this.selectedLogoFile = file;
-    const reader = new FileReader();
-    reader.onload = (e: any) => { this.logoPreview = e.target.result; };
-    reader.readAsDataURL(file);
-  }
-
-  removeLogo(): void {
-    this.selectedLogoFile = null;
-    this.logoPreview = null;
-    this.buyerForm.patchValue({ logo: null });
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-  }
+  // ======================================================================
+  // EDIT MODE — CHECK ROUTE PARAM
+  // ======================================================================
 
   private checkEditMode(): void {
     this.route.paramMap.subscribe(params => {
@@ -1253,7 +1312,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
   get departments(): FormArray { return this.buyerForm.get('departments') as FormArray; }
   get users(): FormArray { return this.buyerForm.get('users') as FormArray; }
 
-  // ===================== LOCATION METHODS =====================
+  // ======================================================================
+  // LOCATION FORM ARRAY
+  // ======================================================================
 
   addLocation(): void {
     const locationGroup = this.fb.group({
@@ -1267,6 +1328,7 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
       addressLine1: ['', [Validators.required, Validators.minLength(5)]],
       addressLine2: [''],
       city: ['', Validators.required],
+      otherCity: [''],
       state: ['', Validators.required],
       postalCode: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\s\-]{3,10}$/)]],
       country: ['India', Validators.required],
@@ -1280,6 +1342,7 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     this.locations.push(locationGroup);
     this.locationStates[newIndex] = getStatesForCountry('India');
     this.locationCities[newIndex] = [];
+    this.locationCityIsOthers[newIndex] = false;
   }
 
   removeLocation(index: number): void {
@@ -1287,6 +1350,7 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
       this.locations.removeAt(index);
       this.locationStates.splice(index, 1);
       this.locationCities.splice(index, 1);
+      this.locationCityIsOthers.splice(index, 1);
     } else {
       this.messageService.showMessage('warning', 'Warning', 'At least one location is required');
     }
@@ -1305,7 +1369,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     customTypeControl?.updateValueAndValidity();
   }
 
-  // ===================== DEPARTMENT METHODS =====================
+  // ======================================================================
+  // DEPARTMENT FORM ARRAY
+  // ======================================================================
 
   addDepartment(): void {
     const departmentGroup = this.fb.group({
@@ -1335,12 +1401,14 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     return '';
   }
 
-  // ===================== USER METHODS =====================
+  // ======================================================================
+  // USER FORM ARRAY
+  // ======================================================================
 
-  addUser(userData?: Partial<User>): void {
+  addUser(userData?: any): void {
     const userGroup = this.fb.group({
       id: [userData?.id || null],
-      departmentIndex: [userData ? (userData as any).departmentIndex : '', Validators.required],
+      departmentIndex: [userData?.departmentIndex ?? '', Validators.required],
       firstName: [userData?.firstName || '', [Validators.required, Validators.minLength(2)]],
       lastName: [userData?.lastName || '', [Validators.required, Validators.minLength(1)]],
       email: [userData?.email || '', [Validators.required, Validators.email]],
@@ -1351,9 +1419,10 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
       dateOfBirth: [userData?.dateOfBirth || ''],
       addressLine1: [userData?.addressLine1 || ''],
       addressLine2: [userData?.addressLine2 || ''],
-      country: ['India'],   // ✅ country field for user residential address
+      country: [userData?.country || 'India'],
       state: [userData?.state || ''],
       city: [userData?.city || ''],
+      otherCity: [''],
       postalCode: [userData?.postalCode || ''],
       password: [userData?.password || '', [Validators.required, Validators.minLength(6)]]
     });
@@ -1361,12 +1430,14 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     const newIndex = this.users.length;
     this.users.push(userGroup);
     this.userCities[newIndex] = [];
+    this.userCityIsOthers[newIndex] = false;
   }
 
   removeUser(userIndex: number): void {
     if (this.users.length > 1) {
       this.users.removeAt(userIndex);
       this.userCities.splice(userIndex, 1);
+      this.userCityIsOthers.splice(userIndex, 1);
     } else {
       this.messageService.showMessage('warning', 'Warning', 'At least one user is required');
     }
@@ -1384,7 +1455,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     customTypeControl?.updateValueAndValidity();
   }
 
-  // ===================== LOAD BUYER DATA (EDIT MODE) =====================
+  // ======================================================================
+  // EDIT MODE — LOAD BUYER DATA
+  // ======================================================================
 
   private loadBuyerData(id: number): void {
     this.buyerService.getBuyerById(id).subscribe({
@@ -1414,36 +1487,38 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
           website: buyer.website
         });
 
-        // ✅ Reload HQ state/city cascades for buyer's country & state
-        if (buyer.country) {
-          this.hqStates = getStatesForCountry(buyer.country);
-        }
+        if (buyer.country) this.hqStates = getStatesForCountry(buyer.country);
         if (buyer.country && buyer.state) {
           this.hqCities = getCityNamesForState(buyer.country, buyer.state);
         }
-        // Set city after cascades are loaded
-        this.buyerForm.patchValue({ city: buyer.city });
+
+        const knownCities = this.hqCities;
+        if (buyer.city && knownCities.length > 0 && !knownCities.includes(buyer.city)) {
+          this.hqCityIsOthers = true;
+          this.buyerForm.patchValue({ city: '__others__', otherCity: buyer.city });
+          this.buyerForm.get('otherCity')?.setValidators([Validators.required, Validators.minLength(2)]);
+          this.buyerForm.get('otherCity')?.updateValueAndValidity();
+        } else {
+          this.hqCityIsOthers = false;
+          this.buyerForm.patchValue({ city: buyer.city });
+        }
 
         this.onCompanyTypeChange({ target: { value: companyTypeForForm } });
-
-        if (buyer.id) {
-          this.buyerService.getBuyerLogoBase64(buyer.id).subscribe({
-            next: (logoData: any) => { if (logoData) this.logoPreview = logoData; },
-            error: () => {}
-          });
-        }
 
         while (this.locations.length) this.locations.removeAt(0);
         while (this.departments.length) this.departments.removeAt(0);
         while (this.users.length) this.users.removeAt(0);
         this.locationStates = [];
         this.locationCities = [];
+        this.locationCityIsOthers = [];
+        this.userCities = [];
+        this.userCityIsOthers = [];
 
         if (buyer.locations && Array.isArray(buyer.locations)) {
           this.populateLocations(buyer.locations);
         }
       },
-      error: (err: any) => {
+      error: () => {
         this.messageService.showMessage('error', 'Error', 'Failed to load buyer data');
         setTimeout(() => this.router.navigate(['/dashboard']), 2000);
       }
@@ -1461,12 +1536,20 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
         otherLocationType = loc.locationType;
       }
 
-      // ✅ Reload state/city cascades for this location
-      if (loc.country) {
-        this.locationStates[locIndex] = getStatesForCountry(loc.country);
-      }
+      if (loc.country) this.locationStates[locIndex] = getStatesForCountry(loc.country);
       if (loc.country && loc.state) {
         this.locationCities[locIndex] = getCityNamesForState(loc.country, loc.state);
+      }
+
+      const knownCities = this.locationCities[locIndex] || [];
+      let cityValue = loc.city;
+      let otherCityValue = '';
+      if (loc.city && knownCities.length > 0 && !knownCities.includes(loc.city)) {
+        this.locationCityIsOthers[locIndex] = true;
+        cityValue = '__others__';
+        otherCityValue = loc.city;
+      } else {
+        this.locationCityIsOthers[locIndex] = false;
       }
 
       this.locations.at(locIndex).patchValue({
@@ -1479,7 +1562,8 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
         locationContactPhone: loc.locationContactPhone,
         addressLine1: loc.addressLine1,
         addressLine2: loc.addressLine2,
-        city: loc.city,
+        city: cityValue,
+        otherCity: otherCityValue,
         state: loc.state,
         postalCode: loc.postalCode,
         country: loc.country,
@@ -1488,6 +1572,12 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
         currencyCode: loc.currencyCode || 'INR',
         currencySymbol: loc.currencySymbol || '₹'
       });
+
+      if (this.locationCityIsOthers[locIndex]) {
+        this.locations.at(locIndex).get('otherCity')
+          ?.setValidators([Validators.required, Validators.minLength(2)]);
+        this.locations.at(locIndex).get('otherCity')?.updateValueAndValidity();
+      }
 
       this.onLocationTypeChange({ target: { value: locationTypeForForm } }, locIndex);
 
@@ -1501,30 +1591,34 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
             departmentName: dept.departmentName,
             departmentDescription: dept.departmentDescription
           });
+
           if (dept.users && dept.users.length > 0) {
             dept.users.forEach((user: any) => {
               const userIdx = this.users.length;
               this.addUser({
                 id: user.id,
                 departmentIndex: deptIndex,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                phone: user.phone,
-                designation: user.designation,
-                employeeId: user.employeeId,
-                gender: user.gender,
-                dateOfBirth: user.dateOfBirth,
-                addressLine1: user.addressLine1,
-                addressLine2: user.addressLine2,
-                city: user.city,
-                state: user.state,
-                postalCode: user.postalCode,
-                password: ''
+                firstName: user.firstName, lastName: user.lastName,
+                email: user.email, phone: user.phone,
+                designation: user.designation, employeeId: user.employeeId,
+                gender: user.gender, dateOfBirth: user.dateOfBirth,
+                addressLine1: user.addressLine1, addressLine2: user.addressLine2,
+                country: user.country || 'India',
+                state: user.state, city: user.city,
+                postalCode: user.postalCode, password: ''
               });
-              // Restore user city cascade if state is set
+
               if (user.state) {
-                this.userCities[userIdx] = getCityNamesForState('India', user.state);
+                const uCountry = user.country || 'India';
+                this.userCities[userIdx] = getCityNamesForState(uCountry, user.state);
+                const knownUserCities = this.userCities[userIdx];
+                if (user.city && knownUserCities.length > 0 && !knownUserCities.includes(user.city)) {
+                  this.userCityIsOthers[userIdx] = true;
+                  this.users.at(userIdx).patchValue({ city: '__others__', otherCity: user.city });
+                  this.users.at(userIdx).get('otherCity')
+                    ?.setValidators([Validators.required, Validators.minLength(2)]);
+                  this.users.at(userIdx).get('otherCity')?.updateValueAndValidity();
+                }
               }
             });
           }
@@ -1533,7 +1627,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     });
   }
 
-  // ===================== STEP VALIDATION =====================
+  // ======================================================================
+  // STEP VALIDATION
+  // ======================================================================
 
   private isCurrentStepValid(): boolean {
     switch (this.currentStep) {
@@ -1546,26 +1642,44 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
   }
 
   private isBuyerDetailsValid(): boolean {
-    const fields = ['companyName', 'companyType', 'contactPersonName', 'contactPersonDesignation',
-  'contactPersonEmail', 'contactPersonPhone', 'addressLine1', 'city', 'state',
-  'postalCode', 'country', 'gstNumber', 'panNumber'];
-  
-    const standardFieldsValid = fields.every(field => this.buyerForm.get(field)?.valid);
-    const otherFieldValid: boolean = this.buyerForm.get('companyType')?.value === 'Others'
+    // ✅ FIX: 'companyName' is intentionally NOT in this list.
+    // It is a hidden field auto-set from the OrgAdmin at submit time.
+    // Including it would permanently block Step 1 since the user never fills it.
+    const fields = [
+      'companyType', 'contactPersonName', 'contactPersonDesignation',
+      'contactPersonEmail', 'contactPersonPhone', 'addressLine1', 'city', 'state',
+      'postalCode', 'country'
+    ];
+
+    const standardValid = fields.every(f => {
+      const control = this.buyerForm.get(f);
+      if (!control?.valid) {
+        console.warn(`[Step1 Validation] Failed field: "${f}"`, control?.errors, '| Value:', control?.value);
+      }
+      return control?.valid;
+    });
+
+    const otherCompanyValid: boolean = this.buyerForm.get('companyType')?.value === 'Others'
       ? (this.buyerForm.get('otherCompanyType')?.valid ?? false) : true;
-    return standardFieldsValid && otherFieldValid;
+
+    const otherCityValid: boolean = this.hqCityIsOthers
+      ? (this.buyerForm.get('otherCity')?.valid ?? false) : true;
+
+    return standardValid && otherCompanyValid && otherCityValid;
   }
 
   private locationsBasicsValid(): boolean {
     return this.locations.length > 0 &&
-      this.locations.controls.every(loc => {
+      this.locations.controls.every((loc, idx) => {
         const fields = ['locationName', 'locationType', 'locationContactName',
           'locationContactEmail', 'locationContactPhone', 'addressLine1',
           'city', 'state', 'postalCode', 'country', 'currencyCode'];
-        const standardFieldsValid = fields.every(field => loc.get(field)?.valid);
-        const otherFieldValid: boolean = loc.get('locationType')?.value === 'Others'
+        const standardValid = fields.every(f => loc.get(f)?.valid);
+        const otherTypeValid: boolean = loc.get('locationType')?.value === 'Others'
           ? (loc.get('otherLocationType')?.valid ?? false) : true;
-        return standardFieldsValid && otherFieldValid;
+        const otherCityValid: boolean = this.locationCityIsOthers[idx]
+          ? (loc.get('otherCity')?.valid ?? false) : true;
+        return standardValid && otherTypeValid && otherCityValid;
       });
   }
 
@@ -1577,18 +1691,12 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
 
   private usersValid(): boolean {
     return this.users.length > 0 && this.users.controls.every(user =>
-      user.get('firstName')?.valid &&
-      user.get('lastName')?.valid &&
-      user.get('email')?.valid &&
-      user.get('phone')?.valid &&
-      user.get('designation')?.valid &&
-      user.get('employeeId')?.valid &&
-      user.get('departmentIndex')?.valid &&
-      user.get('password')?.valid
+      user.get('firstName')?.valid && user.get('lastName')?.valid &&
+      user.get('email')?.valid && user.get('phone')?.valid &&
+      user.get('designation')?.valid && user.get('employeeId')?.valid &&
+      user.get('departmentIndex')?.valid && user.get('password')?.valid
     );
   }
-
-  // ===================== STEP NAVIGATION =====================
 
   saveStep(): void {
     if (!this.isCurrentStepValid()) {
@@ -1603,21 +1711,45 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
   prevStep(): void { if (this.currentStep > 1) this.currentStep--; }
   nextStep(): void { if (this.currentStep < this.maxStep) this.currentStep++; }
 
-  // ===================== SUBMIT =====================
+  // ======================================================================
+  // SUBMIT
+  // ======================================================================
 
   async onSubmit(): Promise<void> {
-    if (this.buyerForm.invalid) {
-      this.buyerForm.markAllAsTouched();
-      this.messageService.showMessage('error', 'Validation Error', 'Please fill all required fields');
-      return;
-    }
+
     if (this.isOrgAdminMode && !this.orgAdminId) {
       this.messageService.showMessage('error', 'Error', 'Organization Admin ID not found. Please login again.');
       return;
     }
 
+    // ✅ KEY FIX: Set companyName from OrgAdmin BEFORE the form validity check.
+    // The companyName field is hidden in the form so the user never types in it.
+    // We inject the OrgAdmin's company name here so the backend receives a valid value.
+    if (this.isOrgAdminMode && this.orgAdminCompanyName) {
+      this.buyerForm.get('companyName')?.setValue(this.orgAdminCompanyName);
+      console.log('✅ companyName auto-set from OrgAdmin:', this.orgAdminCompanyName);
+    }
+
+    if (this.buyerForm.invalid) {
+      this.buyerForm.markAllAsTouched();
+      this.messageService.showMessage('error', 'Validation Error', 'Please fill all required fields');
+      return;
+    }
+
     this.isSubmitting = true;
     const formValue = this.buyerForm.getRawValue();
+
+    // ✅ SAFETY NET: If companyName is still empty for any reason, use orgAdminCompanyName
+    if (!formValue.companyName || !formValue.companyName.trim()) {
+      formValue.companyName = this.orgAdminCompanyName || 'Unknown Company';
+      console.warn('⚠️ companyName was still empty after setValue — applied fallback:', formValue.companyName);
+    }
+
+    // Resolve HQ Others city
+    if (formValue.city === '__others__' && formValue.otherCity) {
+      formValue.city = formValue.otherCity;
+    }
+    delete formValue.otherCity;
 
     if (formValue.companyType === 'Others' && formValue.otherCompanyType) {
       formValue.companyType = formValue.otherCompanyType;
@@ -1627,9 +1759,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
     const processedLocations: any[] = [];
     if (formValue.locations && Array.isArray(formValue.locations)) {
       formValue.locations.forEach((loc: any) => {
-        if (loc.locationType === 'Others' && loc.otherLocationType) {
-          loc.locationType = loc.otherLocationType;
-        }
+        if (loc.city === '__others__' && loc.otherCity) loc.city = loc.otherCity;
+        delete loc.otherCity;
+        if (loc.locationType === 'Others' && loc.otherLocationType) loc.locationType = loc.otherLocationType;
         delete loc.otherLocationType;
         loc.departments = [];
         processedLocations.push(loc);
@@ -1649,18 +1781,21 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
 
     if (formValue.users && Array.isArray(formValue.users)) {
       formValue.users.forEach((user: any) => {
+        if (user.city === '__others__' && user.otherCity) user.city = user.otherCity;
+        delete user.otherCity;
+
         const deptIdx = parseInt(user.departmentIndex, 10);
         let targetDepartment: any = null;
-        let globalDeptCounter = 0;
+        let counter = 0;
         for (let location of processedLocations) {
           for (let dept of location.departments) {
-            if (globalDeptCounter === deptIdx) { targetDepartment = dept; break; }
-            globalDeptCounter++;
+            if (counter === deptIdx) { targetDepartment = dept; break; }
+            counter++;
           }
           if (targetDepartment) break;
         }
         if (targetDepartment) {
-          const { departmentIndex: _, country: _country, ...userData } = user;
+          const { departmentIndex: _, country: _c, ...userData } = user;
           if (this.mode === 'edit' && (!userData.password || !userData.password.trim())) {
             delete userData.password;
           }
@@ -1669,27 +1804,22 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
       });
     }
 
+    // Build final payload — no logo fields
     const payload: any = { ...formValue, locations: processedLocations };
     delete payload.departments;
     delete payload.users;
-    delete payload.logo;
 
-    if (this.selectedLogoFile) {
-      try {
-        const logoBase64 = await this.buyerService.convertFileToBase64(this.selectedLogoFile);
-        payload.logoBase64 = logoBase64;
-        payload.logoFilename = this.selectedLogoFile.name;
-        payload.logoContentType = this.selectedLogoFile.type;
-      } catch (error) {
-        this.messageService.showMessage('error', 'Error', 'Failed to process logo');
-        this.isSubmitting = false;
-        return;
-      }
-    }
-
+    // ✅ Always set organizationCompanyName from OrgAdmin
     if (this.isOrgAdminMode) {
       payload.organizationCompanyName = this.orgAdminCompanyName;
     }
+
+    console.log('========================================');
+    console.log('📦 FINAL SUBMIT PAYLOAD');
+    console.log('companyName:', payload.companyName);
+    console.log('organizationCompanyName:', payload.organizationCompanyName);
+    console.log('locationsCount:', processedLocations.length);
+    console.log('========================================');
 
     if (this.mode === 'create') {
       this.buyerService.createCompleteHierarchy(
@@ -1698,7 +1828,9 @@ panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]
       ).subscribe({
         next: () => {
           this.messageService.showMessage('success', 'Success',
-            this.isOrgAdminMode ? 'Buyer created and linked to your organization' : 'Buyer created successfully');
+            this.isOrgAdminMode
+              ? 'Buyer created and linked to your organization. Company logo will be shared automatically.'
+              : 'Buyer created successfully');
           this.isSubmitting = false;
           setTimeout(() => this.router.navigate(['/dashboard']), 1500);
         },

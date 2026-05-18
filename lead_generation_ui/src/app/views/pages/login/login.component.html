@@ -1,21 +1,20 @@
-<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+<!-- <div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
   <c-container breakpoint="md">
     <c-row class="justify-content-center">
       <c-col lg="5" xl="4">
         <c-card-group>
           <c-card class="p-4 shadow-lg border-0" style="border-radius: 12px;">
             <c-card-body>
-              <!-- Company Logo -->
+            
               <div class="text-center mb-4">
                 <img src="assets/images/ITTI-Logo.png" alt="Company Logo" style="height: 60px;" class="mb-2" />
                 <h4 class="mt-3 fw-semibold text-muted">Welcome Back</h4>
                 <p class="small text-muted">Sign in to your account</p>
               </div>
 
-              <!-- Single Unified Login Form -->
               <form [formGroup]="loginForm" (ngSubmit)="unifiedLogin()">
                 
-                <!-- Email Input -->
+               
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
                     <svg cIcon name="cilUser"></svg>
@@ -33,7 +32,7 @@
                   <span *ngIf="loginF['email'].errors['email']">Please enter a valid email address.</span>
                 </div>
 
-                <!-- Password Input -->
+               
                 <c-input-group class="mb-4">
                   <span cInputGroupText>
                     <svg cIcon name="cilLockLocked"></svg>
@@ -50,13 +49,119 @@
                   <span *ngIf="loginF['password'].errors['required']">Password is required.</span>
                 </div>
 
-                <!-- Login Button -->
+               
                 <c-row class="justify-content-center">
                   <c-col xs="12" class="text-center">
                     <button 
                       type="submit" 
                       cButton 
                       class="px-4 w-100 fw-semibold" 
+                      color="primary"
+                      [disabled]="isLoading">
+                      <span *ngIf="!isLoading">Sign In</span>
+                      <span *ngIf="isLoading">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Signing in...
+                      </span>
+                    </button>
+                  </c-col>
+                </c-row>
+
+
+
+               
+                <c-alert color="danger" *ngIf="errorMessage" class="py-2 my-3 small text-center">
+                  {{ errorMessage }}
+                </c-alert>
+
+               
+                <c-alert color="success" *ngIf="successMessage" class="py-2 my-3 small text-center">
+                  {{ successMessage }}
+                </c-alert>
+              </form>
+
+
+                             
+<div class="text-center mt-3 pt-2 border-top">
+  <p class="text-muted small mb-1">Are you a supplier looking to work with us?</p>
+  <a routerLink="/register" class="btn btn-outline-secondary btn-sm px-4">
+    Register as Supplier
+  </a>
+</div>
+
+            </c-card-body>
+
+          
+            <div class="text-center small text-muted pb-2">
+              © 2025 ITTI. All Rights Reserved.
+            </div>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
+</div> -->
+
+
+<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+  <c-container breakpoint="md">
+    <c-row class="justify-content-center">
+      <c-col lg="5" xl="4">
+        <c-card-group>
+          <c-card class="p-4 shadow-lg border-0" style="border-radius: 12px;">
+            <c-card-body>
+              <!-- Company Logo -->
+              <div class="text-center mb-4">
+                <img src="assets/images/ITTI-Logo.png" alt="Company Logo" style="height: 60px;" class="mb-2" />
+                <h4 class="mt-3 fw-semibold text-muted">Welcome Back</h4>
+                <p class="small text-muted">Sign in to your account</p>
+              </div>
+
+              <!-- Single Unified Login Form -->
+              <form [formGroup]="loginForm" (ngSubmit)="unifiedLogin()">
+
+                <!-- Email Input -->
+                <c-input-group class="mb-3">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+                  <input
+                    formControlName="email"
+                    cFormControl
+                    placeholder="Email Address"
+                    type="email"
+                    [class.is-invalid]="submitted && loginF['email'].errors"
+                    (input)="clearError()" />
+                </c-input-group>
+                <div *ngIf="submitted && loginF['email'].errors" class="text-danger mb-2 small">
+                  <span *ngIf="loginF['email'].errors['required']">Email is required.</span>
+                  <span *ngIf="loginF['email'].errors['email']">Please enter a valid email address.</span>
+                </div>
+
+                <!-- Password Input -->
+                <c-input-group class="mb-4">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input
+                    formControlName="password"
+                    cFormControl
+                    type="password"
+                    placeholder="Password"
+                    [class.is-invalid]="submitted && loginF['password'].errors"
+                    (input)="clearError()" />
+                </c-input-group>
+                <div *ngIf="submitted && loginF['password'].errors" class="text-danger mb-3 small">
+                  <span *ngIf="loginF['password'].errors['required']">Password is required.</span>
+                </div>
+
+                <!-- Login Button -->
+                <c-row class="justify-content-center">
+                  <c-col xs="12" class="text-center">
+                    <button
+                      type="submit"
+                      cButton
+                      class="px-4 w-100 fw-semibold"
                       color="primary"
                       [disabled]="isLoading">
                       <span *ngIf="!isLoading">Sign In</span>
@@ -79,11 +184,31 @@
                 </c-alert>
               </form>
 
+              <!-- ✅ FIX: Use [routerLink] (property binding) instead of routerLink attribute -->
+              <!-- This is properly imported via RouterLink in the component -->
+              <div class="text-center mt-3 pt-2 border-top">
+                <p class="text-muted small mb-2">Are you a supplier looking to work with us?</p>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm px-4"
+                  (click)="goToRegister()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="me-1" style="vertical-align: -1px;">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <line x1="19" x2="19" y1="8" y2="14"/>
+                    <line x1="22" x2="16" y1="11" y2="11"/>
+                  </svg>
+                  Register as Supplier
+                </button>
+              </div>
+
             </c-card-body>
 
             <!-- Footer -->
             <div class="text-center small text-muted pb-2">
-              © 2025 ITTI. All Rights Reserved.
+              &copy; 2025 ITTI. All Rights Reserved.
             </div>
           </c-card>
         </c-card-group>

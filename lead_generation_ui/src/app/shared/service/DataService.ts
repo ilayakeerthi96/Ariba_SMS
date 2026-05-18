@@ -13,7 +13,18 @@ export class DataService {
 
     constructor(private http: HttpClient) { }
 
- 
+        private headers(): HttpHeaders {
+        return new HttpHeaders({
+            'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
+            'Content-Type': 'application/json'
+        });
+    }
+
+     private blobHeaders(): HttpHeaders {
+        return new HttpHeaders({
+            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+        });
+    }
 
     // ============================================
     // UTILITY METHODS
@@ -290,11 +301,7 @@ getHoldApprovalCount(userId: number): Observable<any> {
     }
 
     /**
-     * ✅ NEW: Get RFQs Returned for Revision (for buyer)
-     */
-    getReturnedRFQsForBuyer(buyerId: number): Observable<any> {
-      const url = environment.API_URL + `leadcapture/api/rfq/buyer/${buyerId}/returned`;
-      
+     * ✅ NEW: Get RFQs Returned for RevisioapproveRFQWithDates
       console.log('%c[GET RETURNED RFQs]', 'color: #0066cc;', buyerId);
       
       return this.invokeGetAPI(url);
@@ -458,6 +465,29 @@ getHoldApprovalCount(userId: number): Observable<any> {
         return this.invokeGetAPI(url);
     }
 
+
+        // ── SUPERADMIN THEME ────────────────────────────────────────
+    getSuperAdminTheme(id: number): Observable<any> {
+        const url =`http://localhost:9092/leadcapture/api/superadmin/${id}/theme`;
+        return this.invokeGetAPI(url);
+    }
+ 
+    saveSuperAdminTheme(id: number, theme: string): Observable<any> {
+        const url = `http://localhost:9092/leadcapture/api/superadmin/${id}/theme`;
+        return this.invokePutAPI(url, { theme });
+    }
+
+        // ── ORGANIZATION ADMIN THEME ────────────────────────────────
+    getOrgAdminTheme(id: number): Observable<any> {
+        const url = `http://localhost:9092/leadcapture/api/organization-admin/${id}/theme`;
+        return this.invokeGetAPI(url);
+    }
+ 
+    saveOrgAdminTheme(id: number, theme: string): Observable<any> {
+        const url = `http://localhost:9092/leadcapture/api/organization-admin/${id}/theme`;
+        return this.invokePutAPI(url, { theme });
+    }
+
     uploadSuperAdminLogo(id: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('logo', file);
@@ -480,7 +510,8 @@ uploadOrgAdminLogo(id: number, file: File): Observable<any> {
 }
 
 getSuperAdminLogoBase64(id: number): Observable<string | null> {
-    const url = environment.API_URL + `leadcapture/api/superadmin/${id}/logo`;
+    const url =  `http://localhost:9092/leadcapture/api/superadmin/${id}/logo`;
+    //const url = environment.API_URL + `leadcapture/api/superadmin/${id}/logo`;
     return this.invokeGetAPI(url).pipe(
         map((res: any) => res?.data || null),
         catchError(() => of(null))
@@ -563,7 +594,8 @@ updateOrgAdminProfile(id: number, data: any): Observable<any> {
     }
 
     getOrganizationAdminsByCompany(companyName: string): Observable<any> {
-        const url = environment.API_URL + `leadcapture/api/organization-admin/company/${companyName}`;
+        const url = `http://localhost:9092/leadcapture/api/organization-admin/company/${companyName}`;
+       // const url = environment.API_URL + `leadcapture/api/organization-admin/company/${companyName}`;
         return this.invokeGetAPI(url);
     }
 
@@ -591,6 +623,18 @@ updateOrgAdminProfile(id: number, data: any): Observable<any> {
     deleteOrganizationAdmin(id: number): Observable<any> {
         const url = environment.API_URL + `leadcapture/api/organization-admin/${id}`;
         return this.invokeDeleteAPI(url);
+    }
+
+        // ── SUPPLIER THEME ──────────────────────────────────────────
+    // supplierId = response.supplier.id from login (the Supplier company, not SupplierUser)
+    getSupplierTheme(supplierId: number): Observable<any> {
+        const url = environment.API_URL + `leadcapture/api/supplier/${supplierId}/theme`;
+        return this.invokeGetAPI(url);
+    }
+ 
+    saveSupplierTheme(supplierId: number, theme: string): Observable<any> {
+        const url = environment.API_URL + `leadcapture/api/supplier/${supplierId}/theme`;
+        return this.invokePutAPI(url, { theme });
     }
 
 
@@ -2135,5 +2179,422 @@ downloadPdfBlob(blob: Blob, filename: string): void {
       console.log('%c[GET PENDING MATCH RESOLUTIONS]', 'color: #0066cc;');
         return this.invokeGetAPI(`${this.MATCH_URL}/pending`);
     }
+
+    
+       private BASE =   'http://localhost:9092/leadcapture';
+     // private BASE = environment.API_URL + 'leadcapture';
+
+    private getBlobAPI(url: string): Observable<Blob> {
+        return this.http.get(url, {
+            headers: this.blobHeaders(),
+            responseType: 'blob'
+        }).pipe(
+            catchError((error: any) => {
+                console.error('%c[REPORT DOWNLOAD ERROR]', 'color: #cc0000;', url, error);
+                return throwError(() => error);
+            })
+        );
+    }
+ 
+    // ── RFQ Reports ──────────────────────────────────────────────────────────
+ 
+    /** Full RFQ summary as Excel — 4 sheets: Overview, Items, Suppliers, Approval History */
+    getRFQSummaryExcel(rfqId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/excel`);
+       // return this.getBlobAPI(`http://localhost:9092/leadcapture/api/reports/rfq/${rfqId}/excel`);
+    }
+
+// getRFQSummaryExcels(rfqId: number, userId?: number | null): Observable<Blob> {
+//     if (!userId) {
+//         // Normal buyer download — no hierarchy sheet
+//         return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/excel`);
+//     }
+ 
+//     // Hierarchy user download — pass all info as URL params so backend
+//     // can build the "Hierarchy Approval View" sheet without querying User model
+//     const levelOrder  = localStorage.getItem('hierarchyLevelOrder') || '';
+//     const levelName   = encodeURIComponent(localStorage.getItem('hierarchyLevelName') || '');
+//     const viewerName  = encodeURIComponent(localStorage.getItem('fullName') || '');
+//     const viewerEmail = encodeURIComponent(
+//         localStorage.getItem('email') || localStorage.getItem('username') || ''
+//     );
+ 
+//     const params = `?userId=${userId}&levelOrder=${levelOrder}&levelName=${levelName}&viewerName=${viewerName}&viewerEmail=${viewerEmail}`;
+//     return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/excel${params}`);
+// }
+
+getRFQSummaryExcels(rfqId: number, userId?: number | null): Observable<Blob> {
+    if (!userId) {
+        // No hierarchy params → buyer download (12 sheets)
+        return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/excel`);
+    }
+ 
+    // Hierarchy user → pass all info from localStorage as URL params
+    // Backend will generate 4 sheets only with rich Approval History
+    const levelOrder  = localStorage.getItem('hierarchyLevelOrder') || '';
+    const levelName   = encodeURIComponent(localStorage.getItem('hierarchyLevelName') || '');
+    const viewerName  = encodeURIComponent(localStorage.getItem('fullName') || '');
+    const viewerEmail = encodeURIComponent(
+        localStorage.getItem('email') || localStorage.getItem('username') || ''
+    );
+ 
+    const params = `?userId=${userId}&levelOrder=${levelOrder}&levelName=${levelName}&viewerName=${viewerName}&viewerEmail=${viewerEmail}`;
+    return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/excel${params}`);
+}
+ 
+    /** Full RFQ summary as PDF — branded, printable */
+    getRFQSummaryPDF(rfqId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/pdf`);
+        //return this.getBlobAPI(`http://localhost:9092/leadcapture/api/reports/rfq/${rfqId}/pdf`);
+    }
+ 
+    /** All RFQs for a buyer as Excel — with stats header row, auto-filter */
+    getRFQListExcel(buyerId: number, status: string = 'ALL'): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/rfq/list/excel?buyerId=${buyerId}&status=${status}`);
+    }
+ 
+    /** Side-by-side quote comparison as Excel — lowest bid highlighted in green */
+    getQuoteComparisonExcel(rfqId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/quote-comparison/excel`);
+    }
+ 
+    /** Side-by-side quote comparison as PDF */
+    getQuoteComparisonPDF(rfqId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/rfq/${rfqId}/quote-comparison/pdf`);
+    }
+ 
+    // ── PO Reports ───────────────────────────────────────────────────────────
+ 
+    /** PO summary as Excel */
+    getPOSummaryExcel(poId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/po/${poId}/excel`);
+    }
+ 
+    /** PO summary as PDF */
+    getPOSummaryPDF(poId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/po/${poId}/pdf`);
+    }
+ 
+    /** Full PO list for a buyer as Excel */
+    getPOListExcel(buyerId: number, status: string = 'ALL'): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/po/list/excel?buyerId=${buyerId}&status=${status}`);
+    }
+ 
+    // ── Invoice Reports ──────────────────────────────────────────────────────
+ 
+    /** Single invoice as PDF */
+    getInvoicePDF(invoiceId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/invoice/${invoiceId}/pdf`);
+    }
+ 
+    /** Single invoice as Excel */
+    getInvoiceExcel(invoiceId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/invoice/${invoiceId}/excel`);
+    }
+ 
+    /** Full invoice list for a buyer as Excel */
+    getInvoiceListExcel(buyerId: number, status: string = 'ALL'): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/invoice/list/excel?buyerId=${buyerId}&status=${status}`);
+    }
+ 
+    // ── GRN Reports ──────────────────────────────────────────────────────────
+ 
+
+ 
+    // ── QA Reports ───────────────────────────────────────────────────────────
+ 
+    /** QA inspection report as PDF */
+    getQAReportPDF(qaId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/qa/${qaId}/pdf`);
+    }
+ 
+    /** QA inspection report as Excel */
+    getQAReportExcel(qaId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/qa/${qaId}/excel`);
+    }
+ 
+ 
+    // =========================================================================
+    //  ✅ UTILITY: Save blob as browser file download
+    // =========================================================================
+ 
+    /**
+     * Triggers a browser file download from a Blob.
+     *
+     * Usage:
+     *   this.dataService.getRFQSummaryExcel(rfqId).subscribe({
+     *     next: blob => this.dataService.saveBlob(blob, 'RFQ_Summary.xlsx'),
+     *     error: () => alert('Download failed')
+     *   });
+     */
+    saveBlob(blob: Blob, filename: string): void {
+        const url  = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href     = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }
+ 
+    /** Returns today as YYYY-MM-DD — handy for report filenames */
+    todayStr(): string {
+        return new Date().toISOString().slice(0, 10);
+    }
+
+      getSupplierRFQListExcel(supplierId: number, status: string = 'ALL'): Observable<Blob> {
+        const url = `http://localhost:9092/leadcapture/api/reports/supplier/rfq/list/excel?supplierId=${supplierId}&status=${status}`;
+        return this.http.get(url, {
+            headers: this.blobHeaders(),
+            responseType: 'blob'
+        }).pipe(
+            catchError((error: any) => {
+                console.error('%c[SUPPLIER RFQ REPORT ERROR]', 'color: #cc0000;', url, error);
+                return throwError(() => error);
+            })
+        );
+    }
+ 
+    /**
+     * Download all POs for a supplier as Excel
+     * GET /api/reports/supplier/po/list/excel?supplierId=&status=
+     */
+    getSupplierPOListExcel(supplierId: number, status: string = 'ALL'): Observable<Blob> {
+        const url = `http://localhost:9092/leadcapture/api/reports/supplier/po/list/excel?supplierId=${supplierId}&status=${status}`;
+        return this.http.get(url, {
+            headers: this.blobHeaders(),
+            responseType: 'blob'
+        }).pipe(
+            catchError((error: any) => {
+                console.error('%c[SUPPLIER PO REPORT ERROR]', 'color: #cc0000;', url, error);
+                return throwError(() => error);
+            })
+        );
+    }
+ 
+    /**
+     * Download all Invoices for a supplier as Excel
+     * GET /api/reports/supplier/invoice/list/excel?supplierId=&status=
+     */
+    getSupplierInvoiceListExcel(supplierId: number, status: string = 'ALL'): Observable<Blob> {
+        const url = `http://localhost:9092/leadcapture/api/reports/supplier/invoice/list/excel?supplierId=${supplierId}&status=${status}`;
+        return this.http.get(url, {
+            headers: this.blobHeaders(),
+            responseType: 'blob'
+        }).pipe(
+            catchError((error: any) => {
+                console.error('%c[SUPPLIER INVOICE REPORT ERROR]', 'color: #cc0000;', url, error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+        getRFQSummaryExcelForSupplier(rfqId: number): Observable<Blob> {
+        return this.http.get(`http://localhost:9092/leadcapture/api/reports/rfq/${rfqId}/excel/supplier`, {
+            headers: this.blobHeaders(),
+            responseType: 'blob'
+        }).pipe(
+            catchError((error: any) => {
+                console.error('%c[SUPPLIER RFQ REPORT ERROR]', 'color: #cc0000;', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+       getGRNReportExcel(grnId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/grn/${grnId}/excel`);
+    }
+ 
+    /** Single GRN as PDF */
+    getGRNReportPDF(grnId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/grn/${grnId}/pdf`);
+    }
+ 
+    // ── 3-Way Match Reports ───────────────────────────────────────────────────
+ 
+    /** Single 3-Way Match as Excel (2 sheets: Match Summary + Line Results) */
+    getThreeWayMatchExcel(matchId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/three-way-match/${matchId}/excel`);
+    }
+ 
+    /** Single 3-Way Match as PDF */
+    getThreeWayMatchPDF(matchId: number): Observable<Blob> {
+        return this.getBlobAPI(`${this.BASE}/api/reports/three-way-match/${matchId}/pdf`);
+    }
+
+        getPOsByRFQ(rfqId: number): Observable<any> {
+        console.log('%c[GET POs BY RFQ]', 'color: #0066cc;', rfqId);
+        return this.invokeGetAPI(`${this.BASE}/api/purchase-orders/rfq/${rfqId}`);
+    }
+
+// ==================== SUPPLIER APPROVAL APIs ====================
+
+/**
+ * Get pending supplier approvals for a user
+ * GET /api/supplier-approval/pending/user/{userId}
+ */
+getPendingSupplierApprovalsForUser(userId: number): Observable<any> {
+ // const url = environment.API_URL + `leadcapture/api/supplier-approval/pending/user/${userId}`;
+  const url = `http://localhost:9092/leadcapture/api/supplier-approval/pending/user/${userId}`;
+  console.log('%c[GET PENDING SUPPLIER APPROVALS]', 'color: #6a1b9a;', userId);
+  return this.invokeGetAPI(url).pipe(
+    map((response: any) => {
+      if (response?.success === true && Array.isArray(response.data)) {
+        return { success: true, data: response.data };
+      } else if (Array.isArray(response)) {
+        return { success: true, data: response };
+      }
+      return { success: true, data: [] };
+    }),
+    catchError((error: any) => {
+      console.error('%c[PENDING SUPPLIER APPROVALS ERROR]', 'color: #cc0000;', error);
+      return of({ success: true, data: [] });
+    })
+  );
+}
+
+/**
+ * Get pending supplier approval count for a user
+ * GET /api/supplier-approval/pending/user/{userId}/count
+ */
+getPendingSupplierApprovalCount(userId: number): Observable<any> {
+  const url = `http://localhost:9092/leadcapture/api/supplier-approval/pending/user/${userId}/count`;
+  //const url = environment.API_URL + `leadcapture/api/supplier-approval/pending/user/${userId}/count`;
+  return this.invokeGetAPI(url).pipe(
+    map((response: any) => {
+      let count = 0;
+      if (response && typeof response.data === 'number') count = response.data;
+      else if (response && typeof response.count === 'number') count = response.count;
+      else if (typeof response === 'number') count = response;
+      return { success: true, pendingCount: count };
+    }),
+    catchError(() => of({ success: false, pendingCount: 0 }))
+  );
+}
+
+/**
+ * Get hold supplier approvals for a user
+ * GET /api/supplier-approval/hold/user/{userId}
+ */
+getHoldSupplierApprovalsForUser(userId: number): Observable<any> {
+ // const url = environment.API_URL + `leadcapture/api/supplier-approval/hold/user/${userId}`;
+  const url = `http://localhost:9092/leadcapture/api/supplier-approval/hold/user/${userId}`;
+  return this.invokeGetAPI(url).pipe(
+    map((response: any) => {
+      if (response?.success === true && Array.isArray(response.data)) {
+        return { success: true, data: response.data };
+      } else if (Array.isArray(response)) {
+        return { success: true, data: response };
+      }
+      return { success: true, data: [] };
+    }),
+    catchError(() => of({ success: true, data: [] }))
+  );
+}
+
+/**
+ * Get hold supplier approval count for a user
+ * GET /api/supplier-approval/hold/user/{userId}/count
+ */
+getHoldSupplierApprovalCount(userId: number): Observable<any> {
+  const url =`http://localhost:9092/leadcapture/api/supplier-approval/hold/user/${userId}/count`;
+//  const url = environment.API_URL + `leadcapture/api/supplier-approval/hold/user/${userId}/count`;
+  return this.invokeGetAPI(url).pipe(
+    map((response: any) => {
+      let count = 0;
+      if (response && typeof response.data === 'number') count = response.data;
+      else if (response && typeof response.holdCount === 'number') count = response.holdCount;
+      else if (typeof response === 'number') count = response;
+      return { success: true, holdCount: count };
+    }),
+    catchError(() => of({ success: false, holdCount: 0 }))
+  );
+}
+
+/**
+ * Approve supplier at current level
+ * POST /api/supplier-approval/approve
+ */
+approveSupplier(supplierId: number, approverId: number, comments: string): Observable<any> {
+  const url = 'http://localhost:9092/leadcapture/api/supplier-approval/approve';
+ // const url = environment.API_URL + 'leadcapture/api/supplier-approval/approve';
+  return this.invokePostAPI(url, { supplierId, approverId, comments: comments || 'Approved' });
+}
+
+/**
+ * Reject supplier permanently
+ * POST /api/supplier-approval/reject
+ */
+rejectSupplier(supplierId: number, rejectorId: number, rejectRemarks: string): Observable<any> {
+  const url = 'http://localhost:9092/leadcapture/api/supplier-approval/reject';
+  //const url = environment.API_URL + 'leadcapture/api/supplier-approval/reject';
+  return this.invokePostAPI(url, { supplierId, rejectorId, rejectRemarks });
+}
+
+/**
+ * Hold supplier approval
+ * POST /api/supplier-approval/hold
+ */
+holdSupplier(supplierId: number, holderId: number, holdRemarks: string): Observable<any> {
+  const url = 'http://localhost:9092/leadcapture/api/supplier-approval/hold';
+ // const url = environment.API_URL + 'leadcapture/api/supplier-approval/hold';
+  return this.invokePostAPI(url, { supplierId, holderId, holdRemarks });
+}
+
+/**
+ * Release supplier hold
+ * POST /api/supplier-approval/release-hold
+ */
+releaseSupplierHold(supplierId: number, releaserId: number, releaseRemarks: string): Observable<any> {
+  const url = 'http://localhost:9092/leadcapture/api/supplier-approval/release-hold';
+  //const url = environment.API_URL + 'leadcapture/api/supplier-approval/release-hold';
+  return this.invokePostAPI(url, { supplierId, releaserId, releaseRemarks });
+}
+
+/**
+ * Check if user is last approver for supplier
+ * GET /api/supplier-approval/is-last-approver/{supplierId}/{userId}
+ */
+isLastSupplierApprover(supplierId: number, userId: number): Observable<any> {
+  const url = `http://localhost:9092/leadcapture/api/supplier-approval/is-last-approver/${supplierId}/${userId}`;
+ // const url = environment.API_URL + `leadcapture/api/supplier-approval/is-last-approver/${supplierId}/${userId}`;
+  return this.invokeGetAPI(url);
+}
+
+/**
+ * Initiate supplier approval workflow
+ * POST /api/supplier-approval/initiate
+ */
+initiateSupplierApproval(supplierId: number, companyName: string): Observable<any> {
+  const url = 'http://localhost:9092/leadcapture/api/supplier-approval/initiate';
+ // const url = environment.API_URL + 'leadcapture/api/supplier-approval/initiate';
+  return this.invokePostAPI(url, { supplierId, companyName });
+}
+getSupplierById(supplierId: number): Observable<any> {
+  const url = `http://localhost:9092/leadcapture/api/supplier/${supplierId}`;
+  // const url = environment.API_URL + `leadcapture/api/supplier/${supplierId}`;
+  return this.invokeGetAPI(url).pipe(
+    catchError((error: any) => {
+      console.error('[GET SUPPLIER BY ID ERROR]', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+  requestMoreInfoFromSupplier(
+  supplierId: number,
+  requesterId: number,
+  infoRequest: string
+): Observable<any> {
+
+  const url = 'http://localhost:9092/leadcapture/api/supplier-approval/need-more-info';
+
+  return this.invokePostAPI(url, {
+    supplierId,
+    requesterId,
+    infoRequest
+  });
+}
 
 }

@@ -1,430 +1,8 @@
-<!-- <div class="container-fluid p-4">
-
- 
-  <div class="row mb-4" *ngIf="loggedInBuyer">
-    <div class="col-12">
-      <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
-        <div class="gradient-header">
-          <div class="row align-items-center">
-            <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
-              <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
-                <div class="avatar-circle-large me-3">
-                  {{ getInitials(loggedInBuyer.contactPersonName) }}
-                </div>
-                <div class="text-white">
-                  <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
-                  <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
-                    <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-lg-9">
-              <div class="row g-2">
-                <div class="col-12 col-md-3">
-                  <div class="info-card">
-                    <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Company Name</div>
-                      <div class="info-value">{{ loggedInBuyer.companyName }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-3">
-                  <div class="info-card">
-                    <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Email</div>
-                      <div class="info-value">{{ loggedInBuyer.email }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-3">
-                  <div class="info-card">
-                    <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Phone</div>
-                      <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-3">
-                  <div class="info-card">
-                    <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Location</div>
-                      <div class="info-value">
-                        {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm" style="border-radius:12px;">
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-              <h3 class="mb-0 fw-bold">
-                <i class="bi bi-file-earmark-text me-2 text-primary"></i>RFQ Dashboard
-              </h3>
-              <p class="text-muted mb-0 mt-1">Create and manage RFQs for your organization</p>
-            </div>
-          
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  
-  <div class="row mb-4 g-3" *ngIf="!isLoading">
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('ALL')">
-        <div class="stat-icon-wrap stat-purple">
-          <i class="bi bi-file-earmark-text"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ rfqs.length }}</div>
-          <div class="stat-label">Total RFQs</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('DRAFT')">
-        <div class="stat-icon-wrap stat-orange-pink">
-          <i class="bi bi-pencil-square"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ countRFQByStatus('DRAFT') }}</div>
-          <div class="stat-label">Draft</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('AWAITING_APPROVAL')">
-        <div class="stat-icon-wrap stat-pink">
-          <i class="bi bi-clock-history"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ countRFQByStatus('AWAITING_APPROVAL') }}</div>
-          <div class="stat-label">Awaiting Approval</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('PUBLISHED')">
-        <div class="stat-icon-wrap stat-teal">
-          <i class="bi bi-send-check"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ countRFQByStatus('PUBLISHED') }}</div>
-          <div class="stat-label">Published</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('RETURNED_FOR_REVISION')">
-        <div class="stat-icon-wrap stat-hold">
-          <i class="bi bi-arrow-return-left"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ countRFQByStatus('RETURNED_FOR_REVISION') }}</div>
-          <div class="stat-label">Returned for Revision</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('CLOSED')">
-        <div class="stat-icon-wrap stat-red">
-          <i class="bi bi-x-circle"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ countRFQByStatus('CLOSED') }}</div>
-          <div class="stat-label">Closed</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('HOLD')">
-        <div class="stat-icon-wrap stat-blue">
-          <i class="bi bi-pause-circle"></i>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ countRFQByStatus('HOLD') }}</div>
-          <div class="stat-label">On Hold</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
- 
-  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
-
-    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-table me-2 text-primary"></i>All RFQs
-      </h5>
-      <div class="row g-3 mb-3">
-        <div class="col-lg-4">
-          <input type="text" class="form-control form-control-sm bg-light border-0"
-            placeholder="Search RFQ number, title, or buyer..."
-            [(ngModel)]="searchText" (ngModelChange)="applyFiltersAndPagination()"
-            style="padding: 10px;"/>
-        </div>
-        <div class="col-lg-2">
-          <select class="form-select form-select-sm bg-light border-0"
-            [(ngModel)]="statusFilter" (change)="applyFiltersAndPagination()"
-            style="padding: 10px;">
-            <option value="">All Status</option>
-            <option value="DRAFT">Draft</option>
-            <option value="AWAITING_APPROVAL">Awaiting Approval</option>
-            <option value="RETURNED_FOR_REVISION">Returned for Revision</option>
-            <option value="HOLD">On HOLD</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="RESPONSES_RECEIVED">Responses Received</option>
-            <option value="CLOSED">Closed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
-        </div>
-        <div class="col-lg-2">
-          <select class="form-select form-select-sm bg-light border-0"
-            [(ngModel)]="priorityFilter" (change)="applyFiltersAndPagination()"
-            style="padding: 10px;">
-            <option value="">All Priority</option>
-            <option *ngFor="let priority of priorities" [value]="priority">
-              {{ priority | titlecase }}
-            </option>
-          </select>
-        </div>
-
-<div class="col-lg-4 text-end">
-   <button class="btn btn-primary px-4 py-2 fw-semibold shadow-sm"
-            (click)="router.navigate(['/create-rfq'])">
-            <i class="bi bi-plus-circle-fill me-2"></i>Create RFQ
-          </button>
-</div>
-        
-
-      </div>
-    </div>
-
-    <div class="card-body p-0">
-
-    
-      <div *ngIf="isLoading" class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-        <p class="mt-2 text-muted">Loading RFQs...</p>
-      </div>
-
-      <div class="table-responsive" *ngIf="!isLoading">
-        <table class="table rfq-table mb-0">
-          <thead class="table-header">
-            <tr>
-              <th class="ps-4">RFQ Number</th>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Priority</th>
-              <th class="text-end pe-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let rfq of pagedRFQs">
-              <tr class="rfq-main-row">
-                <td class="ps-4">
-                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewRFQ(rfq)">
-                    {{ rfq.rfqNumber }}
-                  </div>
-                  <small class="text-muted">{{ rfq.createdAt }}</small>
-
-                  <div *ngIf="rfq.status === 'RETURNED_FOR_REVISION' && rfq.returnDetails"
-                       class="alert alert-warning mt-2 mb-0 p-2"
-                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
-                    <div class="d-flex align-items-start">
-                      <i class="bi bi-arrow-return-left me-2" style="font-size:1rem;"></i>
-                      <div>
-                        <strong>Revision needed:</strong> {{ rfq.returnDetails.returnRemarks }}<br>
-                        <span class="text-muted" style="font-size:0.7rem;">
-                          By <strong>{{ rfq.returnDetails.returnedByUserName }}</strong>
-                          ({{ rfq.returnDetails.hierarchyLevelName }})
-                          on {{ formatDateTime(rfq.returnDetails.returnDate) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div *ngIf="rfq.status === 'HOLD' && rfq.holdDetails"
-                       class="alert alert-warning mt-2 mb-0 p-2"
-                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
-                    <div class="d-flex align-items-start">
-                      <i class="bi bi-pause-circle me-2" style="font-size:1rem;"></i>
-                      <div>
-                        <strong>On HOLD:</strong> {{ rfq.holdDetails.holdRemarks }}<br>
-                        <span class="text-muted" style="font-size:0.7rem;">
-                          By <strong>{{ rfq.holdDetails.heldByUserName }}</strong>
-                          ({{ rfq.holdDetails.hierarchyLevelName }})
-                          on {{ formatDateTime(rfq.holdDetails.holdDate) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div *ngIf="rfq.status === 'CLOSED' && rfq.approvalStatus === 'REJECTED' && rfq.rejectDetails"
-                       class="alert alert-danger mt-2 mb-0 p-2"
-                       style="font-size:0.75rem; border-left:4px solid #ef4444;">
-                    <div class="d-flex align-items-start">
-                      <i class="bi bi-x-circle me-2" style="font-size:1rem;"></i>
-                      <div>
-                        <strong>Rejected:</strong> {{ rfq.rejectDetails.rejectRemarks }}<br>
-                        <span class="text-muted" style="font-size:0.7rem;">
-                          By <strong>{{ rfq.rejectDetails.rejectedByUserName }}</strong>
-                          ({{ rfq.rejectDetails.hierarchyLevelName }})
-                          on {{ formatDateTime(rfq.rejectDetails.rejectDate) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-
-                <td>
-                  <span class="text-dark" [title]="rfq.rfqTitle">
-                    {{ rfq.rfqTitle.substring(0,30) }}{{ rfq.rfqTitle.length > 30 ? '...' : '' }}
-                  </span>
-                </td>
-
-                <td>
-                  <span [class]="'badge ' + getStatusClass(rfq.status)">
-                    {{ getStatusLabel(rfq.status) }}
-                  </span>
-                </td>
-
-                <td>
-                  <span [class]="'badge ' + getPriorityClass(rfq.priority)">
-                    {{ rfq.priority | titlecase }}
-                  </span>
-                </td>
-
-                <td class="text-end pe-4">
-                  <button class="btn btn-sm btn-light text-info me-1 shadow-sm"
-                    (click)="viewRFQ(rfq)" title="View Details">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <button *ngIf="canEdit(rfq)"
-                    class="btn btn-sm btn-light text-primary me-1 shadow-sm"
-                    (click)="editRFQ(rfq)" title="Edit RFQ">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button *ngIf="canResubmit(rfq)"
-                    class="btn btn-sm btn-light text-warning me-1 shadow-sm"
-                    (click)="resubmitRFQ(rfq)" title="Resubmit for Approval">
-                    <i class="bi bi-arrow-repeat"></i>
-                  </button>
-                  <button *ngIf="canPublish(rfq)"
-                    class="btn btn-sm btn-light text-success me-1 shadow-sm"
-                    (click)="publishRFQ(rfq)" title="Submit for Approval">
-                    <i class="bi bi-send"></i>
-                  </button>
-                  <button *ngIf="canClose(rfq)"
-                    class="btn btn-sm btn-light text-warning me-1 shadow-sm"
-                    (click)="closeRFQ(rfq)" title="Close RFQ">
-                    <i class="bi bi-lock"></i>
-                  </button>
-                  <button *ngIf="canCompareQuotes(rfq)"
-                    class="btn btn-sm btn-light text-success me-1 shadow-sm"
-                    (click)="compareQuotes(rfq)" title="Compare Supplier Quotes">
-                    <i class="bi bi-clipboard-data"></i>
-                  </button>
-                  <button class="btn btn-sm btn-light text-danger shadow-sm"
-                    (click)="deleteRFQ(rfq)" title="Delete RFQ">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </ng-container>
-
-            <tr *ngIf="pagedRFQs.length === 0">
-              <td colspan="5" class="text-center py-5">
-                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
-                <p class="text-muted mb-0">No RFQs found.</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        
-        <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
-             *ngIf="filteredRFQs.length > 0">
-
-          <div class="d-flex align-items-center gap-3 flex-wrap">
-            <span class="text-muted small">
-              Showing <strong>{{ startIndex }}–{{ endIndex }}</strong>
-              of <strong>{{ filteredRFQs.length }}</strong> RFQs
-            </span>
-            <div class="d-flex align-items-center gap-2">
-              <label class="text-muted small mb-0 text-nowrap">Rows per page:</label>
-              <div class="page-size-group">
-                <button *ngFor="let size of pageSizeOptions"
-                  class="page-size-btn"
-                  [class.active]="pageSize === size"
-                  (click)="onPageSizeChange(size)">{{ size }}</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center gap-1">
-            <button class="page-nav-btn" [disabled]="currentPage === 1"
-              (click)="goToPage(1)" title="First page">
-              <i class="bi bi-chevron-double-left"></i>
-            </button>
-            <button class="page-nav-btn" [disabled]="currentPage === 1"
-              (click)="goToPage(currentPage - 1)" title="Previous page">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            <ng-container *ngFor="let page of pageNumbers">
-              <span *ngIf="page === -1" class="page-ellipsis">…</span>
-              <button *ngIf="page !== -1" class="page-num-btn"
-                [class.active]="currentPage === page"
-                (click)="goToPage(page)">{{ page }}</button>
-            </ng-container>
-            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
-              (click)="goToPage(currentPage + 1)" title="Next page">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
-              (click)="goToPage(totalPages)" title="Last page">
-              <i class="bi bi-chevron-double-right"></i>
-            </button>
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-</div> -->
+<!-- 
 
 
 <div class="container-fluid p-4">
 
-  <!-- BUYER INFORMATION CARD -->
   <div class="row mb-4" *ngIf="loggedInBuyer">
     <div class="col-12">
       <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
@@ -491,7 +69,6 @@
     </div>
   </div>
 
-  <!-- PAGE HEADER -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card border-0 shadow-sm" style="border-radius:12px;">
@@ -509,16 +86,12 @@
     </div>
   </div>
 
-  <!-- DATE FILTER BAR -->
-<!-- ==================== DATE FILTER BAR ==================== -->
 <div class="date-filter-card mb-4">
 
-  <!-- Left accent strip -->
   <div class="date-filter-accent"></div>
 
   <div class="date-filter-inner">
 
-    <!-- Icon + Title -->
     <div class="date-filter-title-wrap">
       <div class="date-filter-icon-wrap">
         <i class="bi bi-calendar3-range"></i>
@@ -529,13 +102,10 @@
       </div>
     </div>
 
-    <!-- Divider -->
     <div class="date-filter-divider"></div>
 
-    <!-- Controls Row -->
     <div class="date-filter-controls">
 
-      <!-- Financial Year Dropdown -->
       <div class="date-filter-field">
         <label class="date-filter-label">
           <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
@@ -554,7 +124,6 @@
         </div>
       </div>
 
-      <!-- Custom From Date -->
       <div class="date-filter-field date-filter-custom-field"
            [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
         <label class="date-filter-label">
@@ -568,7 +137,6 @@
         </div>
       </div>
 
-      <!-- Custom To Date -->
       <div class="date-filter-field date-filter-custom-field"
            [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
         <label class="date-filter-label">
@@ -584,13 +152,10 @@
 
     </div>
 
-    <!-- Divider -->
     <div class="date-filter-divider"></div>
 
-    <!-- Right side: badge + reset -->
     <div class="date-filter-right">
 
-      <!-- Active Range Badge -->
       <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
         <div class="date-filter-badge-icon">
           <i class="bi bi-funnel-fill"></i>
@@ -601,7 +166,6 @@
         </div>
       </div>
 
-      <!-- Reset Button -->
       <button class="date-filter-reset-btn"
         *ngIf="selectedFYOption !== getCurrentFYValue()"
         (click)="resetDateFilter()"
@@ -613,9 +177,7 @@
 
   </div>
 </div>
-<!-- ==================== END DATE FILTER BAR ==================== -->
 
-  <!-- STAT CARDS -->
   <div class="row mb-4 g-3" *ngIf="!isLoading">
 
     <div class="col-12 col-sm-6 col-lg-3">
@@ -704,7 +266,6 @@
 
   </div>
 
-  <!-- RFQ TABLE CARD -->
   <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
 
     <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
@@ -758,7 +319,6 @@
 
     <div class="card-body p-0">
 
-      <!-- Loading -->
       <div *ngIf="isLoading" class="text-center py-5">
         <div class="spinner-border text-primary"></div>
         <p class="mt-2 text-muted">Loading RFQs...</p>
@@ -898,7 +458,6 @@
           </tbody>
         </table>
 
-        <!-- PAGINATION BAR -->
         <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
              *ngIf="filteredRFQs.length > 0">
 
@@ -949,4 +508,1656 @@
     </div>
   </div>
 
+</div> -->
+
+
+<!-- <div class="container-fluid p-4">
+
+
+ 
+  <div class="row mb-4" *ngIf="loggedInBuyer">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+        <div class="gradient-header">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+              <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <div class="avatar-circle-large me-3">
+                  {{ getInitials(loggedInBuyer.contactPersonName) }}
+                </div>
+                <div class="text-white">
+                  <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
+                  <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                    <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-9">
+              <div class="row g-2">
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Company Name</div>
+                      <div class="info-value">{{ loggedInBuyer.companyName }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Email</div>
+                      <div class="info-value">{{ loggedInBuyer.email }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Phone</div>
+                      <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Location</div>
+                      <div class="info-value">
+                        {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+              <h3 class="mb-0 fw-bold">
+                <i class="bi bi-file-earmark-text me-2 text-primary"></i>RFQ Dashboard
+              </h3>
+              <p class="text-muted mb-0 mt-1">Create and manage RFQs for your organization</p>
+            </div>
+
+            
+            <div class="d-flex align-items-center gap-2">
+
+              <button class="btn btn-primary btn-sm px-4 fw-semibold shadow-sm"
+                      (click)="router.navigate(['/create-rfq'])">
+                <i class="bi bi-plus-circle-fill me-2"></i>Create RFQ
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="date-filter-card mb-4">
+    <div class="date-filter-accent"></div>
+    <div class="date-filter-inner">
+
+      <div class="date-filter-title-wrap">
+        <div class="date-filter-icon-wrap"><i class="bi bi-calendar3-range"></i></div>
+        <div>
+          <div class="date-filter-title">Date Range</div>
+          <div class="date-filter-subtitle">Filter RFQs by creation date</div>
+        </div>
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-controls">
+
+        <div class="date-filter-field">
+          <label class="date-filter-label">
+            <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+          </label>
+          <div class="date-filter-select-wrap">
+            <select class="date-filter-select"
+                    [(ngModel)]="selectedFYOption"
+                    (change)="onFYOptionChange()">
+              <option value="ALL">All Time</option>
+              <option *ngFor="let fy of financialYearOptions" [value]="fy.value">
+                {{ fy.label }}
+              </option>
+              <option value="CUSTOM">Custom Range</option>
+            </select>
+            <i class="bi bi-chevron-down date-filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event me-1"></i>From Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input"
+                   [(ngModel)]="customFromDate" (change)="applyFiltersAndPagination()" />
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event-fill me-1"></i>To Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input"
+                   [(ngModel)]="customToDate" (change)="applyFiltersAndPagination()" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-right">
+        <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+          <div class="date-filter-badge-icon"><i class="bi bi-funnel-fill"></i></div>
+          <div>
+            <div class="date-filter-badge-label">Active Filter</div>
+            <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+          </div>
+        </div>
+        <button class="date-filter-reset-btn"
+                *ngIf="selectedFYOption !== getCurrentFYValue()"
+                (click)="resetDateFilter()"
+                title="Reset to current financial year">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row mb-4 g-3" *ngIf="!isLoading">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('ALL')">
+        <div class="stat-icon-wrap stat-purple"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ dateFilteredRFQs.length }}</div>
+          <div class="stat-label">Total RFQs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('DRAFT')">
+        <div class="stat-icon-wrap stat-orange-pink"><i class="bi bi-pencil-square"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('DRAFT') }}</div>
+          <div class="stat-label">Draft</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('AWAITING_APPROVAL')">
+        <div class="stat-icon-wrap stat-pink"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('AWAITING_APPROVAL') }}</div>
+          <div class="stat-label">Awaiting Approval</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('PUBLISHED')">
+        <div class="stat-icon-wrap stat-teal"><i class="bi bi-send-check"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('PUBLISHED') }}</div>
+          <div class="stat-label">Published</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('RETURNED_FOR_REVISION')">
+        <div class="stat-icon-wrap stat-hold"><i class="bi bi-arrow-return-left"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('RETURNED_FOR_REVISION') }}</div>
+          <div class="stat-label">Returned for Revision</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('CLOSED')">
+        <div class="stat-icon-wrap stat-red"><i class="bi bi-x-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('CLOSED') }}</div>
+          <div class="stat-label">Closed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('HOLD')">
+        <div class="stat-icon-wrap stat-blue"><i class="bi bi-pause-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('HOLD') }}</div>
+          <div class="stat-label">On Hold</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+ 
+  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-table me-2 text-primary"></i>All RFQs
+        <span *ngIf="activeDateRangeLabel" class="text-muted fw-normal" style="font-size: 0.85rem;">
+          — {{ activeDateRangeLabel }}
+        </span>
+      </h5>
+
+      <div class="row g-3 mb-3 align-items-end">
+        <div class="col-lg-4">
+          <input type="text" class="form-control form-control-sm bg-light border-0"
+                 placeholder="Search RFQ number, title, or buyer..."
+                 [(ngModel)]="searchText" (ngModelChange)="applyFiltersAndPagination()"
+                 style="padding: 10px;"/>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+                  [(ngModel)]="statusFilter" (change)="applyFiltersAndPagination()"
+                  style="padding: 10px;">
+            <option value="">All Status</option>
+            <option value="DRAFT">Draft</option>
+            <option value="AWAITING_APPROVAL">Awaiting Approval</option>
+            <option value="RETURNED_FOR_REVISION">Returned for Revision</option>
+            <option value="HOLD">On HOLD</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="RESPONSES_RECEIVED">Responses Received</option>
+            <option value="CLOSED">Closed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+                  [(ngModel)]="priorityFilter" (change)="applyFiltersAndPagination()"
+                  style="padding: 10px;">
+            <option value="">All Priority</option>
+            <option *ngFor="let priority of priorities" [value]="priority">
+              {{ priority | titlecase }}
+            </option>
+          </select>
+        </div>
+      
+        <div class="col-lg-4 text-end">
+          <small class="text-muted me-2" *ngIf="!isLoading">
+            {{ filteredRFQs.length }} result{{ filteredRFQs.length !== 1 ? 's' : '' }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+
+     
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading RFQs...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table rfq-table mb-0">
+          <thead class="table-header">
+            <tr>
+              <th class="ps-4">RFQ Number</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let rfq of pagedRFQs">
+              <tr class="rfq-main-row">
+
+             
+                <td class="ps-4">
+                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewRFQ(rfq)">
+                    {{ rfq.rfqNumber }}
+                  </div>
+                  <small class="text-muted">{{ rfq.createdAt }}</small>
+
+                 
+                  <div *ngIf="rfq.status === 'RETURNED_FOR_REVISION' && rfq.returnDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-arrow-return-left me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Revision needed:</strong> {{ rfq.returnDetails.returnRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.returnDetails.returnedByUserName }}</strong>
+                          ({{ rfq.returnDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.returnDetails.returnDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                 
+                  <div *ngIf="rfq.status === 'HOLD' && rfq.holdDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-pause-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>On HOLD:</strong> {{ rfq.holdDetails.holdRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.holdDetails.heldByUserName }}</strong>
+                          ({{ rfq.holdDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.holdDetails.holdDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                
+                  <div *ngIf="rfq.status === 'CLOSED' && rfq.approvalStatus === 'REJECTED' && rfq.rejectDetails"
+                       class="alert alert-danger mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #ef4444;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-x-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Rejected:</strong> {{ rfq.rejectDetails.rejectRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.rejectDetails.rejectedByUserName }}</strong>
+                          ({{ rfq.rejectDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.rejectDetails.rejectDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                
+                <td>
+                  <span class="text-dark" [title]="rfq.rfqTitle">
+                    {{ rfq.rfqTitle.substring(0,35) }}{{ rfq.rfqTitle.length > 35 ? '...' : '' }}
+                  </span>
+                </td>
+
+                
+                <td>
+                  <span [class]="'badge ' + getStatusClass(rfq.status)">
+                    {{ getStatusLabel(rfq.status) }}
+                  </span>
+                </td>
+
+               
+                <td>
+                  <span [class]="'badge ' + getPriorityClass(rfq.priority)">
+                    {{ rfq.priority | titlecase }}
+                  </span>
+                </td>
+
+               
+                <td class="text-end pe-4">
+
+               
+                  <button class="btn btn-sm btn-light text-info me-1 shadow-sm"
+                          (click)="viewRFQ(rfq)" title="View Details">
+                    <i class="bi bi-eye"></i>
+                  </button>
+
+                 
+                  <button *ngIf="canEdit(rfq)"
+                          class="btn btn-sm btn-light text-primary me-1 shadow-sm"
+                          (click)="editRFQ(rfq)" title="Edit RFQ">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+
+                  
+                  <button *ngIf="canResubmit(rfq)"
+                          class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                          (click)="resubmitRFQ(rfq)" title="Resubmit for Approval">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+
+                  
+                  <button *ngIf="canPublish(rfq)"
+                          class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                          (click)="publishRFQ(rfq)" title="Submit for Approval">
+                    <i class="bi bi-send"></i>
+                  </button>
+
+                 
+                  <button *ngIf="canClose(rfq)"
+                          class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                          (click)="closeRFQ(rfq)" title="Close RFQ">
+                    <i class="bi bi-lock"></i>
+                  </button>
+
+                 
+                  <button *ngIf="canCompareQuotes(rfq)"
+                          class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                          (click)="compareQuotes(rfq)" title="Compare Supplier Quotes">
+                    <i class="bi bi-clipboard-data"></i>
+                  </button>
+
+               
+              <button class="btn btn-sm btn-light text-secondary shadow-sm"
+        type="button"
+        title="Download Excel"
+        [disabled]="isRowDownloading(rfq.id)"
+        (click)="downloadRFQExcel(rfq)">
+
+  <span *ngIf="isRowDownloading(rfq.id)"
+        class="spinner-border spinner-border-sm"
+        style="width: 0.75rem; height: 0.75rem;"
+        role="status"></span>
+
+  <i *ngIf="!isRowDownloading(rfq.id)" class="bi bi-download"></i>
+</button>
+                
+                  <button class="btn btn-sm btn-light text-danger shadow-sm"
+                          (click)="deleteRFQ(rfq)" title="Delete RFQ">
+                    <i class="bi bi-trash"></i>
+                  </button>
+
+                </td>
+              </tr>
+            </ng-container>
+
+            <tr *ngIf="pagedRFQs.length === 0">
+              <td colspan="5" class="text-center py-5">
+                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                <p class="text-muted mb-0">No RFQs found.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      
+        <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
+             *ngIf="filteredRFQs.length > 0">
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="text-muted small">
+              Showing <strong>{{ startIndex }}–{{ endIndex }}</strong>
+              of <strong>{{ filteredRFQs.length }}</strong> RFQs
+            </span>
+            <div class="d-flex align-items-center gap-2">
+              <label class="text-muted small mb-0 text-nowrap">Rows per page:</label>
+              <div class="page-size-group">
+                <button *ngFor="let size of pageSizeOptions"
+                        class="page-size-btn"
+                        [class.active]="pageSize === size"
+                        (click)="onPageSizeChange(size)">{{ size }}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-1">
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+                    (click)="goToPage(1)" title="First page">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+                    (click)="goToPage(currentPage - 1)" title="Previous page">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <ng-container *ngFor="let page of pageNumbers">
+              <span *ngIf="page === -1" class="page-ellipsis">…</span>
+              <button *ngIf="page !== -1" class="page-num-btn"
+                      [class.active]="currentPage === page"
+                      (click)="goToPage(page)">{{ page }}</button>
+            </ng-container>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+                    (click)="goToPage(currentPage + 1)" title="Next page">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+                    (click)="goToPage(totalPages)" title="Last page">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </div>
+
+        </div>
+       
+
+      </div>
+    </div>
+  </div>
+
+</div> -->
+
+<div class="container-fluid p-4">
+
+  <!-- ==================== BUYER INFORMATION CARD ==================== -->
+  <div class="row mb-4" *ngIf="loggedInBuyer">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+        <div class="gradient-header">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+              <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+                <div class="avatar-circle-large me-3">
+                  {{ getInitials(loggedInBuyer.contactPersonName) }}
+                </div>
+                <div class="text-white">
+                  <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
+                  <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                    <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-9">
+              <div class="row g-2">
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Company Name</div>
+                      <div class="info-value">{{ loggedInBuyer.companyName }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Email</div>
+                      <div class="info-value">{{ loggedInBuyer.email }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Phone</div>
+                      <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="info-card">
+                    <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div class="info-card-content">
+                      <div class="info-label">Location</div>
+                      <div class="info-value">
+                        {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE HEADER ==================== -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+              <h3 class="mb-0 fw-bold">
+                <i class="bi bi-file-earmark-text me-2 text-primary"></i>RFQ Dashboard
+              </h3>
+              <p class="text-muted mb-0 mt-1">Create and manage RFQs for your organization</p>
+            </div>
+
+            <!-- ── Download RFQ List Report button ── -->
+            <div class="d-flex align-items-center gap-2">
+
+              <!-- Pure Angular dropdown — no Bootstrap JS needed -->
+              <div class="position-relative">
+                <button class="btn btn-outline-success btn-sm fw-semibold"
+                        type="button"
+                        [disabled]="isDownloadingListExcel"
+                        (click)="showListDownloadMenu = !showListDownloadMenu"
+                        title="Download RFQ reports">
+                  <span *ngIf="isDownloadingListExcel" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                  <i *ngIf="!isDownloadingListExcel" class="bi bi-download me-1"></i>
+                  {{ isDownloadingListExcel ? 'Downloading...' : 'Download Report' }}
+                  <i class="bi bi-chevron-down ms-1" style="font-size:0.7rem;"></i>
+                </button>
+                <div *ngIf="showListDownloadMenu"
+                     class="bg-white rounded"
+                     style="position:absolute;right:0;top:calc(100% + 4px);min-width:260px;z-index:9999;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,0.12);">
+                  <div class="px-3 py-2 border-bottom" style="font-size:0.72rem;color:#6c757d;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>RFQ LIST REPORTS
+                  </div>
+                  <button class="btn btn-link text-start w-100 px-3 py-2 text-decoration-none" style="color:#212529;"
+                          (click)="downloadRFQListExcel(); showListDownloadMenu = false">
+                    <i class="bi bi-file-earmark-excel text-success me-2" style="font-size:1rem;"></i>
+                    <span class="fw-semibold">Download as Excel</span>
+                    <span class="d-block text-muted ms-4" style="font-size:0.75rem;">All RFQs · current filter applied</span>
+                  </button>
+                  <div class="px-3 py-2 border-top" style="font-size:0.72rem;color:#6c757d;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    For single-RFQ reports use the <i class="bi bi-download"></i> icon in each row.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Create RFQ -->
+              <button class="btn btn-primary btn-sm px-4 fw-semibold shadow-sm"
+                      (click)="router.navigate(['/create-rfq'])">
+                <i class="bi bi-plus-circle-fill me-2"></i>Create RFQ
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DATE FILTER BAR ==================== -->
+  <div class="date-filter-card mb-4">
+    <div class="date-filter-accent"></div>
+    <div class="date-filter-inner">
+
+      <div class="date-filter-title-wrap">
+        <div class="date-filter-icon-wrap"><i class="bi bi-calendar3-range"></i></div>
+        <div>
+          <div class="date-filter-title">Date Range</div>
+          <div class="date-filter-subtitle">Filter RFQs by creation date</div>
+        </div>
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-controls">
+
+        <div class="date-filter-field">
+          <label class="date-filter-label">
+            <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+          </label>
+          <div class="date-filter-select-wrap">
+            <select class="date-filter-select"
+                    [(ngModel)]="selectedFYOption"
+                    (change)="onFYOptionChange()">
+              <option value="ALL">All Time</option>
+              <option *ngFor="let fy of financialYearOptions" [value]="fy.value">
+                {{ fy.label }}
+              </option>
+              <option value="CUSTOM">Custom Range</option>
+            </select>
+            <i class="bi bi-chevron-down date-filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event me-1"></i>From Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input"
+                   [(ngModel)]="customFromDate" (change)="applyFiltersAndPagination()" />
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event-fill me-1"></i>To Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input"
+                   [(ngModel)]="customToDate" (change)="applyFiltersAndPagination()" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-right">
+        <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+          <div class="date-filter-badge-icon"><i class="bi bi-funnel-fill"></i></div>
+          <div>
+            <div class="date-filter-badge-label">Active Filter</div>
+            <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+          </div>
+        </div>
+        <button class="date-filter-reset-btn"
+                *ngIf="selectedFYOption !== getCurrentFYValue()"
+                (click)="resetDateFilter()"
+                title="Reset to current financial year">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+        </button>
+      </div>
+
+    </div>
+  </div>
+  <!-- ==================== END DATE FILTER BAR ==================== -->
+
+  <!-- ==================== STAT CARDS ==================== -->
+  <div class="row mb-4 g-3" *ngIf="!isLoading">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('ALL')">
+        <div class="stat-icon-wrap stat-purple"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ dateFilteredRFQs.length }}</div>
+          <div class="stat-label">Total RFQs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('DRAFT')">
+        <div class="stat-icon-wrap stat-orange-pink"><i class="bi bi-pencil-square"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('DRAFT') }}</div>
+          <div class="stat-label">Draft</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('AWAITING_APPROVAL')">
+        <div class="stat-icon-wrap stat-pink"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('AWAITING_APPROVAL') }}</div>
+          <div class="stat-label">Awaiting Approval</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('PUBLISHED')">
+        <div class="stat-icon-wrap stat-teal"><i class="bi bi-send-check"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('PUBLISHED') }}</div>
+          <div class="stat-label">Published</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('RETURNED_FOR_REVISION')">
+        <div class="stat-icon-wrap stat-hold"><i class="bi bi-arrow-return-left"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('RETURNED_FOR_REVISION') }}</div>
+          <div class="stat-label">Returned for Revision</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('CLOSED')">
+        <div class="stat-icon-wrap stat-red"><i class="bi bi-x-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('CLOSED') }}</div>
+          <div class="stat-label">Closed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="stat-card" style="cursor:pointer;" (click)="applyCardFilter('HOLD')">
+        <div class="stat-icon-wrap stat-blue"><i class="bi bi-pause-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">{{ countDateFilteredByStatus('HOLD') }}</div>
+          <div class="stat-label">On Hold</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== RFQ TABLE CARD ==================== -->
+  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-table me-2 text-primary"></i>All RFQs
+        <span *ngIf="activeDateRangeLabel" class="text-muted fw-normal" style="font-size: 0.85rem;">
+          — {{ activeDateRangeLabel }}
+        </span>
+      </h5>
+
+      <div class="row g-3 mb-3 align-items-end">
+        <div class="col-lg-4">
+          <input type="text" class="form-control form-control-sm bg-light border-0"
+                 placeholder="Search RFQ number, title, or buyer..."
+                 [(ngModel)]="searchText" (ngModelChange)="applyFiltersAndPagination()"
+                 style="padding: 10px;"/>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+                  [(ngModel)]="statusFilter" (change)="applyFiltersAndPagination()"
+                  style="padding: 10px;">
+            <option value="">All Status</option>
+            <option value="DRAFT">Draft</option>
+            <option value="AWAITING_APPROVAL">Awaiting Approval</option>
+            <option value="RETURNED_FOR_REVISION">Returned for Revision</option>
+            <option value="HOLD">On HOLD</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="RESPONSES_RECEIVED">Responses Received</option>
+            <option value="CLOSED">Closed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-lg-2">
+          <select class="form-select form-select-sm bg-light border-0"
+                  [(ngModel)]="priorityFilter" (change)="applyFiltersAndPagination()"
+                  style="padding: 10px;">
+            <option value="">All Priority</option>
+            <option *ngFor="let priority of priorities" [value]="priority">
+              {{ priority | titlecase }}
+            </option>
+          </select>
+        </div>
+        <!-- results count -->
+        <div class="col-lg-4 text-end">
+          <small class="text-muted me-2" *ngIf="!isLoading">
+            {{ filteredRFQs.length }} result{{ filteredRFQs.length !== 1 ? 's' : '' }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading RFQs...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table rfq-table mb-0">
+          <thead class="table-header">
+            <tr>
+              <th class="ps-4">RFQ Number</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let rfq of pagedRFQs">
+              <tr class="rfq-main-row">
+
+                <!-- ── RFQ Number + alerts ── -->
+                <td class="ps-4">
+                  <div class="fw-bold text-primary" style="cursor:pointer;" (click)="viewRFQ(rfq)">
+                    {{ rfq.rfqNumber }}
+                  </div>
+                  <small class="text-muted">{{ rfq.createdAt }}</small>
+
+                  <!-- Return for revision alert -->
+                  <div *ngIf="rfq.status === 'RETURNED_FOR_REVISION' && rfq.returnDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-arrow-return-left me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Revision needed:</strong> {{ rfq.returnDetails.returnRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.returnDetails.returnedByUserName }}</strong>
+                          ({{ rfq.returnDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.returnDetails.returnDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Hold alert -->
+                  <div *ngIf="rfq.status === 'HOLD' && rfq.holdDetails"
+                       class="alert alert-warning mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #f59e0b;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-pause-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>On HOLD:</strong> {{ rfq.holdDetails.holdRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.holdDetails.heldByUserName }}</strong>
+                          ({{ rfq.holdDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.holdDetails.holdDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reject alert -->
+                  <div *ngIf="rfq.status === 'CLOSED' && rfq.approvalStatus === 'REJECTED' && rfq.rejectDetails"
+                       class="alert alert-danger mt-2 mb-0 p-2"
+                       style="font-size:0.75rem; border-left:4px solid #ef4444;">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-x-circle me-2" style="font-size:1rem;"></i>
+                      <div>
+                        <strong>Rejected:</strong> {{ rfq.rejectDetails.rejectRemarks }}<br>
+                        <span class="text-muted" style="font-size:0.7rem;">
+                          By <strong>{{ rfq.rejectDetails.rejectedByUserName }}</strong>
+                          ({{ rfq.rejectDetails.hierarchyLevelName }})
+                          on {{ formatDateTime(rfq.rejectDetails.rejectDate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- ── Title ── -->
+                <td>
+                  <span class="text-dark" [title]="rfq.rfqTitle">
+                    {{ rfq.rfqTitle.substring(0,35) }}{{ rfq.rfqTitle.length > 35 ? '...' : '' }}
+                  </span>
+                </td>
+
+                <!-- ── Status badge ── -->
+                <td>
+                  <span [class]="'badge ' + getStatusClass(rfq.status)">
+                    {{ getStatusLabel(rfq.status) }}
+                  </span>
+                </td>
+
+                <!-- ── Priority badge ── -->
+                <td>
+                  <span [class]="'badge ' + getPriorityClass(rfq.priority)">
+                    {{ rfq.priority | titlecase }}
+                  </span>
+                </td>
+
+                <!-- ── Actions ── -->
+                <td class="text-end pe-4">
+
+                  <!-- View Full Process (RFQ → PO → Invoice → GRN → Match) -->
+                  <!-- <button class="btn btn-sm btn-light text-primary me-1 shadow-sm"
+                          (click)="openProcessModal(rfq)" title="View Full Process (RFQ → PO → Invoice → GRN → 3-Way Match)"
+                          style="border:1.5px solid #c7d2fe;">
+                    <i class="bi bi-diagram-3"></i>
+                  </button> -->
+
+                  <!-- View -->
+                  <button class="btn btn-sm btn-light text-info me-1 shadow-sm"
+                          (click)="viewRFQ(rfq)" title="View Details">
+                    <i class="bi bi-eye"></i>
+                  </button>
+
+                  <!-- Edit -->
+                  <button *ngIf="canEdit(rfq)"
+                          class="btn btn-sm btn-light text-primary me-1 shadow-sm"
+                          (click)="editRFQ(rfq)" title="Edit RFQ">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+
+                  <!-- Resubmit -->
+                  <button *ngIf="canResubmit(rfq)"
+                          class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                          (click)="resubmitRFQ(rfq)" title="Resubmit for Approval">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+
+                  <!-- Submit for approval -->
+                  <button *ngIf="canPublish(rfq)"
+                          class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                          (click)="publishRFQ(rfq)" title="Submit for Approval">
+                    <i class="bi bi-send"></i>
+                  </button>
+
+                  <!-- Close -->
+                  <button *ngIf="canClose(rfq)"
+                          class="btn btn-sm btn-light text-warning me-1 shadow-sm"
+                          (click)="closeRFQ(rfq)" title="Close RFQ">
+                    <i class="bi bi-lock"></i>
+                  </button>
+
+                  <!-- Quote comparison -->
+                  <button *ngIf="canCompareQuotes(rfq)"
+                          class="btn btn-sm btn-light text-success me-1 shadow-sm"
+                          (click)="compareQuotes(rfq)" title="Compare Supplier Quotes">
+                    <i class="bi bi-clipboard-data"></i>
+                  </button>
+
+                  <!-- ── Report Download Dropdown (pure Angular, no Bootstrap JS needed) ── -->
+                  <!-- <div class="position-relative d-inline-block me-1" #dropdownRef>
+
+                  
+                    <button class="btn btn-sm btn-light text-secondary shadow-sm"
+                            type="button"
+                            title="Download Reports"
+                            [disabled]="isRowDownloading(rfq.id)"
+                            (click)="toggleDownloadDropdown(rfq.id, $event)">
+                      <span *ngIf="isRowDownloading(rfq.id)"
+                            class="spinner-border spinner-border-sm"
+                            style="width: 0.75rem; height: 0.75rem;"
+                            role="status"></span>
+                      <i *ngIf="!isRowDownloading(rfq.id)" class="bi bi-download"></i>
+                    </button>
+
+                  
+                    <div *ngIf="openDropdownRfqId === rfq.id"
+                         class="shadow border-0 bg-white rounded"
+                         style="
+                           position: absolute;
+                           right: 0;
+                           top: calc(100% + 4px);
+                           min-width: 220px;
+                           z-index: 9999;
+                           font-size: 0.875rem;
+                           border: 1px solid #e2e8f0 !important;
+                           box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;">
+
+                      <div class="px-3 py-2 border-bottom"
+                           style="font-size: 0.72rem; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="bi bi-file-earmark me-1"></i>{{ rfq.rfqNumber }}
+                      </div>
+
+                    
+                      <button class="btn btn-link text-start w-100 px-3 py-2 text-decoration-none"
+                              style="color: #212529;"
+                              (click)="downloadRFQExcel(rfq); openDropdownRfqId = null">
+                        <i class="bi bi-file-earmark-excel text-success me-2" style="font-size: 1rem;"></i>
+                        <span class="fw-semibold">Summary — Excel</span>
+                        <span class="d-block text-muted ms-4" style="font-size: 0.72rem;">Items · Suppliers · Approvals</span>
+                      </button>
+
+                      
+                      <button class="btn btn-link text-start w-100 px-3 py-2 text-decoration-none"
+                              style="color: #212529;"
+                              (click)="downloadRFQPDF(rfq); openDropdownRfqId = null">
+                        <i class="bi bi-file-earmark-pdf text-danger me-2" style="font-size: 1rem;"></i>
+                        <span class="fw-semibold">Summary — PDF</span>
+                        <span class="d-block text-muted ms-4" style="font-size: 0.72rem;">Printable branded report</span>
+                      </button>
+
+                    </div>
+                  </div> -->
+                 
+                 <div class="position-relative d-inline-block me-1">
+
+  <button class="btn btn-sm btn-light text-secondary shadow-sm"
+          type="button"
+          title="Download RFQ Excel"
+          [disabled]="isRowDownloading(rfq.id)"
+          (click)="downloadRFQExcel(rfq)">
+
+    <span *ngIf="isRowDownloading(rfq.id)"
+          class="spinner-border spinner-border-sm"
+          style="width: 0.75rem; height: 0.75rem;"
+          role="status"></span>
+
+    <i *ngIf="!isRowDownloading(rfq.id)" class="bi bi-download"></i>
+  </button>
+
 </div>
+                  <!-- ── END Report Download Dropdown ── -->
+
+                  <!-- Delete -->
+                  <button class="btn btn-sm btn-light text-danger shadow-sm"
+                          (click)="deleteRFQ(rfq)" title="Delete RFQ">
+                    <i class="bi bi-trash"></i>
+                  </button>
+
+                </td>
+              </tr>
+            </ng-container>
+
+            <tr *ngIf="pagedRFQs.length === 0">
+              <td colspan="5" class="text-center py-5">
+                <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                <p class="text-muted mb-0">No RFQs found.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ==================== PAGINATION BAR ==================== -->
+        <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
+             *ngIf="filteredRFQs.length > 0">
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="text-muted small">
+              Showing <strong>{{ startIndex }}–{{ endIndex }}</strong>
+              of <strong>{{ filteredRFQs.length }}</strong> RFQs
+            </span>
+            <div class="d-flex align-items-center gap-2">
+              <label class="text-muted small mb-0 text-nowrap">Rows per page:</label>
+              <div class="page-size-group">
+                <button *ngFor="let size of pageSizeOptions"
+                        class="page-size-btn"
+                        [class.active]="pageSize === size"
+                        (click)="onPageSizeChange(size)">{{ size }}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-1">
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+                    (click)="goToPage(1)" title="First page">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === 1"
+                    (click)="goToPage(currentPage - 1)" title="Previous page">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <ng-container *ngFor="let page of pageNumbers">
+              <span *ngIf="page === -1" class="page-ellipsis">…</span>
+              <button *ngIf="page !== -1" class="page-num-btn"
+                      [class.active]="currentPage === page"
+                      (click)="goToPage(page)">{{ page }}</button>
+            </ng-container>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+                    (click)="goToPage(currentPage + 1)" title="Next page">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages"
+                    (click)="goToPage(totalPages)" title="Last page">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </div>
+
+        </div>
+        <!-- ==================== END PAGINATION ==================== -->
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FULL PROCESS MODAL — RFQ → PO → GRN → Invoice → 3-Way Match
+═══════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show d-block" tabindex="-1"
+     *ngIf="showProcessModal"
+     style="background:rgba(0,0,0,0.6);z-index:1055;">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg" style="border-radius:14px;overflow:hidden;">
+
+      <!-- Header -->
+      <div class="modal-header border-0 text-white"
+           style="background:linear-gradient(135deg,#1e4088,#2e7d32);padding:1.25rem 1.5rem;">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.25rem;">
+            <i class="bi bi-diagram-3"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Full Procurement Process</h5>
+            <div style="opacity:.8;font-size:.82rem;margin-top:2px;">
+              {{ selectedRfqProcess?.rfqNumber }} &nbsp;·&nbsp; {{ selectedRfqProcess?.rfqTitle }}
+            </div>
+          </div>
+        </div>
+        <button class="btn-close btn-close-white" (click)="closeProcessModal()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <!-- Loading -->
+        <div *ngIf="processLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem;"></div>
+          <p class="mt-3 text-muted">Loading full process data…</p>
+        </div>
+
+        <ng-container *ngIf="!processLoading">
+
+          <!-- ── Process Timeline ── -->
+          <div class="d-flex align-items-center gap-2 mb-4 flex-wrap" style="font-size:.78rem;font-weight:600;letter-spacing:.3px;">
+            <div class="process-step" [class.active]="processData.rfq" [class.done]="processData.rfq">
+              <i class="bi bi-file-text me-1"></i>RFQ
+            </div>
+            <i class="bi bi-arrow-right text-muted"></i>
+            <div class="process-step" [class.active]="processData.po" [class.pending]="!processData.po">
+              <i class="bi bi-cart me-1"></i>PO
+            </div>
+            <i class="bi bi-arrow-right text-muted"></i>
+            <div class="process-step" [class.active]="processData.invoice" [class.pending]="!processData.invoice">
+              <i class="bi bi-file-invoice me-1"></i>Invoice
+            </div>
+            <i class="bi bi-arrow-right text-muted"></i>
+            <div class="process-step" [class.active]="processData.grn" [class.pending]="!processData.grn">
+              <i class="bi bi-truck me-1"></i>GRN
+            </div>
+            <i class="bi bi-arrow-right text-muted"></i>
+            <div class="process-step" [class.active]="processData.match" [class.pending]="!processData.match">
+              <i class="bi bi-check2-all me-1"></i>3-Way Match
+            </div>
+          </div>
+
+          <!-- ════════ STEP 1: RFQ ════════ -->
+          <div class="process-card mb-3">
+            <div class="process-card-header" style="background:#1e4088;">
+              <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-file-text-fill"></i>
+                  <span>Step 1 · RFQ Details</span>
+                  <span class="badge bg-light text-dark ms-2" style="font-size:.7rem;">
+                    {{ selectedRfqProcess?.status }}
+                  </span>
+                </div>
+                <button class="btn btn-sm btn-light px-3 py-1"
+                        style="font-size:.75rem;"
+                        [disabled]="downloadingProcessReport"
+                        (click)="downloadProcessExcel('rfq', processData.rfq?.id || selectedRfqProcess?.id)">
+                  <i class="bi bi-file-earmark-excel text-success me-1"></i>Excel
+                </button>
+              </div>
+            </div>
+            <div class="process-card-body">
+              <div class="proc-grid">
+                <div class="proc-item"><div class="proc-label">RFQ Number</div><div class="proc-value text-primary fw-bold">{{ selectedRfqProcess?.rfqNumber }}</div></div>
+                <div class="proc-item"><div class="proc-label">Title</div><div class="proc-value">{{ selectedRfqProcess?.rfqTitle }}</div></div>
+                <div class="proc-item"><div class="proc-label">Status</div><div class="proc-value"><span class="badge" [class]="getStatusClass(selectedRfqProcess?.status)">{{ getStatusLabel(selectedRfqProcess?.status) }}</span></div></div>
+                <div class="proc-item"><div class="proc-label">Priority</div><div class="proc-value">{{ selectedRfqProcess?.priority }}</div></div>
+                <div class="proc-item"><div class="proc-label">Buyer</div><div class="proc-value">{{ selectedRfqProcess?.buyerName }}</div></div>
+                <div class="proc-item"><div class="proc-label">Location</div><div class="proc-value">{{ selectedRfqProcess?.locationName }}</div></div>
+                <div class="proc-item"><div class="proc-label">Items</div><div class="proc-value">{{ selectedRfqProcess?.itemsCount }}</div></div>
+                <div class="proc-item"><div class="proc-label">Suppliers Invited</div><div class="proc-value">{{ selectedRfqProcess?.suppliersCount }}</div></div>
+                <div class="proc-item"><div class="proc-label">Due Date</div><div class="proc-value">{{ selectedRfqProcess?.dueDate }}</div></div>
+                <div class="proc-item"><div class="proc-label">Approval Status</div><div class="proc-value">{{ selectedRfqProcess?.approvalStatus }}</div></div>
+              </div>
+
+              <!-- Approval History -->
+              <ng-container *ngIf="selectedRfqProcess?.original?.approvalHistory?.length > 0">
+                <div class="proc-sub-header mt-3 mb-2"><i class="bi bi-clock-history me-1"></i>Approval History</div>
+                <div class="table-responsive">
+                  <table class="table table-sm proc-table mb-0">
+                    <thead><tr><th>#</th><th>Level</th><th>Approver</th><th>Status</th><th>Date</th><th>Remarks</th></tr></thead>
+                    <tbody>
+                      <tr *ngFor="let a of selectedRfqProcess?.original?.approvalHistory; let i=index">
+                        <td>{{ i+1 }}</td>
+                        <td>{{ a.hierarchyLevelName || '—' }}</td>
+                        <td>{{ a.approverUserName || a.heldByUserName || '—' }}</td>
+                        <td><span class="badge" [class]="a.status === 'APPROVED' ? 'bg-success' : a.status === 'REJECTED' ? 'bg-danger' : a.status === 'HOLD' ? 'bg-warning text-dark' : 'bg-secondary'">{{ a.status }}</span></td>
+                        <td style="font-size:.78rem;">{{ formatDateTime(a.actionDate || a.holdDate || a.rejectDate) }}</td>
+                        <td style="font-size:.78rem;color:#6b7280;">{{ a.comments || a.holdRemarks || a.rejectRemarks || '—' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- ════════ STEP 2: PO ════════ -->
+          <div class="process-card mb-3" *ngIf="processData.po">
+            <div class="process-card-header" style="background:#2e7d32;">
+              <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-cart-fill"></i>
+                  <span>Step 2 · Purchase Order</span>
+                  <span class="badge bg-light text-dark ms-2" style="font-size:.7rem;">{{ processData.po?.status }}</span>
+                </div>
+                <button class="btn btn-sm btn-light px-3 py-1" style="font-size:.75rem;"
+                        [disabled]="downloadingProcessReport"
+                        (click)="downloadProcessExcel('po', processData.po?.id)">
+                  <i class="bi bi-file-earmark-excel text-success me-1"></i>Excel
+                </button>
+              </div>
+            </div>
+            <div class="process-card-body">
+              <div class="proc-grid">
+                <div class="proc-item"><div class="proc-label">PO Number</div><div class="proc-value text-success fw-bold">{{ processData.po?.poNumber }}</div></div>
+                <div class="proc-item"><div class="proc-label">PO Date</div><div class="proc-value">{{ formatDateTime(processData.po?.poDate) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Status</div><div class="proc-value"><span class="badge bg-success">{{ processData.po?.status }}</span></div></div>
+                <div class="proc-item"><div class="proc-label">Supplier</div><div class="proc-value">{{ processData.po?.supplier?.companyName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Delivery Location</div><div class="proc-value">{{ processData.po?.deliveryLocation?.locationName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Currency</div><div class="proc-value">{{ processData.po?.currencyCode }} {{ processData.po?.currencySymbol }}</div></div>
+                <div class="proc-item"><div class="proc-label">Subtotal</div><div class="proc-value fw-semibold">{{ formatCurrency(processData.po?.subtotal, processData.po?.currencyCode) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Tax Amount</div><div class="proc-value">{{ formatCurrency(processData.po?.taxAmount, processData.po?.currencyCode) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Grand Total</div><div class="proc-value fw-bold text-success">{{ formatCurrency(processData.po?.grandTotal, processData.po?.currencyCode) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Approved By</div><div class="proc-value">{{ processData.po?.approvedByName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Payment Terms</div><div class="proc-value">{{ processData.po?.paymentTerms || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Delivery Terms</div><div class="proc-value">{{ processData.po?.deliveryTerms || '—' }}</div></div>
+              </div>
+
+              <!-- PO Line Items -->
+              <ng-container *ngIf="processData.po?.lineItems?.length > 0">
+                <div class="proc-sub-header mt-3 mb-2"><i class="bi bi-list-check me-1"></i>Line Items ({{ processData.po?.lineItems?.length }})</div>
+                <div class="table-responsive">
+                  <table class="table table-sm proc-table mb-0">
+                    <thead><tr><th>#</th><th>Description</th><th>UOM</th><th class="text-end">Qty</th><th class="text-end">Unit Rate</th><th class="text-end">Line Total</th></tr></thead>
+                    <tbody>
+                      <tr *ngFor="let li of processData.po?.lineItems; let i=index">
+                        <td>{{ i+1 }}</td>
+                        <td>{{ li.itemDescription }}</td>
+                        <td>{{ li.uom }}</td>
+                        <td class="text-end">{{ li.quantity }}</td>
+                        <td class="text-end">{{ formatCurrency(li.unitRate, processData.po?.currencyCode) }}</td>
+                        <td class="text-end fw-semibold">{{ formatCurrency(li.lineTotal, processData.po?.currencyCode) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- PO not yet raised -->
+          <div class="process-pending-card mb-3" *ngIf="!processData.po">
+            <i class="bi bi-cart text-muted me-2"></i>
+            <span>Purchase Order not yet raised for this RFQ.</span>
+          </div>
+
+          <!-- ════════ STEP 3: INVOICE ════════ -->
+          <div class="process-card mb-3" *ngIf="processData.invoice">
+            <div class="process-card-header" style="background:#7b1fa2;">
+              <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-file-invoice-dollar"></i>
+                  <span>Step 3 · Invoice</span>
+                  <span class="badge bg-light text-dark ms-2" style="font-size:.7rem;">{{ processData.invoice?.status }}</span>
+                </div>
+                <button class="btn btn-sm btn-light px-3 py-1" style="font-size:.75rem;"
+                        [disabled]="downloadingProcessReport"
+                        (click)="downloadProcessExcel('invoice', processData.invoice?.id)">
+                  <i class="bi bi-file-earmark-excel text-success me-1"></i>Excel
+                </button>
+              </div>
+            </div>
+            <div class="process-card-body">
+              <div class="proc-grid">
+                <div class="proc-item"><div class="proc-label">Invoice Number</div><div class="proc-value text-purple fw-bold" style="color:#7b1fa2;">{{ processData.invoice?.invoiceNumber }}</div></div>
+                <div class="proc-item"><div class="proc-label">Status</div><div class="proc-value">
+                  <span class="badge" [class]="processData.invoice?.status === 'APPROVED' ? 'bg-success' : processData.invoice?.status === 'PAID' ? 'bg-info' : processData.invoice?.status === 'REJECTED' ? 'bg-danger' : processData.invoice?.status === 'SUBMITTED' ? 'bg-primary' : 'bg-secondary'">
+                    {{ processData.invoice?.status }}
+                  </span>
+                </div></div>
+                <div class="proc-item"><div class="proc-label">Supplier</div><div class="proc-value">{{ processData.invoice?.supplierName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Invoice Date</div><div class="proc-value">{{ formatDateTime(processData.invoice?.invoiceDate) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Due Date</div><div class="proc-value">{{ formatDateTime(processData.invoice?.dueDate) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Currency</div><div class="proc-value">{{ processData.invoice?.currency || processData.invoice?.currencyCode }}</div></div>
+                <div class="proc-item"><div class="proc-label">Subtotal</div><div class="proc-value">{{ formatCurrency(processData.invoice?.subtotal, processData.invoice?.currency) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Tax Amount</div><div class="proc-value">{{ formatCurrency(processData.invoice?.taxAmount, processData.invoice?.currency) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Total Amount</div><div class="proc-value fw-bold" style="color:#7b1fa2;">{{ formatCurrency(processData.invoice?.totalAmount, processData.invoice?.currency) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Payment Terms</div><div class="proc-value">{{ processData.invoice?.paymentTerms || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Approved By</div><div class="proc-value">{{ processData.invoice?.approvedRejectedBy || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Approval Remarks</div><div class="proc-value">{{ processData.invoice?.approvalRemarks || '—' }}</div></div>
+              </div>
+
+              <!-- Invoice Line Items -->
+              <ng-container *ngIf="processData.invoice?.lineItems?.length > 0">
+                <div class="proc-sub-header mt-3 mb-2"><i class="bi bi-list-check me-1"></i>Line Items ({{ processData.invoice?.lineItems?.length }})</div>
+                <div class="table-responsive">
+                  <table class="table table-sm proc-table mb-0">
+                    <thead><tr><th>#</th><th>Description</th><th>HSN/SAC</th><th>UOM</th><th class="text-end">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Tax %</th><th class="text-end">Line Total</th></tr></thead>
+                    <tbody>
+                      <tr *ngFor="let li of processData.invoice?.lineItems; let i=index">
+                        <td>{{ i+1 }}</td>
+                        <td>{{ li.itemDescription }}</td>
+                        <td>{{ li.hsnSacCode || '—' }}</td>
+                        <td>{{ li.uom }}</td>
+                        <td class="text-end">{{ li.quantity }}</td>
+                        <td class="text-end">{{ formatCurrency(li.unitPrice, processData.invoice?.currency) }}</td>
+                        <td class="text-end">{{ li.taxPercentage }}%</td>
+                        <td class="text-end fw-semibold">{{ formatCurrency(li.lineTotal, processData.invoice?.currency) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+
+              <!-- Bank details -->
+              <ng-container *ngIf="processData.invoice?.bankName">
+                <div class="proc-sub-header mt-3 mb-2"><i class="bi bi-bank me-1"></i>Bank Details</div>
+                <div class="proc-grid">
+                  <div class="proc-item"><div class="proc-label">Bank Name</div><div class="proc-value">{{ processData.invoice?.bankName }}</div></div>
+                  <div class="proc-item"><div class="proc-label">Account Name</div><div class="proc-value">{{ processData.invoice?.bankAccountName }}</div></div>
+                  <div class="proc-item"><div class="proc-label">Account Number</div><div class="proc-value">{{ processData.invoice?.bankAccountNumber }}</div></div>
+                  <div class="proc-item"><div class="proc-label">IFSC / SWIFT</div><div class="proc-value">{{ processData.invoice?.bankIfscCode }} {{ processData.invoice?.bankSwiftCode }}</div></div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="process-pending-card mb-3" *ngIf="processData.po && !processData.invoice">
+            <i class="bi bi-file-invoice text-muted me-2"></i>
+            <span>Invoice not yet submitted by supplier.</span>
+          </div>
+
+          <!-- ════════ STEP 4: GRN ════════ -->
+          <div class="process-card mb-3" *ngIf="processData.grn">
+            <div class="process-card-header" style="background:#e65100;">
+              <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-truck"></i>
+                  <span>Step 4 · Goods Receipt Note</span>
+                  <span class="badge bg-light text-dark ms-2" style="font-size:.7rem;">{{ processData.grn?.status }}</span>
+                </div>
+                <button class="btn btn-sm btn-light px-3 py-1" style="font-size:.75rem;"
+                        [disabled]="downloadingProcessReport"
+                        (click)="downloadProcessExcel('grn', processData.grn?.id)">
+                  <i class="bi bi-file-earmark-excel text-success me-1"></i>Excel
+                </button>
+              </div>
+            </div>
+            <div class="process-card-body">
+              <div class="proc-grid">
+                <div class="proc-item"><div class="proc-label">GRN Number</div><div class="proc-value fw-bold" style="color:#e65100;">{{ processData.grn?.grnNumber }}</div></div>
+                <div class="proc-item"><div class="proc-label">Status</div><div class="proc-value"><span class="badge" [class]="'bg-' + getGRNStatusClass(processData.grn?.status)">{{ processData.grn?.status }}</span></div></div>
+                <div class="proc-item"><div class="proc-label">Received Date</div><div class="proc-value">{{ formatDateTime(processData.grn?.receivedDate) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Received By</div><div class="proc-value">{{ processData.grn?.receivedByName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">QA Inspector</div><div class="proc-value">{{ processData.grn?.inspectedByName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Approved By</div><div class="proc-value">{{ processData.grn?.approvedByName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Transporter</div><div class="proc-value">{{ processData.grn?.transporterName || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Vehicle No.</div><div class="proc-value">{{ processData.grn?.vehicleNumber || '—' }}</div></div>
+                <div class="proc-item"><div class="proc-label">Total Ordered Value</div><div class="proc-value">{{ formatCurrency(processData.grn?.totalOrderedValue) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Total Received Value</div><div class="proc-value fw-semibold text-success">{{ formatCurrency(processData.grn?.totalReceivedValue) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Total Rejected Value</div><div class="proc-value text-danger">{{ formatCurrency(processData.grn?.totalRejectedValue) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Remarks</div><div class="proc-value">{{ processData.grn?.remarks || '—' }}</div></div>
+              </div>
+
+              <!-- GRN Line Items -->
+              <ng-container *ngIf="processData.grn?.lineItems?.length > 0">
+                <div class="proc-sub-header mt-3 mb-2"><i class="bi bi-boxes me-1"></i>Line Items with QA Results</div>
+                <div class="table-responsive">
+                  <table class="table table-sm proc-table mb-0">
+                    <thead>
+                      <tr>
+                        <th>#</th><th>Description</th><th>UOM</th>
+                        <th class="text-center">Ordered</th><th class="text-center">Received</th>
+                        <th class="text-center text-warning">Defective</th><th class="text-center text-danger">Rejected</th>
+                        <th class="text-center text-success">Accepted</th>
+                        <th>Condition</th><th>QA Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let li of processData.grn?.lineItems; let i=index"
+                          [class.table-danger]="li.rejectedQuantity > 0"
+                          [class.table-success]="li.rejectedQuantity == 0 && li.acceptedQuantity > 0">
+                        <td>{{ i+1 }}</td>
+                        <td>{{ li.itemDescription }}</td>
+                        <td>{{ li.uom }}</td>
+                        <td class="text-center">{{ li.orderedQuantity }}</td>
+                        <td class="text-center">{{ li.receivedQuantity }}</td>
+                        <td class="text-center text-warning fw-semibold">{{ li.defectiveQuantity || 0 }}</td>
+                        <td class="text-center text-danger fw-semibold">{{ li.rejectedQuantity || 0 }}</td>
+                        <td class="text-center text-success fw-semibold">{{ li.acceptedQuantity || 0 }}</td>
+                        <td><span class="badge bg-secondary" style="font-size:.65rem;">{{ li.itemCondition || 'GOOD' }}</span></td>
+                        <td style="font-size:.78rem;color:#6b7280;">{{ li.qaRemarks || '—' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="process-pending-card mb-3" *ngIf="processData.po && !processData.grn">
+            <i class="bi bi-truck text-muted me-2"></i>
+            <span>GRN not yet created. Goods not yet received.</span>
+          </div>
+
+          <!-- ════════ STEP 5: 3-WAY MATCH ════════ -->
+          <div class="process-card mb-3" *ngIf="processData.match">
+            <div class="process-card-header"
+                 [style.background]="processData.match?.matchStatus === 'MATCHED' ? '#1b5e20' : processData.match?.matchStatus === 'FAILED' || processData.match?.matchStatus === 'ITEM_MISMATCH' ? '#b71c1c' : '#b45309'">
+              <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-check2-all"></i>
+                  <span>Step 5 · 3-Way Match</span>
+                  <span class="badge bg-light ms-2" style="font-size:.7rem;"
+                        [class.text-success]="processData.match?.matchStatus === 'MATCHED'"
+                        [class.text-danger]="processData.match?.matchStatus === 'FAILED'"
+                        [class.text-dark]="processData.match?.matchStatus !== 'MATCHED' && processData.match?.matchStatus !== 'FAILED'">
+                    {{ processData.match?.matchStatus }}
+                  </span>
+                </div>
+                <button class="btn btn-sm btn-light px-3 py-1" style="font-size:.75rem;"
+                        [disabled]="downloadingProcessReport"
+                        (click)="downloadProcessExcel('match', processData.match?.id)">
+                  <i class="bi bi-file-earmark-excel text-success me-1"></i>Excel
+                </button>
+              </div>
+            </div>
+            <div class="process-card-body">
+              <div class="proc-grid">
+                <div class="proc-item"><div class="proc-label">Match Status</div><div class="proc-value"><span class="badge" [class]="'bg-' + getMatchStatusClass(processData.match?.matchStatus)">{{ processData.match?.matchStatus }}</span></div></div>
+                <div class="proc-item"><div class="proc-label">Match Version</div><div class="proc-value">v{{ processData.match?.matchVersion }}</div></div>
+                <div class="proc-item"><div class="proc-label">Tolerance %</div><div class="proc-value">{{ processData.match?.tolerancePercentage }}%</div></div>
+                <div class="proc-item"><div class="proc-label">Variance Amount</div><div class="proc-value" [class.text-danger]="processData.match?.varianceAmount > 0" [class.text-success]="processData.match?.varianceAmount <= 0">{{ formatCurrency(processData.match?.varianceAmount) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Variance %</div><div class="proc-value">{{ processData.match?.variancePercentage | number:'1.2-2' }}%</div></div>
+                <div class="proc-item"><div class="proc-label">Matched Lines</div><div class="proc-value text-success fw-semibold">{{ processData.match?.totalMatchedLines }}</div></div>
+                <div class="proc-item"><div class="proc-label">Mismatch Lines</div><div class="proc-value text-danger fw-semibold">{{ processData.match?.totalMismatchLines }}</div></div>
+                <div class="proc-item"><div class="proc-label">PO Total</div><div class="proc-value">{{ formatCurrency(processData.match?.poTotalValue) }}</div></div>
+                <div class="proc-item"><div class="proc-label">GRN Accepted Value</div><div class="proc-value">{{ formatCurrency(processData.match?.grnAcceptedValue) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Invoice Total</div><div class="proc-value">{{ formatCurrency(processData.match?.invoiceTotalValue) }}</div></div>
+                <div class="proc-item"><div class="proc-label">Resolution</div><div class="proc-value">{{ processData.match?.resolution || 'PENDING_RESOLUTION' }}</div></div>
+                <div class="proc-item" *ngIf="processData.match?.approvedPaymentAmount"><div class="proc-label">Approved Payment</div><div class="proc-value fw-bold text-success">{{ formatCurrency(processData.match?.approvedPaymentAmount) }}</div></div>
+              </div>
+
+              <!-- Match Flags -->
+              <div class="d-flex gap-2 flex-wrap mt-2 mb-3">
+                <span *ngIf="processData.match?.hasQuantityMismatch" class="badge bg-warning text-dark"><i class="bi bi-123 me-1"></i>Qty Mismatch</span>
+                <span *ngIf="processData.match?.hasPriceMismatch"    class="badge bg-warning text-dark"><i class="bi bi-tag me-1"></i>Price Mismatch</span>
+                <span *ngIf="processData.match?.hasItemMismatch"     class="badge bg-danger"><i class="bi bi-box-seam me-1"></i>Item Mismatch</span>
+                <span *ngIf="processData.match?.hasExcessDelivery"   class="badge bg-secondary"><i class="bi bi-arrow-up-circle me-1"></i>Excess Delivery</span>
+                <span *ngIf="!processData.match?.hasQuantityMismatch && !processData.match?.hasPriceMismatch && !processData.match?.hasItemMismatch" class="badge bg-success"><i class="bi bi-check-circle me-1"></i>All Matched</span>
+              </div>
+
+              <!-- Match Summary -->
+              <div *ngIf="processData.match?.matchSummary" class="alert mb-3"
+                   [class.alert-success]="processData.match?.matchStatus === 'MATCHED'"
+                   [class.alert-warning]="processData.match?.matchStatus !== 'MATCHED' && processData.match?.matchStatus !== 'FAILED'"
+                   [class.alert-danger]="processData.match?.matchStatus === 'FAILED'"
+                   style="font-size:.84rem;border-left:4px solid;">
+                {{ processData.match?.matchSummary }}
+              </div>
+
+              <!-- Line Results -->
+              <ng-container *ngIf="processData.match?.lineResults?.length > 0">
+                <div class="proc-sub-header mt-2 mb-2"><i class="bi bi-table me-1"></i>Line Match Results</div>
+                <div class="table-responsive">
+                  <table class="table table-sm proc-table mb-0">
+                    <thead><tr><th>#</th><th>Description</th><th class="text-center">PO Qty</th><th class="text-center">GRN Accepted</th><th class="text-center">Inv Qty</th><th class="text-end">PO Rate</th><th class="text-end">Inv Price</th><th class="text-end">Price Var%</th><th class="text-center">Status</th></tr></thead>
+                    <tbody>
+                      <tr *ngFor="let lr of processData.match?.lineResults; let i=index"
+                          [class.table-success]="lr.lineMatchStatus === 'MATCHED'"
+                          [class.table-warning]="lr.lineMatchStatus === 'QTY_SHORT' || lr.lineMatchStatus === 'PRICE_VARIANCE'"
+                          [class.table-danger]="lr.lineMatchStatus === 'NOT_IN_PO' || lr.lineMatchStatus === 'NOT_RECEIVED'">
+                        <td>{{ i+1 }}</td>
+                        <td>{{ lr.itemDescription }}</td>
+                        <td class="text-center">{{ lr.poOrderedQuantity }}</td>
+                        <td class="text-center">{{ lr.grnAcceptedQuantity }}</td>
+                        <td class="text-center">{{ lr.invoiceQuantity }}</td>
+                        <td class="text-end">{{ formatCurrency(lr.poUnitRate) }}</td>
+                        <td class="text-end">{{ formatCurrency(lr.invoiceUnitPrice) }}</td>
+                        <td class="text-end" [class.text-danger]="lr.priceVariancePct > 2" [class.text-success]="lr.priceVariancePct <= 2">{{ lr.priceVariancePct | number:'1.2-2' }}%</td>
+                        <td class="text-center"><span class="badge" style="font-size:.65rem;" [class]="lr.lineMatchStatus === 'MATCHED' ? 'bg-success' : lr.lineMatchStatus === 'NOT_IN_PO' || lr.lineMatchStatus === 'NOT_RECEIVED' ? 'bg-danger' : 'bg-warning text-dark'">{{ lr.lineMatchStatus }}</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+
+              <!-- Resolution remarks -->
+              <div *ngIf="processData.match?.resolutionRemarks" class="mt-3 p-3 rounded" style="background:#f8f9fa;border:1px solid #e2e8f0;">
+                <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#6b7280;letter-spacing:.4px;">Resolution Remarks</div>
+                <div style="font-size:.86rem;color:#1e293b;margin-top:4px;">{{ processData.match?.resolutionRemarks }}</div>
+                <div *ngIf="processData.match?.resolvedByName" style="font-size:.72rem;color:#94a3b8;margin-top:4px;">— Resolved by {{ processData.match?.resolvedByName }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="process-pending-card mb-3" *ngIf="processData.grn && !processData.match">
+            <i class="bi bi-check2-all text-muted me-2"></i>
+            <span>3-Way Match not yet performed. GRN must be APPROVED before matching.</span>
+          </div>
+
+        </ng-container>
+      </div>
+
+      <div class="modal-footer border-0 bg-light">
+        <button class="btn btn-secondary" (click)="closeProcessModal()">Close</button>
+        <button class="btn btn-primary" (click)="router.navigate(['/create-rfq/' + (processData.rfq?.id || selectedRfqProcess?.id) + '/view'])">
+          <i class="bi bi-eye me-1"></i>View Full RFQ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── Process modal styles ─────────────────────────────────────── */
+.process-step {
+  display: inline-flex; align-items: center;
+  padding: 4px 12px; border-radius: 20px; font-size: .75rem; font-weight: 700;
+  background: #e2e8f0; color: #64748b;
+}
+.process-step.active { background: #1e4088; color: white; }
+.process-step.done   { background: #1b5e20; color: white; }
+.process-step.pending { background: #f1f5f9; color: #94a3b8; border: 1px dashed #cbd5e1; }
+
+.process-card { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+
+.process-card-header {
+  display: flex; align-items: center;
+  padding: .75rem 1.25rem; color: white;
+  font-weight: 700; font-size: .86rem; gap: .5rem;
+}
+
+.process-card-body { padding: 1.25rem; background: white; }
+
+.proc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 16px;
+}
+.proc-item { display: flex; flex-direction: column; gap: 2px; }
+.proc-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #6b7280; }
+.proc-value { font-size: .84rem; color: #1e293b; }
+
+.proc-sub-header {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: #374151;
+  padding: 6px 0; border-bottom: 1.5px solid #e5e7eb;
+}
+
+.proc-table { font-size: .78rem; }
+.proc-table thead th {
+  background: #f8f9fa; color: #374151;
+  font-weight: 700; font-size: .68rem; text-transform: uppercase;
+  letter-spacing: .3px; padding: 6px 8px; border-bottom: 2px solid #e5e7eb;
+}
+.proc-table tbody td { padding: 6px 8px; vertical-align: middle; }
+
+.process-pending-card {
+  display: flex; align-items: center;
+  padding: .875rem 1.25rem; border-radius: 10px;
+  background: #f8fafc; border: 1.5px dashed #cbd5e1;
+  color: #64748b; font-size: .84rem;
+}
+</style>

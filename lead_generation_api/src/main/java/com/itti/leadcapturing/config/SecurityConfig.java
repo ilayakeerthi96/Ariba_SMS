@@ -84,6 +84,10 @@ public class SecurityConfig {
                 // Buyer auth endpoints
                 .requestMatchers("/api/buyer/auth/**").permitAll()
                 .requestMatchers("/api/buyer/login").permitAll()
+
+                // Supplier self-registration (public)
+.requestMatchers("/api/supplier/register").permitAll()
+.requestMatchers("/api/supplier/register/organizations").permitAll()
                 
                 // 🆕 Hierarchy auth endpoints (Procurement, COO, Finance)
                 .requestMatchers("/api/hierarchy/auth/**").permitAll()

@@ -1,4 +1,7 @@
-<!-- <c-container fluid class="mt-4">
+<!-- 
+
+<c-container fluid class="mt-4">
+
   <c-row class="mb-4">
     <c-col xs="12">
       <c-card class="border-0 shadow-lg overflow-hidden">
@@ -18,7 +21,6 @@
                   </div>
                 </div>
               </c-col>
-
               <c-col xs="12" lg="9" *ngIf="loggedInBuyer">
                 <c-row class="g-2">
                   <c-col xs="12" md="6" lg="3">
@@ -68,6 +70,7 @@
       </c-card>
     </c-col>
   </c-row>
+
   <c-row class="mb-4 g-3">
     <c-col xs="6" md="3">
       <div class="stat-card stat-card-blue">
@@ -89,18 +92,9 @@
         <div class="stat-info"><h4>{{ evaluationDone ? 'Done' : 'Pending' }}</h4><p>Evaluation Status</p></div>
       </div>
     </c-col>
-    <c-col xs="6" md="3">
-      <div class="stat-card stat-card-blue">
-        <div class="stat-icon"><i class="bi bi-person-check"></i></div>
-        <div class="stat-info">
-          <h4 style="font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            {{ hasSelectedSupplier() ? getSelectedSupplierName() : '—' }}
-          </h4>
-          <p>Preview Selected</p>
-        </div>
-      </div>
-    </c-col>
+
   </c-row>
+
 
   <div *ngIf="isLoading" class="text-center py-5">
     <c-spinner color="primary" style="width: 3rem; height: 3rem;"></c-spinner>
@@ -118,16 +112,32 @@
             <p class="text-muted mb-1 fw-semibold">
               {{ rfqDetails?.rfqNumber }} — {{ rfqDetails?.rfqTitle }}
             </p>
-           
+          
             <span class="badge bg-primary me-2" style="font-size:0.8rem;">
-              <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
+              <i class="bi bi-globe2 me-1"></i>Buyer currency: {{ currencySymbol }} {{ currencyCode }}
             </span>
-            <p class="text-muted small mb-0 mt-1">
-              Review all supplier quotes below, then click
-              <strong>"Step 2: Select Supplier &amp; Create PO"</strong> to continue.
+            
+            <ng-container *ngFor="let s of suppliers">
+              <span class="badge me-1"
+                    [style.background]="s.currencyCode !== currencyCode ? '#d32f2f' : '#388e3c'"
+                    style="font-size:0.75rem;">
+                {{ s.companyName }}: {{ s.currencySymbol }} {{ s.currencyCode }}
+              </span>
+            </ng-container>
+            <p class="text-muted small mb-0 mt-2">
+              All amounts shown in <strong>{{ currencyCode }}</strong> (buyer currency).
+              Supplier original currency shown in brackets for reference.
             </p>
           </div>
           <div class="d-flex gap-2 flex-wrap">
+           
+            <button cButton [color]="showConvertedAmounts ? 'info' : 'outline-secondary'"
+                    (click)="showConvertedAmounts = !showConvertedAmounts" class="btn-sm"
+                    *ngIf="suppliers.length > 0"
+                    [title]="showConvertedAmounts ? 'Hide supplier original currency' : 'Show supplier original currency in brackets'">
+              <i class="bi bi-currency-exchange me-1"></i>
+              {{ showConvertedAmounts ? 'Hide Supplier Currency' : 'Show Supplier Currency' }}
+            </button>
             <button cButton color="success" (click)="exportToExcel()" [disabled]="isExporting" class="btn-sm">
               <c-spinner *ngIf="isExporting" size="sm" class="me-1"></c-spinner>
               <i *ngIf="!isExporting" class="bi bi-file-earmark-excel me-1"></i>
@@ -144,7 +154,7 @@
         <div class="table-scroll-wrapper" id="quote-comparison-table">
           <table class="table comparison-table mb-0">
 
-           
+          
             <thead class="sticky-header">
               <tr>
                 <th rowspan="2" style="min-width: 70px;">Sl<br>No</th>
@@ -154,6 +164,7 @@
                 <th rowspan="2" style="min-width: 60px;">Qty</th>
                 <th rowspan="2" style="min-width: 60px;">UOM</th>
 
+                
                 <ng-container *ngFor="let supplier of suppliers; let i = index">
                   <th [attr.colspan]="7" class="supplier-header">
                     <div class="supplier-name mb-1">
@@ -162,21 +173,43 @@
                     <small class="d-block supplier-email">
                       <i class="bi bi-envelope-fill me-1"></i>{{ supplier.contactEmail }}
                     </small>
-                   
-                    <small class="d-block mt-1 fw-bold"
-                      [ngClass]="isLowestSupplierTotal(supplier.supplierId) ? 'text-success' : 'text-dark'">
-                      {{ currencySymbol }}{{ getSupplierTotal(supplier.supplierId) | number:'1.2-2' }}
-                      <span *ngIf="isLowestSupplierTotal(supplier.supplierId)" class="ms-1">🏆 Lowest</span>
+                  
+                    <span class="badge mt-1 me-1"
+                          [style.background]="supplier.currencyCode !== currencyCode ? '#c62828' : '#2e7d32'"
+                          style="font-size:0.7rem; ">
+                      <i class="bi bi-globe2 me-1"></i>{{ supplier.currencySymbol }} {{ supplier.currencyCode }}
+                    </span>
+                    
+                    <small *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded"
+                           class="d-block mt-1 fw-semibold" style="font-size:0.68rem; color: #0e7490">
+                      <i class="bi bi-currency-exchange me-1"></i>{{ getExchangeRateLabel(supplier.supplierId) }}
                     </small>
+                    <small *ngIf="isCrossCurrencySupplier(supplier.supplierId) && !exchangeRatesLoaded && !exchangeRatesError"
+                           class="d-block mt-1 text-muted" style="font-size:0.68rem; color: #0e7490">
+                      <i class="bi bi-hourglass-split me-1"></i>Loading rate...
+                    </small>
+
+                   
+                    <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else supplierTotalOwn">
+                 
+                    </ng-container>
+                    <ng-template #supplierTotalOwn>
+                      <small class="d-block mt-1 fw-bold"
+                        [ngClass]="isLowestSupplierTotal(supplier.supplierId) ? 'text-success' : 'text-dark'">
+                        {{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }}
+                        <span *ngIf="isLowestSupplierTotal(supplier.supplierId)" class="ms-1">🏆 Lowest</span>
+                      </small>
+                    </ng-template>
+
                   </th>
                 </ng-container>
               </tr>
 
-             
               <tr class="sub-header">
                 <ng-container *ngFor="let supplier of suppliers">
-                  
-                  <th class="text-center" style="min-width: 80px;">Rate<br>({{ currencySymbol }})</th>
+                  <th class="text-center" style="min-width: 80px;">
+                    Rate<br>({{ isCrossCurrencySupplier(supplier.supplierId) ? currencySymbol : supplier.currencySymbol }})
+                  </th>
                   <th class="text-center" style="min-width: 90px;">Amount<br><small>(All Incl.)</small></th>
                   <th class="text-center" style="min-width: 70px;">Delivery<br><small>(days)</small></th>
                   <th class="text-center" style="min-width: 70px;">Warranty<br><small>(months)</small></th>
@@ -187,7 +220,7 @@
               </tr>
             </thead>
 
-           
+        
             <tbody>
               <ng-container *ngFor="let item of items; let itemIndex = index">
                 <tr>
@@ -216,20 +249,49 @@
                   <td class="text-center"><span class="badge bg-info">{{ item.quantity }}</span></td>
                   <td class="text-center"><span class="badge bg-secondary">{{ item.uom }}</span></td>
 
-  
+             
                   <ng-container *ngFor="let supplier of suppliers">
                     <ng-container *ngIf="getQuoteForSupplier(item.quotes, supplier.supplierId) as quote; else noQuote">
+
                      
                       <td class="text-end quote-cell fw-semibold"
                           [class.lowest-cell]="isLowestQuote(quote, item.quotes)">
-                        {{ currencySymbol }}{{ quote.unitRate | number:'1.2-2' }}
+                        <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else rateOwn">
+                        
+                          <div class="text-dark fw-bold">
+                            {{ formatConvertedAmount(quote.unitRate, supplier.supplierId) }}
+                            <small class="text-primary fw-semibold" style="font-size:0.7rem;">{{ currencyCode }}</small>
+                          </div>
+                         
+                          <small *ngIf="showConvertedAmounts" class="d-block text-muted" style="font-size:0.7rem; white-space:nowrap;">
+                            ({{ formatSupplierCurrency(quote.unitRate, supplier.supplierId) }} {{ supplier.currencyCode }})
+                          </small>
+                        </ng-container>
+                        <ng-template #rateOwn>
+                          <div>{{ formatSupplierCurrency(quote.unitRate, supplier.supplierId) }}</div>
+                        </ng-template>
                       </td>
+
                      
                       <td class="text-end quote-cell"
                           [class.lowest-cell]="isLowestQuote(quote, item.quotes)">
-                        <div class="fw-bold">{{ currencySymbol }}{{ quote.grandTotal | number:'1.2-2' }}</div>
+                        <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else amountOwn">
+                      
+                          <div class="fw-bold text-dark" style="font-size:1rem;">
+                            {{ formatConvertedAmount(quote.grandTotal, supplier.supplierId) }}
+                            <small class="text-primary fw-semibold" style="font-size:0.72rem;">{{ currencyCode }}</small>
+                          </div>
+                         
+                          <small *ngIf="showConvertedAmounts" class="d-block text-muted" style="font-size:0.72rem; white-space:nowrap;">
+                            ({{ formatSupplierCurrency(quote.grandTotal, supplier.supplierId) }} {{ supplier.currencyCode }})
+                          </small>
+                        </ng-container>
+                        <ng-template #amountOwn>
+                          <div class="fw-bold">{{ formatSupplierCurrency(quote.grandTotal, supplier.supplierId) }}</div>
+                        </ng-template>
                         <small class="text-muted d-block">Tax: {{ quote.taxPercentage }}%</small>
                       </td>
+
                       <td class="text-center quote-cell">
                         <span *ngIf="quote.deliveryDays" class="badge bg-warning">{{ quote.deliveryDays }}</span>
                         <span *ngIf="!quote.deliveryDays" class="text-muted small">-</span>
@@ -273,22 +335,39 @@
               </tr>
             </tbody>
 
-            
+          
             <tfoot class="sticky-footer">
               <tr>
                 <td colspan="6" class="text-end fw-bold">
                   <i class="bi bi-calculator me-2"></i>GRAND TOTAL:
                 </td>
+
                 <ng-container *ngFor="let supplier of suppliers">
                   <td colspan="7" class="supplier-total-cell"
                       [class.lowest-supplier-total]="isLowestSupplierTotal(supplier.supplierId)">
+
+                    <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else footerOwn">
+                
+                      <div class="fw-bold text-dark" style="font-size:1.1rem;">
+                        {{ formatConvertedAmount(getSupplierTotal(supplier.supplierId), supplier.supplierId) }}
+                      </div>
+                      <small class="d-block text-primary fw-semibold" style="font-size:0.75rem;">{{ currencyCode }}</small>
+                     
+                      <small *ngIf="showConvertedAmounts" class="d-block text-muted mt-1" style="font-size:0.72rem;">
+                        ({{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }} {{ supplier.currencyCode }})
+                      </small>
+                    </ng-container>
+                    <ng-template #footerOwn>
+                      <div class="text-primary fw-bold">
+                        {{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }}
+                      </div>
+                      <small class="d-block text-primary fw-semibold mt-2" style="font-size:0.55rem;">
+                        {{ supplier.currencyCode }}
+                      </small>
+                    </ng-template>
+
                   
-                    <div class="text-primary fw-bold">
-                      {{ currencySymbol }}{{ getSupplierTotal(supplier.supplierId) | number:'1.2-2' }}
-                    </div>
-                    <small *ngIf="isLowestSupplierTotal(supplier.supplierId)" class="text-success fw-bold d-block">
-                      🏆 Lowest Total
-                    </small>
+
                   </td>
                 </ng-container>
               </tr>
@@ -298,7 +377,7 @@
         </div>
       </div>
 
-      
+    
       <c-card-footer class="bg-light border-0 p-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
           <div class="text-muted small">
@@ -323,7 +402,7 @@
     </div>
   </div>
 
- 
+
   <div *ngIf="!isLoading && !comparisonData" class="text-center py-5">
     <i class="bi bi-exclamation-triangle display-1 text-warning mb-3 d-block"></i>
     <h5>No Quote Data Available</h5>
@@ -334,7 +413,6 @@
   </div>
 
 </c-container> -->
-
 
 
 <c-container fluid class="mt-4">
@@ -431,17 +509,6 @@
         <div class="stat-info"><h4>{{ evaluationDone ? 'Done' : 'Pending' }}</h4><p>Evaluation Status</p></div>
       </div>
     </c-col>
-    <!-- <c-col xs="6" md="3">
-      <div class="stat-card stat-card-blue">
-        <div class="stat-icon"><i class="bi bi-person-check"></i></div>
-        <div class="stat-info">
-          <h4 style="font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            {{ hasSelectedSupplier() ? getSelectedSupplierName() : '—' }}
-          </h4>
-          <p>Preview Selected</p>
-        </div>
-      </div>
-    </c-col> -->
   </c-row>
 
   <!-- ===== LOADING ===== -->
@@ -455,6 +522,8 @@
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
       <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+          <!-- Left: Title + currency badges -->
           <div>
             <h5 class="fw-bold text-dark mb-2">
               <i class="bi bi-clipboard-data me-2"></i>Quote Comparison Matrix
@@ -462,11 +531,9 @@
             <p class="text-muted mb-1 fw-semibold">
               {{ rfqDetails?.rfqNumber }} — {{ rfqDetails?.rfqTitle }}
             </p>
-            <!-- Page-level buyer currency badge -->
             <span class="badge bg-primary me-2" style="font-size:0.8rem;">
               <i class="bi bi-globe2 me-1"></i>Buyer currency: {{ currencySymbol }} {{ currencyCode }}
             </span>
-            <!-- Per-supplier currency badges -->
             <ng-container *ngFor="let s of suppliers">
               <span class="badge me-1"
                     [style.background]="s.currencyCode !== currencyCode ? '#d32f2f' : '#388e3c'"
@@ -479,8 +546,11 @@
               Supplier original currency shown in brackets for reference.
             </p>
           </div>
-          <div class="d-flex gap-2 flex-wrap">
-            <!-- Toggle to show/hide supplier original currency in brackets -->
+
+          <!-- Right: Action buttons -->
+          <div class="d-flex gap-2 flex-wrap align-items-start">
+
+            <!-- Show/Hide supplier currency toggle -->
             <button cButton [color]="showConvertedAmounts ? 'info' : 'outline-secondary'"
                     (click)="showConvertedAmounts = !showConvertedAmounts" class="btn-sm"
                     *ngIf="suppliers.length > 0"
@@ -488,15 +558,32 @@
               <i class="bi bi-currency-exchange me-1"></i>
               {{ showConvertedAmounts ? 'Hide Supplier Currency' : 'Show Supplier Currency' }}
             </button>
-            <button cButton color="success" (click)="exportToExcel()" [disabled]="isExporting" class="btn-sm">
-              <c-spinner *ngIf="isExporting" size="sm" class="me-1"></c-spinner>
-              <i *ngIf="!isExporting" class="bi bi-file-earmark-excel me-1"></i>
-              {{ isExporting ? 'Exporting...' : 'Export to Excel' }}
-            </button>
+
+            <!-- ✅ Download Report — pure Angular dropdown (no Bootstrap JS) -->
+          <div class="position-relative">
+  <button cButton color="success" class="btn-sm fw-semibold"
+          [disabled]="isExporting"
+          (click)="exportToExcel()"
+          title="Download Excel">
+
+    <span *ngIf="isExporting"
+          class="spinner-border spinner-border-sm me-1"
+          role="status"></span>
+
+    <i *ngIf="!isExporting" class="bi bi-download me-1"></i>
+
+    <ng-container *ngIf="isExporting">Downloading Excel...</ng-container>
+    <ng-container *ngIf="!isExporting">Download Excel</ng-container>
+
+  </button>
+</div>
+            <!-- ✅ END Download Report dropdown -->
+
             <button cButton color="secondary" (click)="goBack()" class="btn-sm">
               <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
             </button>
           </div>
+
         </div>
       </div>
 
@@ -514,7 +601,6 @@
                 <th rowspan="2" style="min-width: 60px;">Qty</th>
                 <th rowspan="2" style="min-width: 60px;">UOM</th>
 
-                <!-- Each supplier header -->
                 <ng-container *ngFor="let supplier of suppliers; let i = index">
                   <th [attr.colspan]="7" class="supplier-header">
                     <div class="supplier-name mb-1">
@@ -523,47 +609,30 @@
                     <small class="d-block supplier-email">
                       <i class="bi bi-envelope-fill me-1"></i>{{ supplier.contactEmail }}
                     </small>
-                    <!-- Per-supplier currency badge -->
                     <span class="badge mt-1 me-1"
                           [style.background]="supplier.currencyCode !== currencyCode ? '#c62828' : '#2e7d32'"
-                          style="font-size:0.7rem; ">
+                          style="font-size:0.7rem;">
                       <i class="bi bi-globe2 me-1"></i>{{ supplier.currencySymbol }} {{ supplier.currencyCode }}
                     </span>
-                    <!-- Exchange rate label for cross-currency suppliers -->
                     <small *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded"
                            class="d-block mt-1 fw-semibold" style="font-size:0.68rem; color: #0e7490">
                       <i class="bi bi-currency-exchange me-1"></i>{{ getExchangeRateLabel(supplier.supplierId) }}
                     </small>
                     <small *ngIf="isCrossCurrencySupplier(supplier.supplierId) && !exchangeRatesLoaded && !exchangeRatesError"
-                           class="d-block mt-1 text-muted" style="font-size:0.68rem; color: #0e7490">
+                           class="d-block mt-1 text-muted" style="font-size:0.68rem;">
                       <i class="bi bi-hourglass-split me-1"></i>Loading rate...
                     </small>
-
-                    <!-- ✅ UPDATED: PRIMARY = buyer's INR total (large + bold) -->
-                    <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else supplierTotalOwn">
-                      <!-- <small class="d-block mt-1 fw-bold"
-                        [ngClass]="isLowestSupplierTotal(supplier.supplierId) ? 'text-success' : 'text-warning'">
-                        {{ formatConvertedAmount(getSupplierTotal(supplier.supplierId), supplier.supplierId) }} {{ currencyCode }}
-                        <span *ngIf="isLowestSupplierTotal(supplier.supplierId)" class="ms-1">🏆 Lowest</span>
-                      </small> -->
-                      <!-- Supplier's original currency in muted brackets -->
-                      <!-- <small *ngIf="showConvertedAmounts" class="d-block text-white-50" style="font-size:0.68rem;">
-                        ({{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }} {{ supplier.currencyCode }})
-                      </small> -->
-                    </ng-container>
-                    <ng-template #supplierTotalOwn>
+                    <ng-container *ngIf="!isCrossCurrencySupplier(supplier.supplierId)">
                       <small class="d-block mt-1 fw-bold"
                         [ngClass]="isLowestSupplierTotal(supplier.supplierId) ? 'text-success' : 'text-dark'">
                         {{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }}
                         <span *ngIf="isLowestSupplierTotal(supplier.supplierId)" class="ms-1">🏆 Lowest</span>
                       </small>
-                    </ng-template>
-
+                    </ng-container>
                   </th>
                 </ng-container>
               </tr>
 
-              <!-- ✅ UPDATED: Sub-header Rate column uses buyer currency symbol for cross-currency suppliers -->
               <tr class="sub-header">
                 <ng-container *ngFor="let supplier of suppliers">
                   <th class="text-center" style="min-width: 80px;">
@@ -608,20 +677,16 @@
                   <td class="text-center"><span class="badge bg-info">{{ item.quantity }}</span></td>
                   <td class="text-center"><span class="badge bg-secondary">{{ item.uom }}</span></td>
 
-                  <!-- ✅ UPDATED: Each supplier column — INR as primary, supplier currency in brackets -->
                   <ng-container *ngFor="let supplier of suppliers">
                     <ng-container *ngIf="getQuoteForSupplier(item.quotes, supplier.supplierId) as quote; else noQuote">
 
-                      <!-- ✅ RATE CELL: INR primary for cross-currency -->
                       <td class="text-end quote-cell fw-semibold"
                           [class.lowest-cell]="isLowestQuote(quote, item.quotes)">
                         <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else rateOwn">
-                          <!-- PRIMARY: Buyer's INR converted rate -->
                           <div class="text-dark fw-bold">
                             {{ formatConvertedAmount(quote.unitRate, supplier.supplierId) }}
                             <small class="text-primary fw-semibold" style="font-size:0.7rem;">{{ currencyCode }}</small>
                           </div>
-                          <!-- Supplier's original rate in muted brackets -->
                           <small *ngIf="showConvertedAmounts" class="d-block text-muted" style="font-size:0.7rem; white-space:nowrap;">
                             ({{ formatSupplierCurrency(quote.unitRate, supplier.supplierId) }} {{ supplier.currencyCode }})
                           </small>
@@ -631,16 +696,13 @@
                         </ng-template>
                       </td>
 
-                      <!-- ✅ AMOUNT CELL: INR primary for cross-currency -->
                       <td class="text-end quote-cell"
                           [class.lowest-cell]="isLowestQuote(quote, item.quotes)">
                         <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else amountOwn">
-                          <!-- PRIMARY: Buyer's INR converted amount — bold and large -->
                           <div class="fw-bold text-dark" style="font-size:1rem;">
                             {{ formatConvertedAmount(quote.grandTotal, supplier.supplierId) }}
                             <small class="text-primary fw-semibold" style="font-size:0.72rem;">{{ currencyCode }}</small>
                           </div>
-                          <!-- Supplier's original amount in muted brackets -->
                           <small *ngIf="showConvertedAmounts" class="d-block text-muted" style="font-size:0.72rem; white-space:nowrap;">
                             ({{ formatSupplierCurrency(quote.grandTotal, supplier.supplierId) }} {{ supplier.currencyCode }})
                           </small>
@@ -700,18 +762,14 @@
                 <td colspan="6" class="text-end fw-bold">
                   <i class="bi bi-calculator me-2"></i>GRAND TOTAL:
                 </td>
-                <!-- ✅ UPDATED: Footer total — INR as primary, supplier currency in muted brackets -->
                 <ng-container *ngFor="let supplier of suppliers">
                   <td colspan="7" class="supplier-total-cell"
                       [class.lowest-supplier-total]="isLowestSupplierTotal(supplier.supplierId)">
-
                     <ng-container *ngIf="isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded; else footerOwn">
-                      <!-- PRIMARY: INR total — large and bold -->
                       <div class="fw-bold text-dark" style="font-size:1.1rem;">
                         {{ formatConvertedAmount(getSupplierTotal(supplier.supplierId), supplier.supplierId) }}
                       </div>
                       <small class="d-block text-primary fw-semibold" style="font-size:0.75rem;">{{ currencyCode }}</small>
-                      <!-- Supplier's original total in muted brackets -->
                       <small *ngIf="showConvertedAmounts" class="d-block text-muted mt-1" style="font-size:0.72rem;">
                         ({{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }} {{ supplier.currencyCode }})
                       </small>
@@ -720,20 +778,8 @@
                       <div class="text-primary fw-bold">
                         {{ formatSupplierCurrency(getSupplierTotal(supplier.supplierId), supplier.supplierId) }}
                       </div>
-                      <small class="d-block text-primary fw-semibold mt-2" style="font-size:0.55rem;">
-                        {{ supplier.currencyCode }}
-                      </small>
+                      <small class="d-block text-primary fw-semibold mt-2" style="font-size:0.55rem;">{{ supplier.currencyCode }}</small>
                     </ng-template>
-
-                    <!-- Lowest label -->
-                    <!-- <small *ngIf="isLowestSupplierTotal(supplier.supplierId)" class="text-success fw-bold d-block mt-1">
-                      🏆 Lowest Total
-                    </small>
-                    <small *ngIf="isLowestSupplierTotal(supplier.supplierId) && isCrossCurrencySupplier(supplier.supplierId) && exchangeRatesLoaded"
-                           class="text-success d-block" style="font-size:0.65rem;">
-                      (based on {{ currencyCode }} conversion)
-                    </small> -->
-
                   </td>
                 </ng-container>
               </tr>

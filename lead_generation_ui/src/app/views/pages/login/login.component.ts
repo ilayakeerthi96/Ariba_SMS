@@ -1,5 +1,4 @@
 
-
 // import { Component, inject } from '@angular/core';
 // import { DataService } from '../../../shared/service/DataService';
 // import { Router } from '@angular/router';
@@ -16,8 +15,11 @@
 // import { AuthService } from '../../../shared/service/AuthService';
 // import { User } from '../../../shared/user/User';
 // import { MessageService } from '../../../shared/service/message.service';
+// import { ThemeService } from '../../../shared/service/theme.service'; // ✅ NEW
 // import { forkJoin, of } from 'rxjs';
 // import { catchError } from 'rxjs/operators';
+// import { RouterLink } from '@angular/router';
+// // add RouterLink to the imports array
 
 // @Component({
 //   selector: 'app-login',
@@ -44,7 +46,8 @@
 
 //   constructor(
 //     private authService: AuthService,
-//     private messageService: MessageService
+//     private messageService: MessageService,
+//     private themeService: ThemeService  // ✅ NEW
 //   ) {
 //     this.initializeForm();
 //   }
@@ -130,8 +133,8 @@
 //     this.isLoading = false;
 //     const userData = response.data;
 
-//    localStorage.setItem('token', userData.token);
 //     const now = new Date().getTime();
+//     localStorage.setItem('token', userData.token);
 //     localStorage.setItem('expirationTime', JSON.stringify(now + (24 * 60 * 60 * 1000)));
 //     localStorage.setItem('loginTimestamp', JSON.stringify(now));
 //     localStorage.setItem('userId', userData.id?.toString() || '');
@@ -142,10 +145,16 @@
 //     localStorage.setItem('role', 'SUPER_ADMIN');
 //     localStorage.setItem('userType', 'SUPER_ADMIN');
 //     localStorage.setItem('loginStatus', 'true');
-
-//     // ✅ ADD THIS ONE LINE — save superadmin logo URL at login time
 //     localStorage.setItem('superAdminLogoUrl', userData.logoUrl || '');
 
+//     if (userData.logoBase64 && userData.logoBase64 !== 'null') {
+//       localStorage.setItem('logoBase64', userData.logoBase64);
+//     } else {
+//       localStorage.removeItem('logoBase64');
+//     }
+
+//     // ✅ Apply saved theme from backend for SuperAdmin
+//     this.themeService.loadThemeOnLogin();
 
 //     const currentUser: User = {
 //       id: userData.id || 0,
@@ -162,7 +171,10 @@
 //       role: 'SUPER_ADMIN',
 //       userType: 'SUPER_ADMIN',
 //       isActive: userData.isActive,
-//       userRoleAccess: [{ "userRoleAccessId": 0, "userRoles": "SUPER_ADMIN", "pageAccess": "ALL", "createdDate": null, "accessRead": true, "accessEdit": true, "accessDelete": true }]
+//       userRoleAccess: [{
+//         userRoleAccessId: 0, userRoles: 'SUPER_ADMIN', pageAccess: 'ALL',
+//         createdDate: null, accessRead: true, accessEdit: true, accessDelete: true
+//       }]
 //     };
 
 //     localStorage.setItem('signinData', JSON.stringify(signinData));
@@ -180,8 +192,8 @@
 //     this.isLoading = false;
 //     const userData = response.data;
 
-//     localStorage.setItem('token', userData.token);
 //     const now = new Date().getTime();
+//     localStorage.setItem('token', userData.token);
 //     localStorage.setItem('expirationTime', JSON.stringify(now + (24 * 60 * 60 * 1000)));
 //     localStorage.setItem('loginTimestamp', JSON.stringify(now));
 //     localStorage.setItem('userId', userData.id?.toString() || '');
@@ -193,6 +205,15 @@
 //     localStorage.setItem('userType', 'ORGANIZATION_ADMIN');
 //     localStorage.setItem('loginStatus', 'true');
 //     localStorage.setItem('mustChangePassword', userData.mustChangePassword?.toString() || 'false');
+
+//     if (userData.logoBase64 && userData.logoBase64 !== 'null') {
+//       localStorage.setItem('logoBase64', userData.logoBase64);
+//     } else {
+//       localStorage.removeItem('logoBase64');
+//     }
+
+//     // ✅ Apply saved theme from backend for OrgAdmin
+//     this.themeService.loadThemeOnLogin();
 
 //     const currentUser: User = {
 //       id: userData.id || 0,
@@ -210,23 +231,18 @@
 //       userType: 'ORGANIZATION_ADMIN',
 //       isActive: userData.isActive,
 //       mustChangePassword: userData.mustChangePassword,
-//       userRoleAccess: [{ "userRoleAccessId": 0, "userRoles": "ORGANIZATION_ADMIN", "pageAccess": "ALL", "createdDate": null, "accessRead": true, "accessEdit": true, "accessDelete": true }]
+//       userRoleAccess: [{
+//         userRoleAccessId: 0, userRoles: 'ORGANIZATION_ADMIN', pageAccess: 'ALL',
+//         createdDate: null, accessRead: true, accessEdit: true, accessDelete: true
+//       }]
 //     };
 
 //     localStorage.setItem('signinData', JSON.stringify(signinData));
 //     localStorage.setItem('userRole', JSON.stringify(signinData.userRoleAccess));
 //     this.authService.setUser(currentUser);
 //     this.authService.setLoginStatus(true);
-
-//     // if (userData.mustChangePassword === true) {
-//     //   this.messageService.showMessage('warning', 'Password Change Required', 'You must change your password on first login.');
-//     //   setTimeout(() => this.router.navigate(['/change-password']), 500);
-//     // } else {
-//     //   this.router.navigate(['/orgadmin-dashboard']);
-//     // }
-//     // ✅ ALWAYS go to dashboard (password change disabled)
-// console.log('✅ Redirecting to OrgAdmin Dashboard');
-// this.router.navigate(['/orgadmin-dashboard']);
+//     console.log('✅ Redirecting to OrgAdmin Dashboard');
+//     this.router.navigate(['/orgadmin-dashboard']);
 //   }
 
 //   // ============================================
@@ -249,13 +265,14 @@
 //         companyName: userData.companyName || ''
 //       };
 //     } else {
-//       this.messageService.showMessage('error', 'Login Failed', 'Account not assigned to any hierarchy level.');
+//       this.messageService.showMessage('error', 'Login Failed',
+//           'Account not assigned to any hierarchy level.');
 //       this.isLoading = false;
 //       return;
 //     }
 
-//     localStorage.setItem('token', userData.token);
 //     const now = new Date().getTime();
+//     localStorage.setItem('token', userData.token);
 //     localStorage.setItem('expirationTime', JSON.stringify(now + (24 * 60 * 60 * 1000)));
 //     localStorage.setItem('loginTimestamp', JSON.stringify(now));
 //     localStorage.setItem('userId', userData.id?.toString() || '');
@@ -269,6 +286,10 @@
 //     localStorage.setItem('hierarchyLevelName', hierarchyLevelData.levelName || '');
 //     localStorage.setItem('hierarchyLevelOrder', hierarchyLevelData.levelOrder?.toString() || '');
 //     localStorage.setItem('companyName', hierarchyLevelData.companyName || '');
+//     localStorage.removeItem('logoBase64');
+
+//     // ✅ Apply org's saved theme for hierarchy users (reads from localStorage)
+//     this.themeService.loadThemeOnLogin();
 
 //     const currentUser: User = {
 //       id: userData.id || 0,
@@ -285,7 +306,10 @@
 //       userType: userData.role,
 //       isActive: userData.isActive,
 //       hierarchyLevel: hierarchyLevelData,
-//       userRoleAccess: [{ "userRoleAccessId": 0, "userRoles": userData.role, "pageAccess": "ALL", "createdDate": null, "accessRead": true, "accessEdit": true, "accessDelete": true }]
+//       userRoleAccess: [{
+//         userRoleAccessId: 0, userRoles: userData.role, pageAccess: 'ALL',
+//         createdDate: null, accessRead: true, accessEdit: true, accessDelete: true
+//       }]
 //     };
 
 //     localStorage.setItem('signinData', JSON.stringify(signinData));
@@ -296,15 +320,13 @@
 //   }
 
 //   // ============================================
-//   // ✅ FIXED: BUYER LOGIN - stores buyerId + companyName correctly
+//   // BUYER LOGIN
 //   // ============================================
 //   private handleBuyerLogin(authResponse: any, loginRequest: any) {
 //     console.log('✅ BUYER LOGIN SUCCESS');
-//     console.log('%c[FULL RESPONSE]', 'color: #0066cc; font-weight: bold;', authResponse);
 //     this.isLoading = false;
 
 //     if (!authResponse.token) {
-//       console.error('❌ No token in response');
 //       this.errorMessage = 'Login failed: Invalid response from server';
 //       return;
 //     }
@@ -316,6 +338,7 @@
 //     localStorage.setItem('role', 'ROLE_BUYER');
 //     localStorage.setItem('userType', 'ROLE_BUYER');
 //     localStorage.setItem('loginStatus', 'true');
+//     localStorage.removeItem('logoBase64');
 
 //     const userId = authResponse.userId || authResponse.id || 0;
 //     localStorage.setItem('userId', userId.toString());
@@ -323,7 +346,6 @@
 //     const email = authResponse.email || loginRequest.email;
 //     localStorage.setItem('email', email);
 
-//     // Build full name
 //     let fullName = '';
 //     if (authResponse.fullName?.trim()) {
 //       fullName = authResponse.fullName.trim();
@@ -333,14 +355,12 @@
 //     if (!fullName) fullName = email.split('@')[0];
 //     localStorage.setItem('fullName', fullName);
 
-//     // ✅ FIX 1: Store department
 //     if (authResponse.department) {
 //       localStorage.setItem('departmentId', authResponse.department.id?.toString() || '');
 //       localStorage.setItem('departmentName', authResponse.department.name || '');
 //       localStorage.setItem('department', JSON.stringify(authResponse.department));
 //     }
 
-//     // ✅ FIX 2: Store location
 //     if (authResponse.location) {
 //       localStorage.setItem('locationId', authResponse.location.id?.toString() || '');
 //       localStorage.setItem('city', authResponse.location.city || '');
@@ -350,25 +370,23 @@
 //       localStorage.setItem('location', JSON.stringify(authResponse.location));
 //     }
 
-//     // ✅ FIX 3: Store buyer — buyerId AND companyName (buyer.name is the company name)
 //     if (authResponse.buyer) {
 //       const buyerId = authResponse.buyer.id?.toString() || '';
-//       const companyName = authResponse.buyer.name || '';   // ← LoginResponse.BuyerDetails uses "name"
-
+//       const companyName = authResponse.buyer.name || '';
 //       localStorage.setItem('buyerId', buyerId);
 //       localStorage.setItem('buyerName', companyName);
 //       localStorage.setItem('buyerEmail', authResponse.buyer.email || '');
-//       localStorage.setItem('companyName', companyName);   // ✅ CRITICAL: used by header for text badge
+//       localStorage.setItem('companyName', companyName);
 //       localStorage.setItem('buyer', JSON.stringify(authResponse.buyer));
-
-//       console.log('✅ Stored buyerId:', buyerId);
-//       console.log('✅ Stored companyName:', companyName);
+//       console.log('✅ Stored buyerId:', buyerId, '| companyName:', companyName);
 //     } else {
-//       // ✅ FIX 4: buyer is null in response — clear these so header shows gracefully
-//       console.warn('⚠️ No buyer in login response — logo cannot be loaded');
+//       console.warn('⚠️ No buyer in login response');
 //       localStorage.removeItem('buyerId');
 //       localStorage.setItem('companyName', '');
 //     }
+
+//     // ✅ Apply org's saved theme for buyers (reads from localStorage)
+//     this.themeService.loadThemeOnLogin();
 
 //     const currentUser: User = {
 //       id: userId,
@@ -379,11 +397,10 @@
 
 //     this.authService.setUser(currentUser);
 //     this.authService.setLoginStatus(true);
-
 //     localStorage.setItem('signinData', JSON.stringify(authResponse));
 //     localStorage.setItem('userRole', JSON.stringify([{
-//       "userRoleAccessId": 0, "userRoles": "ROLE_BUYER", "pageAccess": "ALL",
-//       "createdDate": null, "accessRead": true, "accessEdit": true, "accessDelete": true
+//       userRoleAccessId: 0, userRoles: 'ROLE_BUYER', pageAccess: 'ALL',
+//       createdDate: null, accessRead: true, accessEdit: true, accessDelete: true
 //     }]));
 
 //     console.log('✅ BUYER LOGIN COMPLETE — Redirecting to RFQ Dashboard');
@@ -409,6 +426,7 @@
 //     localStorage.setItem('role', 'ROLE_SUPPLIER');
 //     localStorage.setItem('userType', 'ROLE_SUPPLIER');
 //     localStorage.setItem('loginStatus', 'true');
+//     localStorage.removeItem('logoBase64');
 
 //     const userId = response.userId || response.id || 0;
 //     localStorage.setItem('userId', userId.toString());
@@ -418,8 +436,7 @@
 
 //     let fullName = response.fullName?.trim() || email.split('@')[0];
 //     localStorage.setItem('fullName', fullName);
-
-//    localStorage.setItem('phone', response.phone || response.supplier?.phone || '');
+//     localStorage.setItem('phone', response.phone || response.supplier?.phone || '');
 
 //     if (response.department) {
 //       localStorage.setItem('departmentId', response.department.id?.toString() || '');
@@ -446,6 +463,9 @@
 //       localStorage.setItem('supplier', JSON.stringify(response.supplier));
 //     }
 
+//     // ✅ Apply org's saved theme for suppliers (reads from localStorage)
+//     this.themeService.loadThemeOnLogin();
+
 //     const currentUser: User = {
 //       id: userId,
 //       username: email,
@@ -455,17 +475,14 @@
 
 //     this.authService.setUser(currentUser);
 //     this.authService.setLoginStatus(true);
-
 //     localStorage.setItem('signinData', JSON.stringify(response));
 //     localStorage.setItem('userRole', JSON.stringify([{
-//       "userRoleAccessId": 0, "userRoles": "ROLE_SUPPLIER", "pageAccess": "ALL",
-//       "createdDate": null, "accessRead": true, "accessEdit": true, "accessDelete": true
+//       userRoleAccessId: 0, userRoles: 'ROLE_SUPPLIER', pageAccess: 'ALL',
+//       createdDate: null, accessRead: true, accessEdit: true, accessDelete: true
 //     }]));
 
 //     this.router.navigate(['/supplier-dashboard']);
 //   }
-
-  
 
 //   clearError() {
 //     this.errorMessage = null;
@@ -476,7 +493,7 @@
 
 import { Component, inject } from '@angular/core';
 import { DataService } from '../../../shared/service/DataService';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ContainerComponent, RowComponent, ColComponent, CardGroupComponent,
@@ -490,6 +507,7 @@ import { AlertModule } from '@coreui/angular';
 import { AuthService } from '../../../shared/service/AuthService';
 import { User } from '../../../shared/user/User';
 import { MessageService } from '../../../shared/service/message.service';
+import { ThemeService } from '../../../shared/service/theme.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -499,10 +517,23 @@ import { catchError } from 'rxjs/operators';
   styleUrls: ['./login.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, ContainerComponent, RowComponent, ColComponent,
-    CardGroupComponent, TextColorDirective, CardComponent, CardBodyComponent,
-    InputGroupComponent, InputGroupTextDirective, IconDirective,
-    FormControlDirective, ButtonDirective, FormsModule, ReactiveFormsModule, AlertModule
+    CommonModule,
+    RouterLink,           // ✅ FIX: Added RouterLink so routerLink directive works
+    ContainerComponent,
+    RowComponent,
+    ColComponent,
+    CardGroupComponent,
+    TextColorDirective,
+    CardComponent,
+    CardBodyComponent,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    IconDirective,
+    FormControlDirective,
+    ButtonDirective,
+    FormsModule,
+    ReactiveFormsModule,
+    AlertModule
   ]
 })
 export class LoginComponent {
@@ -514,18 +545,19 @@ export class LoginComponent {
   submitted = false;
 
   dataService = inject(DataService);
-  router = inject(Router);
+  router      = inject(Router);
 
   constructor(
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private themeService: ThemeService
   ) {
     this.initializeForm();
   }
 
   initializeForm() {
     this.loginForm = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
+      email:    new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required])
     });
   }
@@ -534,15 +566,25 @@ export class LoginComponent {
     return this.loginForm.controls;
   }
 
+  // ============================================
+  // Navigate to supplier registration page
+  // ============================================
+  goToRegister() {
+    this.router.navigate(['/register']);
+  }
+
+  // ============================================
+  // UNIFIED LOGIN
+  // ============================================
   unifiedLogin() {
-    this.isLoading = true;
-    this.submitted = true;
-    this.errorMessage = null;
+    this.isLoading  = true;
+    this.submitted  = true;
+    this.errorMessage  = null;
     this.successMessage = null;
 
     if (this.loginForm.valid) {
       const loginRequest = {
-        email: this.loginForm.get('email')?.value,
+        email:    this.loginForm.get('email')?.value,
         password: this.loginForm.get('password')?.value
       };
 
@@ -618,12 +660,13 @@ export class LoginComponent {
     localStorage.setItem('loginStatus', 'true');
     localStorage.setItem('superAdminLogoUrl', userData.logoUrl || '');
 
-    // ✅ Cache logoBase64 so header doesn't need extra API call
     if (userData.logoBase64 && userData.logoBase64 !== 'null') {
       localStorage.setItem('logoBase64', userData.logoBase64);
     } else {
       localStorage.removeItem('logoBase64');
     }
+
+    this.themeService.loadThemeOnLogin();
 
     const currentUser: User = {
       id: userData.id || 0,
@@ -675,12 +718,13 @@ export class LoginComponent {
     localStorage.setItem('loginStatus', 'true');
     localStorage.setItem('mustChangePassword', userData.mustChangePassword?.toString() || 'false');
 
-    // ✅ Cache logoBase64 so header doesn't need extra API call
     if (userData.logoBase64 && userData.logoBase64 !== 'null') {
       localStorage.setItem('logoBase64', userData.logoBase64);
     } else {
       localStorage.removeItem('logoBase64');
     }
+
+    this.themeService.loadThemeOnLogin();
 
     const currentUser: User = {
       id: userData.id || 0,
@@ -708,12 +752,11 @@ export class LoginComponent {
     localStorage.setItem('userRole', JSON.stringify(signinData.userRoleAccess));
     this.authService.setUser(currentUser);
     this.authService.setLoginStatus(true);
-    console.log('✅ Redirecting to OrgAdmin Dashboard');
     this.router.navigate(['/orgadmin-dashboard']);
   }
 
   // ============================================
-  // HIERARCHY LOGIN — unchanged
+  // HIERARCHY LOGIN
   // ============================================
   private handleHierarchyLogin(response: any, loginRequest: any) {
     console.log('✅ HIERARCHY LOGIN SUCCESS');
@@ -755,6 +798,8 @@ export class LoginComponent {
     localStorage.setItem('companyName', hierarchyLevelData.companyName || '');
     localStorage.removeItem('logoBase64');
 
+    this.themeService.loadThemeOnLogin();
+
     const currentUser: User = {
       id: userData.id || 0,
       username: userData.email || loginRequest.email,
@@ -784,7 +829,7 @@ export class LoginComponent {
   }
 
   // ============================================
-  // BUYER LOGIN — unchanged
+  // BUYER LOGIN
   // ============================================
   private handleBuyerLogin(authResponse: any, loginRequest: any) {
     console.log('✅ BUYER LOGIN SUCCESS');
@@ -835,19 +880,19 @@ export class LoginComponent {
     }
 
     if (authResponse.buyer) {
-      const buyerId = authResponse.buyer.id?.toString() || '';
+      const buyerId     = authResponse.buyer.id?.toString() || '';
       const companyName = authResponse.buyer.name || '';
       localStorage.setItem('buyerId', buyerId);
       localStorage.setItem('buyerName', companyName);
       localStorage.setItem('buyerEmail', authResponse.buyer.email || '');
       localStorage.setItem('companyName', companyName);
       localStorage.setItem('buyer', JSON.stringify(authResponse.buyer));
-      console.log('✅ Stored buyerId:', buyerId, '| companyName:', companyName);
     } else {
-      console.warn('⚠️ No buyer in login response');
       localStorage.removeItem('buyerId');
       localStorage.setItem('companyName', '');
     }
+
+    this.themeService.loadThemeOnLogin();
 
     const currentUser: User = {
       id: userId,
@@ -864,12 +909,11 @@ export class LoginComponent {
       createdDate: null, accessRead: true, accessEdit: true, accessDelete: true
     }]));
 
-    console.log('✅ BUYER LOGIN COMPLETE — Redirecting to RFQ Dashboard');
     this.router.navigate(['/rfq-dashboard']);
   }
 
   // ============================================
-  // SUPPLIER LOGIN — unchanged
+  // SUPPLIER LOGIN
   // ============================================
   private handleSupplierLogin(response: any, loginRequest: any) {
     console.log('✅ SUPPLIER LOGIN SUCCESS');
@@ -924,6 +968,8 @@ export class LoginComponent {
       localStorage.setItem('supplier', JSON.stringify(response.supplier));
     }
 
+    this.themeService.loadThemeOnLogin();
+
     const currentUser: User = {
       id: userId,
       username: email,
@@ -943,7 +989,7 @@ export class LoginComponent {
   }
 
   clearError() {
-    this.errorMessage = null;
+    this.errorMessage  = null;
     this.successMessage = null;
   }
 }

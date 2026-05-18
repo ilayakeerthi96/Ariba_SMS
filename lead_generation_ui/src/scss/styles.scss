@@ -6,7 +6,9 @@
   $enable-deprecation-messages: false
 );
 @use "@coreui/chartjs/scss/coreui-chartjs";
-@use "theme";
+
+@use "theme";         // ← add this
+@use "theme-overrides"; // ← add this
 @use "custom";
 // @use "fixes"; // Uncomment if needed
 @use "examples";

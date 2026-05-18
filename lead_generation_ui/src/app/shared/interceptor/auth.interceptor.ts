@@ -137,6 +137,8 @@ export class AuthInterceptor implements HttpInterceptor {
     const publicUrls = [
       '/auth/login',
       '/auth/register',
+      '/supplier/register', 
+      '/supplier/register/organizations',
       '/superadmin/auth',
       '/organization-admin/auth/login',
       '/hierarchy-users/auth/login',

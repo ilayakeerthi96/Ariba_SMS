@@ -6,6 +6,13 @@
       redirectTo: 'login',
       pathMatch: 'full'
     },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./views/pages/supplier-register/supplier-register.component')
+        .then(m => m.SupplierRegisterComponent),
+    data: { title: 'Supplier Registration' }
+  },
     {
       path: '',
       loadComponent: () =>
@@ -85,6 +92,7 @@
             roles: ['ORGANIZATION_ADMIN']
           }
         },
+
         {
           path: 'supplier-dashboard',
           loadComponent: () =>

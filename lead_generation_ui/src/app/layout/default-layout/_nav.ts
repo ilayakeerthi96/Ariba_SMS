@@ -64,6 +64,7 @@ export const navItems: INavData[] = [
         name: 'Supplier Management',
         url: '/create-s',
         iconComponent: { name: 'cil-building' },
+           attributes: { roles: ['ORGANIZATION_ADMIN',] }
       },
       {
         name: 'Evaluation Criteria',
@@ -97,6 +98,12 @@ export const navItems: INavData[] = [
     name: 'Create RFQ',
     url: '/create-rfq',
     iconComponent: { name: 'cil-file' },
+    attributes: { roles: ['ROLE_BUYER'] }
+  },
+    {
+    name: 'Supplier Management',
+    url: '/create-s',
+    iconComponent: { name: 'cil-building' },
     attributes: { roles: ['ROLE_BUYER'] }
   },
   // {

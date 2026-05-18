@@ -1,0 +1,378 @@
+
+
+[data-theme] {
+  body, .wrapper, .card, c-card, .header, c-header,
+  c-sidebar, .sidebar, .modal-content,
+  .gradient-header, .gradient-header-levels,
+  .gradient-header-users, .gradient-header-reporting {
+    transition: background-color 0.25s ease,
+                color 0.2s ease,
+                border-color 0.2s ease !important;
+  }
+}
+
+// ── PAGE BACKGROUND ────────────────────────────────────────────
+[data-theme] body,
+[data-theme] .wrapper {
+  background-color: var(--page-bg) !important;
+}
+
+// ── NAVBAR / HEADER BACKGROUND ────────────────────────────────
+[data-theme] .header-wrapper,
+[data-theme] .header,
+[data-theme] c-header {
+  background-color: var(--navbar-bg) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+}
+
+// ✅ NARROW: Only target specific header elements — NOT the dropdown
+[data-theme] .system-title,
+[data-theme] .header-section .user-name,
+[data-theme] .header-section .user-designation,
+[data-theme] .header-section .separator,
+[data-theme] .header-section .department-info,
+[data-theme] .header-section .menu-icon,
+[data-theme] .header-left .sidebar-toggle-btn,
+[data-theme] .theme-label,
+[data-theme] .timer-wrapper,
+[data-theme] .timer-wrapper * {
+  color: var(--navbar-text) !important;
+}
+
+[data-theme] .company-name-badge {
+  background: linear-gradient(135deg, var(--tp), var(--tp-dark)) !important;
+}
+
+[data-theme] .header > .container-fluid + .container-fluid,
+[data-theme] .px-4.py-2.bg-light,
+[data-theme] .c-subheader {
+  background-color: var(--page-bg) !important;
+}
+
+// ✅ DROPDOWN — always white bg, always dark text, regardless of theme
+[data-theme] .dropdown-menu-custom {
+  background-color: #ffffff !important;
+  color: #212529 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+}
+
+[data-theme] .dropdown-header { background-color: #f7fafc !important; }
+
+[data-theme] .dropdown-header .fw-bold,
+[data-theme] .dropdown-header strong {
+  color: #1a1a2e !important;
+}
+
+[data-theme] .dropdown-header small,
+[data-theme] .dropdown-header .text-muted {
+  color: #6c757d !important;
+}
+
+[data-theme] .dropdown-item-custom {
+  color: #374151 !important;
+  background-color: transparent !important;
+}
+
+[data-theme] .dropdown-item-custom:hover {
+  background-color: #f7fafc !important;
+  color: #667eea !important;
+}
+
+[data-theme] .dropdown-item-custom.text-danger,
+[data-theme] .dropdown-item-custom.text-danger:hover {
+  color: #e53e3e !important;
+}
+
+// ── SIDEBAR ─────────────────────────────────────────────────────
+[data-theme] c-sidebar,
+[data-theme] .sidebar { background-color: var(--sidebar-bg) !important; }
+
+[data-theme] .sidebar .nav-link,
+[data-theme] .sidebar .nav-group-toggle { color: var(--sidebar-txt) !important; }
+
+[data-theme] .sidebar .nav-link:hover,
+[data-theme] .sidebar .nav-group-toggle:hover {
+  background-color: var(--sidebar-hov) !important;
+  color: #fff !important;
+}
+
+[data-theme] .sidebar .nav-link.active,
+[data-theme] .sidebar .nav-item.active > .nav-link {
+  background-color: var(--sidebar-act) !important;
+  color: #fff !important;
+  border-left: 3px solid var(--tp) !important;
+}
+
+[data-theme] .sidebar-brand,
+[data-theme] .sidebar-header,
+[data-theme] .sidebar-toggler { background-color: var(--sidebar-bg) !important; }
+
+// ── CARDS ─────────────────────────────────────────────────────
+[data-theme] .card,
+[data-theme] c-card {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-bdr) !important;
+  box-shadow: var(--card-shd) !important;
+}
+
+[data-theme] .card-header,
+[data-theme] c-card-header {
+  background-color: var(--card-bg) !important;
+  border-bottom: 1px solid var(--card-bdr) !important;
+}
+
+// ── GRADIENT HEADERS ──────────────────────────────────────────
+[data-theme] .gradient-header,
+[data-theme] .gradient-header-levels,
+[data-theme] .gradient-header-users,
+[data-theme] .gradient-header-reporting,
+[data-theme] .professional-header,
+[data-theme] .form-header {
+  background: linear-gradient(135deg, var(--tp) 0%, var(--tp-dark) 100%) !important;
+}
+
+// ── MODAL HEADERS ─────────────────────────────────────────────
+[data-theme] .modal-header-gradient,
+[data-theme] .modal-header-users,
+[data-theme] .modal-header-reporting {
+  background: linear-gradient(135deg, var(--tp) 0%, var(--tp-dark) 100%) !important;
+  border-bottom: none !important;
+}
+
+[data-theme] .modal-content {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--card-bdr) !important;
+}
+
+// ── TABLES ────────────────────────────────────────────────────
+[data-theme] .modern-table thead th,
+[data-theme] .table thead th,
+[data-theme] thead tr th {
+  background-color: var(--tbl-hd-bg) !important;
+  color: var(--tbl-hd-txt) !important;
+  border-color: var(--tbl-hd-bg) !important;
+}
+
+[data-theme] .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--tbl-odd) !important;
+}
+
+[data-theme] .modern-table-row:hover,
+[data-theme] .table-hover > tbody > tr:hover > * {
+  background-color: var(--tbl-hov) !important;
+}
+
+// ── AVATAR CIRCLES ────────────────────────────────────────────
+[data-theme] .avatar-circle {
+  background: linear-gradient(135deg, var(--tp), var(--tp-dark)) !important;
+}
+
+// ── STAT ICONS ────────────────────────────────────────────────
+[data-theme] .stat-purple,
+[data-theme] .stat-teal,
+[data-theme] .stat-green,
+[data-theme] .stat-icon-wrap {
+  background: var(--tp) !important;
+  color: #fff !important;
+}
+
+// ── BUTTONS ───────────────────────────────────────────────────
+[data-theme] .btn-primary,
+[data-theme] .btn-primary:hover,
+[data-theme] .btn-primary:focus {
+  background-color: var(--tp) !important;
+  border-color: var(--tp) !important;
+  color: #fff !important;
+}
+
+[data-theme] [cButton][color="primary"] {
+  background-color: var(--tp) !important;
+  border-color: var(--tp) !important;
+  color: #fff !important;
+}
+
+[data-theme] .btn-outline-primary {
+  color: var(--tp) !important;
+  border-color: var(--tp) !important;
+}
+[data-theme] .btn-outline-primary:hover {
+  background-color: var(--tp) !important;
+  color: #fff !important;
+}
+
+[data-theme] .action-icon.bg-primary {
+  background: linear-gradient(135deg, var(--tp), var(--tp-dark)) !important;
+}
+[data-theme] .action-button:hover {
+  border-color: var(--tp) !important;
+}
+
+// ── FORMS ────────────────────────────────────────────────────
+[data-theme] .form-control:focus,
+[data-theme] .form-select:focus,
+[data-theme] .form-control-modern:focus,
+[data-theme] .form-select-modern:focus {
+  border-color: var(--tp) !important;
+  box-shadow: 0 0 0 3px rgba(var(--tp-rgb), 0.15) !important;
+}
+
+[data-theme] .form-check-input:checked {
+  background-color: var(--tp) !important;
+  border-color: var(--tp) !important;
+}
+
+[data-theme] .input-group-text {
+  background-color: var(--tp) !important;
+  border-color: var(--tp) !important;
+  color: #fff !important;
+}
+
+// ── MISC ─────────────────────────────────────────────────────
+[data-theme] .designation-badge {
+  background: var(--tp-light) !important;
+  color: var(--tp) !important;
+}
+[data-theme] .manager-item { border-left-color: var(--tp) !important; }
+[data-theme] .info-icon { color: var(--tp) !important; }
+[data-theme] .text-primary { color: var(--tp) !important; }
+[data-theme] .page-link { color: var(--tp) !important; }
+[data-theme] .page-item.active .page-link {
+  background-color: var(--tp) !important;
+  border-color: var(--tp) !important;
+  color: #fff !important;
+}
+[data-theme] .badge.bg-primary { background-color: var(--tp) !important; }
+[data-theme] ::-webkit-scrollbar-thumb { background: var(--tp) !important; }
+
+// ── STEP INDICATORS ───────────────────────────────────────────
+[data-theme] .step-item.active .step-number {
+  background: var(--tp) !important;
+  border-color: var(--tp) !important;
+}
+[data-theme] .step-item.active .step-label { color: var(--tp) !important; }
+
+// ── DARK THEME FULL OVERRIDES ─────────────────────────────────
+[data-theme="dark"] {
+  body, .wrapper { background-color: #121212 !important; color: #e0e0e0 !important; }
+
+  .card, c-card, .card-header, c-card-header,
+  .modal-content, .modal-body, .modal-footer {
+    background-color: #1e1e2e !important;
+    color: #e0e0e0 !important;
+  }
+
+  .form-control, .form-select, input, textarea, select {
+    background-color: #2a2a3e !important;
+    color: #e0e0e0 !important;
+    border-color: #3a3a50 !important;
+  }
+
+  .table td, .table th { border-color: #2a2a3e !important; color: #e0e0e0 !important; }
+  .bg-white, .bg-light { background-color: #1e1e2e !important; }
+  .text-muted { color: #9e9eb8 !important; }
+  .stat-value { color: #e0e0e0 !important; }
+
+  // Dark theme dropdown still needs white bg
+  .dropdown-menu-custom {
+    background-color: #1e1e2e !important;
+    border: 1px solid #3a3a50 !important;
+  }
+  .dropdown-header { background-color: #2a2a3e !important; }
+  .dropdown-header .fw-bold, .dropdown-header strong { color: #e0e0e0 !important; }
+  .dropdown-header small, .dropdown-header .text-muted { color: #9e9eb8 !important; }
+  .dropdown-item-custom { color: #c8c8d8 !important; }
+  .dropdown-item-custom:hover { background-color: #2a2a3e !important; color: #90caf9 !important; }
+  .dropdown-item-custom.text-danger { color: #ff6b6b !important; }
+}
+
+// ============================================================
+// THEME SWITCHER PANEL — fully isolated, never inherits theme
+// ============================================================
+[data-theme] app-theme-switcher .ts-panel,
+[data-theme] app-theme-switcher .ts-panel *,
+[data-theme] .ts-panel,
+[data-theme] .ts-panel * {
+  color: #374151 !important;
+  background-color: unset;
+}
+
+[data-theme] .ts-panel { background-color: #ffffff !important; }
+[data-theme] .ts-panel-title { color: #6b7280 !important; background-color: #ffffff !important; }
+[data-theme] .ts-grid { background-color: #ffffff !important; }
+[data-theme] .ts-card { background-color: #f9fafb !important; color: #374151 !important; }
+[data-theme] .ts-card:hover { background-color: #f3f4f6 !important; }
+[data-theme] .ts-card-active { background-color: #f0f2ff !important; }
+[data-theme] .ts-footer { background-color: #ffffff !important; color: #9ca3af !important; }
+[data-theme] .ts-active-badge { background-color: #667eea !important; color: #ffffff !important; }
+
+// The span label inside each card
+[data-theme] .ts-card span[style] {
+  color: #374151 !important;
+}
+
+// ── PINK THEME — dark text on light navbar ─────────────────────
+[data-theme="pink"] {
+  .header-wrapper, .header, c-header {
+    box-shadow: 0 2px 12px rgba(233,30,140,0.20) !important;
+    border-bottom: 1px solid rgba(233,30,140,0.15) !important;
+  }
+  .system-title,
+  .header-section .user-name,
+  .header-section .user-designation,
+  .header-section .separator,
+  .header-section .department-info,
+  .header-left .sidebar-toggle-btn,
+  .theme-label,
+  .timer-wrapper,
+  .timer-wrapper * {
+    color: #5d0033 !important;
+  }
+  // Sidebar also light pink
+  c-sidebar, .sidebar { background-color: #f8bbd0 !important; }
+  .sidebar .nav-link { color: #5d0033 !important; }
+  .sidebar .nav-link.active { color: #5d0033 !important; border-left-color: #e91e8c !important; }
+}
+
+// ── YELLOW THEME — dark text on light navbar ───────────────────
+[data-theme="yellow"] {
+  .header-wrapper, .header, c-header {
+    box-shadow: 0 2px 12px rgba(245,159,0,0.20) !important;
+    border-bottom: 1px solid rgba(245,159,0,0.15) !important;
+  }
+  .system-title,
+  .header-section .user-name,
+  .header-section .user-designation,
+  .header-section .separator,
+  .header-section .department-info,
+  .header-left .sidebar-toggle-btn,
+  .theme-label,
+  .timer-wrapper,
+  .timer-wrapper * {
+    color: #5f4000 !important;
+  }
+  // Table header text dark for yellow
+  .modern-table thead th,
+  .table thead th { color: #5f4000 !important; }
+  // Sidebar light yellow
+  c-sidebar, .sidebar { background-color: #fff8e1 !important; }
+  .sidebar .nav-link { color: #5f4000 !important; }
+  .sidebar .nav-link.active { color: #5f4000 !important; border-left-color: #f59f00 !important; }
+}
+
+// ── PALE GREEN — dark text on light navbar ─────────────────────
+[data-theme="green"] {
+  .system-title,
+  .header-section .user-name,
+  .header-section .user-designation,
+  .header-section .separator,
+  .header-section .department-info,
+  .header-left .sidebar-toggle-btn,
+  .theme-label,
+  .timer-wrapper,
+  .timer-wrapper * {
+    color: #1b4332 !important;
+  }
+  c-sidebar, .sidebar { background-color: #d1ead8 !important; }
+  .sidebar .nav-link { color: #1b4332 !important; }
+  .sidebar .nav-link.active { color: #1b4332 !important; border-left-color: #2e7d5e !important; }
+}

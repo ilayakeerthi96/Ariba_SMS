@@ -6,5 +6,6 @@ public enum ApprovalActionStatus {
     REJECTED,     
     RESUBMITTED,  
     SKIPPED ,      
-    HOLD          
+    HOLD,
+    NEED_MORE_INFO         
 }

@@ -47,7 +47,8 @@ public class RouterValidator {
     "/leadcapture/api/rfq-approval/approve/**",
     "leadcapture/api/organization-admin/*/upload-logo",
     "leadcapture/api/organization-admin/**/upload-logo",
-    
+    "leadcapture/api/buyer/*/logo/base64",
+    "leadcapture/api/buyer/**/logo/base64",
 
     "/leadcapture/api/rfq/**",
     "/leadcapture/api/rfq/buyer/**",
@@ -100,6 +101,10 @@ public class RouterValidator {
          "leadcapture/api/three-way-match/invoice/*/latest",
          "leadcapture/api/three-way-match/po/**",
          "leadcapture/api/three-way-match/pending",
+         "leadcapture/api/reports/rfq/*/pdf",
+         "leadcapture/api/reports/rfq/**/pdf",
+         "leadcapture/api/reports/rfq/*/excel",
+         "leadcapture/api/reports/rfq/**/excel",
 
     "/subscribe/**"
         

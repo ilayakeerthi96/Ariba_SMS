@@ -161,6 +161,7 @@
         <div class="timer-wrapper">
           <app-session-timer></app-session-timer>
         </div>
+        <app-theme-switcher></app-theme-switcher>
         <div class="avatar-wrapper">
           <ng-container *ngTemplateOutlet="userDropdown"></ng-container>
         </div>
@@ -217,12 +218,16 @@
   </c-dropdown>
 </ng-template>
 
+
+
 <app-session-expiry-dialog
   *ngIf="showSessionDialog"
   [expiryMs]="sessionExpiryMs"
   (extend)="onExtendSession()"
   (logout)="logout()"
 ></app-session-expiry-dialog>
+
+
 
 <!-- Add this block at the very end, alongside the session expiry dialog -->
 <div *ngIf="showLogoutConfirm" class="logout-confirm-overlay">

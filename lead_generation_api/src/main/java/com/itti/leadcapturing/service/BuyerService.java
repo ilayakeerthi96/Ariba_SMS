@@ -1,4 +1,672 @@
 
+// package com.itti.leadcapturing.service;
+
+// import com.itti.leadcapturing.dto.BuyerCreateByAdminDTO;
+// import com.itti.leadcapturing.model.Buyer;
+// import com.itti.leadcapturing.model.Location;
+// import com.itti.leadcapturing.model.OrganizationAdmin;
+// import com.itti.leadcapturing.model.Department;
+// import com.itti.leadcapturing.model.User;
+// import com.itti.leadcapturing.repo.BuyerRepository;
+// import com.itti.leadcapturing.repo.OrganizationAdminRepository;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.stereotype.Service;
+// import org.springframework.transaction.annotation.Transactional;
+// import org.springframework.security.crypto.password.PasswordEncoder;
+// import lombok.extern.slf4j.Slf4j;
+
+// import java.time.LocalDateTime;
+// import java.util.ArrayList;
+// import java.util.Base64;
+// import java.util.List;
+
+// @Service
+// @Slf4j
+// public class BuyerService {
+
+//     @Autowired
+//     private BuyerRepository buyerRepository;
+
+//     @Autowired
+//     private OrganizationAdminRepository organizationAdminRepository;
+
+//     @Autowired
+//     private PasswordEncoder passwordEncoder;
+
+//     // ============================================
+//     // ✅ NEW: LOGO PROCESSING HELPER METHOD
+//     // ============================================
+    
+//     private void processLogo(Buyer buyer, String logoBase64, String logoFilename, String logoContentType) {
+//         try {
+//             if (logoBase64 != null && !logoBase64.isEmpty()) {
+//                 // Remove data URL prefix if present (data:image/png;base64,...)
+//                 String base64Data = logoBase64;
+//                 if (logoBase64.contains(",")) {
+//                     base64Data = logoBase64.split(",")[1];
+//                 }
+                
+//                 byte[] logoBytes = Base64.getDecoder().decode(base64Data);
+//                 buyer.setLogoData(logoBytes);
+//                 buyer.setLogoFilename(logoFilename);
+//                 buyer.setLogoContentType(logoContentType);
+                
+//                 log.info("✅ Logo processed: {} bytes, type: {}", logoBytes.length, logoContentType);
+//             }
+//         } catch (Exception e) {
+//             log.error("❌ Error processing logo: {}", e.getMessage());
+//             throw new RuntimeException("Failed to process logo: " + e.getMessage());
+//         }
+//     }
+
+
+// // ============================================
+// // REPLACE getBuyerLogoBase64 IN BuyerService.java
+// // ============================================
+
+// @Transactional(readOnly = true)
+// public String getBuyerLogoBase64(Long buyerId) {
+//     log.info("========================================");
+//     log.info("📥 GET BUYER LOGO BASE64 - Buyer ID: {}", buyerId);
+//     log.info("========================================");
+
+//     try {
+//         // ✅ Use native query — forces MySQL to load the LONGBLOB column fully
+//         Buyer buyer = buyerRepository.findByIdWithLogoData(buyerId)
+//                 .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + buyerId));
+
+//         log.info("  Buyer           : {}", buyer.getCompanyName());
+//         log.info("  logoFilename    : {}", buyer.getLogoFilename());
+//         log.info("  logoContentType : {}", buyer.getLogoContentType());
+//         log.info("  logoData null?  : {}", buyer.getLogoData() == null);
+//         log.info("  logoData bytes  : {}", buyer.getLogoData() != null ? buyer.getLogoData().length : 0);
+
+//         if (buyer.getLogoData() == null || buyer.getLogoData().length == 0) {
+//             log.warn("  ⚠️ logoData is EMPTY — logo was not saved to DB during buyer creation");
+//             return null;
+//         }
+
+//         String contentType = (buyer.getLogoContentType() != null && !buyer.getLogoContentType().trim().isEmpty())
+//                 ? buyer.getLogoContentType()
+//                 : "image/png";
+
+//         String base64Data = Base64.getEncoder().encodeToString(buyer.getLogoData());
+//         String dataUrl = "data:" + contentType + ";base64," + base64Data;
+
+//         log.info("  ✅ Logo ready — {} chars, type: {}", dataUrl.length(), contentType);
+//         return dataUrl;
+
+//     } catch (RuntimeException e) {
+//         log.error("  ❌ {}", e.getMessage());
+//         throw e;
+//     } catch (Exception e) {
+//         log.error("  ❌ Unexpected error: {}", e.getMessage());
+//         return null;
+//     }
+// }
+
+// // ============================================
+//     // 🆕 ORGANIZATION ADMIN CREATES BUYER (WITH LOGO)
+//     // ============================================
+    
+//     @Transactional
+//     public Buyer createBuyerByOrganizationAdmin(BuyerCreateByAdminDTO dto, Long orgAdminId) {
+//         try {
+//             log.info("========================================");
+//             log.info("🔵 CREATING BUYER BY ORGANIZATION ADMIN");
+//             log.info("========================================");
+//             log.info("Company: {}", dto.getCompanyName());
+//             log.info("Org Admin ID: {}", orgAdminId);
+//             log.info("Organization Company: {}", dto.getOrganizationCompanyName());
+//             log.info("Logo present: {}", dto.getLogoBase64() != null && !dto.getLogoBase64().isEmpty());
+            
+//             // ✅ STEP 1: Fetch Organization Admin
+//             OrganizationAdmin orgAdmin = organizationAdminRepository.findById(orgAdminId)
+//                     .orElseThrow(() -> new RuntimeException("Organization Admin not found with ID: " + orgAdminId));
+            
+//             log.info("  [✓] Found Org Admin: {}", orgAdmin.getFullName());
+//             log.info("  [✓] Org Admin Company: {}", orgAdmin.getCompanyName());
+            
+//             // ✅ STEP 2: Verify company name matches
+//             if (!orgAdmin.getCompanyName().equals(dto.getOrganizationCompanyName())) {
+//                 throw new RuntimeException(
+//                     "Organization company name mismatch! " +
+//                     "Expected: '" + orgAdmin.getCompanyName() + "', " +
+//                     "Provided: '" + dto.getOrganizationCompanyName() + "'"
+//                 );
+//             }
+            
+//             // ✅ STEP 3: Create buyer with organization link
+//             Buyer buyer = new Buyer();
+//             buyer.setCompanyName(dto.getCompanyName());
+//             buyer.setCompanyType(dto.getCompanyType());
+//             buyer.setContactPersonName(dto.getContactPersonName());
+//             buyer.setContactPersonDesignation(dto.getContactPersonDesignation());
+//             buyer.setContactPersonEmail(dto.getContactPersonEmail());
+//             buyer.setContactPersonPhone(dto.getContactPersonPhone());
+//             buyer.setAddressLine1(dto.getAddressLine1());
+//             buyer.setAddressLine2(dto.getAddressLine2());
+//             buyer.setCity(dto.getCity());
+//             buyer.setState(dto.getState());
+//             buyer.setPostalCode(dto.getPostalCode());
+//             buyer.setCountry(dto.getCountry());
+//             buyer.setGstNumber(dto.getGstNumber());
+//             buyer.setPanNumber(dto.getPanNumber());
+//             buyer.setCinNumber(dto.getCinNumber());
+//             buyer.setWebsite(dto.getWebsite());
+            
+//             // ✅ NEW: Process logo if provided
+//             if (dto.getLogoBase64() != null && !dto.getLogoBase64().isEmpty()) {
+//                 processLogo(buyer, dto.getLogoBase64(), dto.getLogoFilename(), dto.getLogoContentType());
+//             }
+            
+//             // ✅ CRITICAL: Set organization linkage
+//             buyer.setCreatedByOrgAdmin(orgAdmin);
+//             buyer.setOrganizationCompanyName(orgAdmin.getCompanyName());
+//             buyer.setIsDeleted(false);
+            
+//             // ✅ STEP 4: Process locations (if provided in DTO)
+//             if (dto.getLocations() != null && !dto.getLocations().isEmpty()) {
+//                 List<Location> locations = new ArrayList<>();
+                
+//                 for (Location loc : dto.getLocations()) {
+//                     loc.setBuyer(buyer);
+//                     loc.setIsDeleted(false);
+                    
+//                     if (loc.getDepartments() != null) {
+//                         for (Department dept : loc.getDepartments()) {
+//                             dept.setLocation(loc);
+//                             dept.setIsDeleted(false);
+                            
+//                             if (dept.getUsers() != null) {
+//                                 for (User user : dept.getUsers()) {
+//                                     user.setDepartment(dept);
+//                                     user.setLocation(loc);
+//                                     user.setBuyer(buyer);
+//                                     user.setIsDeleted(false);
+                                    
+//                                     // Encode password
+//                                     if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+//                                         user.setPassword(passwordEncoder.encode(user.getPassword()));
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+                    
+//                     locations.add(loc);
+//                 }
+                
+//                 buyer.setLocations(locations);
+//             }
+            
+//             // ✅ STEP 5: Save buyer (cascade saves locations, departments, users)
+//             Buyer savedBuyer = buyerRepository.save(buyer);
+            
+//             log.info("========================================");
+//             log.info("✅ BUYER CREATED BY ORG ADMIN");
+//             log.info("========================================");
+//             log.info("Buyer ID: {}", savedBuyer.getId());
+//             log.info("Buyer Company: {}", savedBuyer.getCompanyName());
+//             log.info("Organization Company: {}", savedBuyer.getOrganizationCompanyName());
+//             log.info("Logo saved: {}", savedBuyer.getLogoData() != null);
+//             log.info("Created By: {}", orgAdmin.getFullName());
+//             log.info("========================================");
+            
+//             return savedBuyer;
+            
+//         } catch (Exception e) {
+//             log.error("========================================");
+//             log.error("❌ ERROR CREATING BUYER BY ORG ADMIN");
+//             log.error("========================================");
+//             log.error("Error: {}", e.getMessage());
+//             e.printStackTrace();
+//             log.error("========================================");
+//             throw new RuntimeException("Failed to create buyer: " + e.getMessage(), e);
+//         }
+//     }
+
+//     // ============================================
+//     // ✅ NEW: GET BUYER LOGO AS BASE64
+//     // ============================================
+    
+  
+//     // ============================================
+//     // ✅ NEW: GET RAW LOGO BYTES
+//     // ============================================
+    
+//     @Transactional(readOnly = true)
+//     public byte[] getBuyerLogoBytes(Long buyerId) {
+//         try {
+//             Buyer buyer = buyerRepository.findById(buyerId)
+//                 .orElseThrow(() -> new RuntimeException("Buyer not found"));
+            
+//             return buyer.getLogoData();
+//         } catch (Exception e) {
+//             log.error("❌ Error getting logo bytes for buyer {}: {}", buyerId, e.getMessage());
+//             return null;
+//         }
+//     }
+
+//     /**
+//      * ✅ COMPLETELY FIXED: Get buyers created by Organization Admin
+//      * Solution: Use @EntityGraph for locations only, then manually initialize nested collections
+//      */
+//     @Transactional(readOnly = true)
+//     public List<Buyer> getBuyersByOrganizationAdmin(Long adminId) {
+//         try {
+//             log.info("========================================");
+//             log.info("📥 FETCHING BUYERS FOR ORG ADMIN: {}", adminId);
+//             log.info("========================================");
+            
+//             // Verify admin exists first
+//             OrganizationAdmin admin = organizationAdminRepository.findById(adminId)
+//                     .orElseThrow(() -> new RuntimeException("Organization Admin not found with ID: " + adminId));
+            
+//             log.info("  [✓] Found Org Admin: {}", admin.getFullName());
+//             log.info("  [✓] Company: {}", admin.getCompanyName());
+            
+//             // ✅ CRITICAL FIX: Fetch buyers using @EntityGraph (loads locations only)
+//             List<Buyer> buyers = buyerRepository.findByCreatedByOrgAdminId(adminId);
+            
+//             log.info("  [✓] Found {} buyers", buyers.size());
+            
+//             // ✅ CRITICAL: Manually initialize nested collections level by level
+//             for (int i = 0; i < buyers.size(); i++) {
+//                 Buyer buyer = buyers.get(i);
+//                 log.info("");
+//                 log.info("  Buyer {}: {}", i + 1, buyer.getCompanyName());
+//                 log.info("    └─ Logo: {}", buyer.getLogoData() != null ? "Present" : "Not present");
+                
+//                 // Locations are already loaded by @EntityGraph
+//                 if (buyer.getLocations() != null) {
+//                     int locationCount = buyer.getLocations().size();
+//                     log.info("    └─ Locations: {}", locationCount);
+                    
+//                     // Now manually load departments for each location
+//                     for (Location location : buyer.getLocations()) {
+//                         if (location.getDepartments() != null) {
+//                             int deptCount = location.getDepartments().size(); // This triggers load
+//                             log.info("       └─ Location '{}' → Departments: {}", 
+//                                      location.getLocationName(), deptCount);
+                            
+//                             // Now manually load users for each department
+//                             for (Department department : location.getDepartments()) {
+//                                 if (department.getUsers() != null) {
+//                                     int userCount = department.getUsers().size(); // This triggers load
+//                                     log.info("          └─ Department '{}' → Users: {}", 
+//                                              department.getDepartmentName(), userCount);
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+                
+//                 // Initialize created by admin info
+//                 if (buyer.getCreatedByOrgAdmin() != null) {
+//                     buyer.getCreatedByOrgAdmin().getFullName();
+//                 }
+//             }
+            
+//             log.info("========================================");
+//             log.info("✅ BUYERS FETCHED SUCCESSFULLY");
+//             log.info("========================================");
+//             log.info("Total Buyers: {}", buyers.size());
+//             log.info("Organization: {}", admin.getCompanyName());
+//             log.info("========================================");
+            
+//             return buyers;
+            
+//         } catch (Exception e) {
+//             log.error("========================================");
+//             log.error("❌ ERROR FETCHING BUYERS FOR ADMIN: {}", adminId);
+//             log.error("========================================");
+//             log.error("Error Type: {}", e.getClass().getName());
+//             log.error("Error Message: {}", e.getMessage());
+//             e.printStackTrace();
+//             log.error("========================================");
+//             throw new RuntimeException("Failed to fetch buyers: " + e.getMessage(), e);
+//         }
+//     }
+
+//     @Transactional(readOnly = true)
+//     public List<Buyer> getBuyersByOrganizationCompanyName(String companyName) {
+//         try {
+//             log.info("📥 Fetching buyers for organization: {}", companyName);
+            
+//             List<Buyer> buyers = buyerRepository.findByOrganizationCompanyName(companyName);
+            
+//             // ✅ Manually initialize nested collections
+//             buyers.forEach(buyer -> {
+//                 if (buyer.getLocations() != null) {
+//                     buyer.getLocations().forEach(location -> {
+//                         if (location.getDepartments() != null) {
+//                             location.getDepartments().forEach(dept -> {
+//                                 if (dept.getUsers() != null) {
+//                                     dept.getUsers().size();
+//                                 }
+//                             });
+//                         }
+//                     });
+//                 }
+//             });
+            
+//             log.info("✅ Found {} buyers", buyers.size());
+//             return buyers;
+            
+//         } catch (Exception e) {
+//             log.error("❌ Error fetching buyers for organization", e);
+//             throw new RuntimeException("Failed to fetch buyers: " + e.getMessage(), e);
+//         }
+//     }
+
+//     @Transactional
+//     public Buyer createBuyer(Buyer buyer) {
+//         try {
+//             log.info("========================================");
+//             log.info("🔵 CREATING BUYER");
+//             log.info("========================================");
+//             log.info("Company: {}", buyer.getCompanyName());
+            
+//             if (buyer.getLocations() == null) {
+//                 buyer.setLocations(new ArrayList<>());
+//             }
+//             buyer.setIsDeleted(false);
+            
+//             log.info("📦 RECEIVED FROM FRONTEND:");
+//             log.info("   Buyer locations: {}", buyer.getLocations().size());
+            
+//             for (int i = 0; i < buyer.getLocations().size(); i++) {
+//                 Location location = buyer.getLocations().get(i);
+                
+//                 log.info("   Location {}: {} (departments: {})", 
+//                          i, 
+//                          location.getLocationName(),
+//                          location.getDepartments() == null ? 0 : location.getDepartments().size());
+                
+//                 location.setBuyer(buyer);
+//                 location.setIsDeleted(false);
+                
+//                 if (location.getDepartments() == null) {
+//                     location.setDepartments(new ArrayList<>());
+//                 }
+                
+//                 for (int j = 0; j < location.getDepartments().size(); j++) {
+//                     Department department = location.getDepartments().get(j);
+                    
+//                     log.info("      Department {}: {} (users: {})", 
+//                              j,
+//                              department.getDepartmentName(),
+//                              department.getUsers() == null ? 0 : department.getUsers().size());
+                    
+//                     department.setLocation(location);
+//                     department.setIsDeleted(false);
+                    
+//                     if (department.getUsers() == null) {
+//                         department.setUsers(new ArrayList<>());
+//                     }
+                    
+//                     for (int k = 0; k < department.getUsers().size(); k++) {
+//                         User user = department.getUsers().get(k);
+                        
+//                         log.info("         User {}: {} {} ({})", 
+//                                  k,
+//                                  user.getFirstName(),
+//                                  user.getLastName(),
+//                                  user.getEmail());
+                        
+//                         user.setDepartment(department);
+//                         user.setLocation(location);
+//                         user.setBuyer(buyer);
+//                         user.setIsDeleted(false);
+                        
+//                         if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+//                             String encodedPassword = passwordEncoder.encode(user.getPassword());
+//                             user.setPassword(encodedPassword);
+//                             log.info("            🔐 Password encoded for user: {}", user.getEmail());
+//                         } else {
+//                             log.error("            ❌ NO PASSWORD for user: {}", user.getEmail());
+//                             throw new RuntimeException("Password is required for user: " + user.getEmail());
+//                         }
+//                     }
+//                 }
+//             }
+            
+//             log.info("");
+//             log.info("💾 Saving buyer to database...");
+//             Buyer savedBuyer = buyerRepository.save(buyer);
+            
+//             log.info("");
+//             log.info("========================================");
+//             log.info("✅ BUYER SAVED SUCCESSFULLY");
+//             log.info("========================================");
+//             log.info("Buyer ID: {}", savedBuyer.getId());
+//             log.info("Company: {}", savedBuyer.getCompanyName());
+//             log.info("========================================");
+            
+//             return savedBuyer;
+            
+//         } catch (Exception e) {
+//             log.error("========================================");
+//             log.error("❌ ERROR CREATING BUYER");
+//             log.error("========================================");
+//             log.error("Error: {}", e.getMessage());
+//             e.printStackTrace();
+//             log.error("========================================");
+//             throw new RuntimeException("Failed to create buyer: " + e.getMessage(), e);
+//         }
+//     }
+
+//     @Transactional(readOnly = true)
+//     public List<Buyer> getAllBuyers() {
+//         try {
+//             log.info("📥 Fetching all buyers...");
+//             List<Buyer> buyers = buyerRepository.findAll();
+            
+//             // ✅ Initialize lazy collections
+//             buyers.forEach(buyer -> {
+//                 if (buyer.getLocations() != null) {
+//                     buyer.getLocations().forEach(location -> {
+//                         if (location.getDepartments() != null) {
+//                             location.getDepartments().forEach(department -> {
+//                                 if (department.getUsers() != null) {
+//                                     department.getUsers().size();
+//                                 }
+//                             });
+//                         }
+//                     });
+//                 }
+//             });
+            
+//             log.info("✅ Found {} buyer(s)", buyers.size());
+//             return buyers;
+            
+//         } catch (Exception e) {
+//             log.error("❌ Error fetching buyers", e);
+//             throw new RuntimeException("Failed to fetch buyers: " + e.getMessage(), e);
+//         }
+//     }
+
+//     @Transactional(readOnly = true)
+//     public Buyer getBuyerById(Long id) {
+//         try {
+//             log.info("📥 Fetching buyer with ID: {}", id);
+            
+//             Buyer buyer = buyerRepository.findByIdWithAllRelations(id)
+//                     .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + id));
+            
+//             // ✅ Initialize nested collections
+//             if (buyer.getLocations() != null) {
+//                 buyer.getLocations().forEach(location -> {
+//                     if (location.getDepartments() != null) {
+//                         location.getDepartments().forEach(dept -> {
+//                             if (dept.getUsers() != null) {
+//                                 dept.getUsers().size();
+//                             }
+//                         });
+//                     }
+//                 });
+//             }
+            
+//             log.info("✅ Buyer found: {}", buyer.getCompanyName());
+//             return buyer;
+            
+//         } catch (Exception e) {
+//             log.error("❌ Error fetching buyer: {}", id, e);
+//             throw new RuntimeException("Failed to fetch buyer: " + e.getMessage(), e);
+//         }
+//     }
+
+//     @Transactional
+//     public Buyer updateBuyer(Long id, Buyer buyerReq) {
+//         try {
+//             log.info("🔵 Updating buyer with ID: {}", id);
+            
+//             Buyer existingBuyer = buyerRepository.findById(id)
+//                     .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + id));
+
+//             if (buyerReq.getCompanyName() != null && !buyerReq.getCompanyName().trim().isEmpty()) {
+//                 existingBuyer.setCompanyName(buyerReq.getCompanyName());
+//             }
+//             if (buyerReq.getCompanyType() != null && !buyerReq.getCompanyType().trim().isEmpty()) {
+//                 existingBuyer.setCompanyType(buyerReq.getCompanyType());
+//             }
+            
+//             // ✅ NEW: Update logo if provided
+//             if (buyerReq.getLogoData() != null) {
+//                 existingBuyer.setLogoData(buyerReq.getLogoData());
+//                 existingBuyer.setLogoFilename(buyerReq.getLogoFilename());
+//                 existingBuyer.setLogoContentType(buyerReq.getLogoContentType());
+//                 log.info("✅ Logo updated for buyer: {}", id);
+//             }
+            
+//             if (buyerReq.getContactPersonName() != null && !buyerReq.getContactPersonName().trim().isEmpty()) {
+//                 existingBuyer.setContactPersonName(buyerReq.getContactPersonName());
+//             }
+//             if (buyerReq.getContactPersonDesignation() != null) {
+//                 existingBuyer.setContactPersonDesignation(buyerReq.getContactPersonDesignation());
+//             }
+//             if (buyerReq.getContactPersonEmail() != null && !buyerReq.getContactPersonEmail().trim().isEmpty()) {
+//                 existingBuyer.setContactPersonEmail(buyerReq.getContactPersonEmail());
+//             }
+//             if (buyerReq.getContactPersonPhone() != null && !buyerReq.getContactPersonPhone().trim().isEmpty()) {
+//                 existingBuyer.setContactPersonPhone(buyerReq.getContactPersonPhone());
+//             }
+//             if (buyerReq.getAddressLine1() != null) {
+//                 existingBuyer.setAddressLine1(buyerReq.getAddressLine1());
+//             }
+//             if (buyerReq.getAddressLine2() != null) {
+//                 existingBuyer.setAddressLine2(buyerReq.getAddressLine2());
+//             }
+//             if (buyerReq.getCity() != null) {
+//                 existingBuyer.setCity(buyerReq.getCity());
+//             }
+//             if (buyerReq.getState() != null) {
+//                 existingBuyer.setState(buyerReq.getState());
+//             }
+//             if (buyerReq.getPostalCode() != null) {
+//                 existingBuyer.setPostalCode(buyerReq.getPostalCode());
+//             }
+//             if (buyerReq.getCountry() != null) {
+//                 existingBuyer.setCountry(buyerReq.getCountry());
+//             }
+//             if (buyerReq.getGstNumber() != null) {
+//                 existingBuyer.setGstNumber(buyerReq.getGstNumber());
+//             }
+//             if (buyerReq.getPanNumber() != null) {
+//                 existingBuyer.setPanNumber(buyerReq.getPanNumber());
+//             }
+//             if (buyerReq.getCinNumber() != null) {
+//                 existingBuyer.setCinNumber(buyerReq.getCinNumber());
+//             }
+//             if (buyerReq.getWebsite() != null) {
+//                 existingBuyer.setWebsite(buyerReq.getWebsite());
+//             }
+
+//             if (buyerReq.getLocations() != null) {
+//                 existingBuyer.getLocations().clear();
+
+//                 for (Location newLocation : buyerReq.getLocations()) {
+//                     newLocation.setBuyer(existingBuyer);
+//                     newLocation.setIsDeleted(false);
+                    
+//                     if (newLocation.getDepartments() != null) {
+//                         for (Department newDepartment : newLocation.getDepartments()) {
+//                             newDepartment.setLocation(newLocation);
+//                             newDepartment.setIsDeleted(false);
+                            
+//                             if (newDepartment.getUsers() != null) {
+//                                 for (User newUser : newDepartment.getUsers()) {
+//                                     newUser.setDepartment(newDepartment);
+//                                     newUser.setLocation(newLocation);
+//                                     newUser.setBuyer(existingBuyer);
+//                                     newUser.setIsDeleted(false);
+                                    
+//                                     if (newUser.getPassword() != null && !newUser.getPassword().trim().isEmpty()) {
+//                                         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+                    
+//                     existingBuyer.getLocations().add(newLocation);
+//                 }
+//             }
+
+//             Buyer updatedBuyer = buyerRepository.save(existingBuyer);
+//             log.info("✅ Buyer updated: {}", updatedBuyer.getId());
+//             return updatedBuyer;
+            
+//         } catch (Exception e) {
+//             log.error("❌ Error updating buyer with ID: {}", id, e);
+//             throw new RuntimeException("Failed to update buyer: " + e.getMessage(), e);
+//         }
+//     }
+
+//     @Transactional
+//     public void deleteBuyer(Long id) {
+//         try {
+//             log.info("🗑️  Soft deleting buyer with ID: {}", id);
+            
+//             Buyer buyer = buyerRepository.findById(id)
+//                     .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + id));
+
+//             buyer.setIsDeleted(true);
+//             buyer.setDeletedAt(LocalDateTime.now());
+
+//             if (buyer.getLocations() != null) {
+//                 for (Location location : buyer.getLocations()) {
+//                     location.setIsDeleted(true);
+//                     location.setDeletedAt(LocalDateTime.now());
+
+//                     if (location.getDepartments() != null) {
+//                         for (Department department : location.getDepartments()) {
+//                             department.setIsDeleted(true);
+//                             department.setDeletedAt(LocalDateTime.now());
+
+//                             if (department.getUsers() != null) {
+//                                 for (User user : department.getUsers()) {
+//                                     user.setIsDeleted(true);
+//                                     user.setDeletedAt(LocalDateTime.now());
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+
+//             buyerRepository.save(buyer);
+//             log.info("✅ Buyer soft deleted: {}", buyer.getCompanyName());
+            
+//         } catch (Exception e) {
+//             log.error("❌ Error deleting buyer with ID: {}", id, e);
+//             throw new RuntimeException("Failed to delete buyer: " + e.getMessage(), e);
+//         }
+//     }
+// }
+
+
 package com.itti.leadcapturing.service;
 
 import com.itti.leadcapturing.dto.BuyerCreateByAdminDTO;
@@ -20,6 +688,22 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+/**
+ * BuyerService
+ *
+ * KEY DESIGN:
+ * - Logo and company name are defined ONCE at the OrganizationAdmin level.
+ * - Every Buyer created under an OrgAdmin INHERITS the admin's company name and logo.
+ * - The buyer creation form does NOT ask for company name or logo.
+ * - companyName in the Buyer entity is auto-filled from the OrgAdmin if the DTO sends it empty.
+ * - When a buyer user logs in, they see the OrgAdmin's company logo and company name.
+ *
+ * MODIFIED:
+ * - Removed processLogo(), getBuyerLogoBase64(), getBuyerLogoBytes().
+ * - Added getLogoBase64ForBuyer(buyerId) — reads from linked OrgAdmin.
+ * - createBuyerByOrganizationAdmin: auto-fills companyName from OrgAdmin if DTO value is blank.
+ * - updateBuyer: removed logo update logic.
+ */
 @Service
 @Slf4j
 public class BuyerService {
@@ -33,112 +717,133 @@ public class BuyerService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // ============================================
-    // ✅ NEW: LOGO PROCESSING HELPER METHOD
-    // ============================================
-    
-    private void processLogo(Buyer buyer, String logoBase64, String logoFilename, String logoContentType) {
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    // ============================================================
+    // GET LOGO FOR BUYER — reads from the linked OrganizationAdmin
+    // ============================================================
+
+    /**
+     * Returns the base64 logo data URL for a buyer by looking up the
+     * OrganizationAdmin who created it.
+     * This is the single source of truth for logos — no per-buyer logo is stored.
+     */
+    @Transactional(readOnly = true)
+    public String getLogoBase64ForBuyer(Long buyerId) {
+        log.info("========================================");
+        log.info("📥 GET LOGO FOR BUYER (from OrgAdmin) — Buyer ID: {}", buyerId);
+        log.info("========================================");
+
         try {
-            if (logoBase64 != null && !logoBase64.isEmpty()) {
-                // Remove data URL prefix if present (data:image/png;base64,...)
-                String base64Data = logoBase64;
-                if (logoBase64.contains(",")) {
-                    base64Data = logoBase64.split(",")[1];
-                }
-                
-                byte[] logoBytes = Base64.getDecoder().decode(base64Data);
-                buyer.setLogoData(logoBytes);
-                buyer.setLogoFilename(logoFilename);
-                buyer.setLogoContentType(logoContentType);
-                
-                log.info("✅ Logo processed: {} bytes, type: {}", logoBytes.length, logoContentType);
+            Buyer buyer = buyerRepository.findByIdWithAllRelations(buyerId)
+                    .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + buyerId));
+
+            OrganizationAdmin admin = buyer.getCreatedByOrgAdmin();
+            if (admin == null) {
+                log.warn("⚠️ Buyer {} has no linked OrganizationAdmin — no logo available", buyerId);
+                return null;
             }
+
+            log.info("  Linked OrgAdmin: {} (ID: {})", admin.getFullName(), admin.getId());
+            log.info("  OrgAdmin logoUrl: {}", admin.getLogoUrl());
+
+            if (admin.getLogoUrl() == null || admin.getLogoUrl().isBlank()) {
+                log.warn("  ⚠️ OrgAdmin has no logo set");
+                return null;
+            }
+
+            byte[] logoBytes = fileStorageService.readLogoAsBytes(admin.getLogoUrl());
+            if (logoBytes == null || logoBytes.length == 0) {
+                log.warn("  ⚠️ Logo file could not be read for OrgAdmin {}", admin.getId());
+                return null;
+            }
+
+            String mimeType = getMimeType(admin.getLogoUrl());
+            String dataUrl = "data:" + mimeType + ";base64," + Base64.getEncoder().encodeToString(logoBytes);
+
+            log.info("  ✅ Logo ready — {} chars, type: {}", dataUrl.length(), mimeType);
+            return dataUrl;
+
+        } catch (RuntimeException e) {
+            log.error("  ❌ {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
-            log.error("❌ Error processing logo: {}", e.getMessage());
-            throw new RuntimeException("Failed to process logo: " + e.getMessage());
-        }
-    }
-
-
-// ============================================
-// REPLACE getBuyerLogoBase64 IN BuyerService.java
-// ============================================
-
-@Transactional(readOnly = true)
-public String getBuyerLogoBase64(Long buyerId) {
-    log.info("========================================");
-    log.info("📥 GET BUYER LOGO BASE64 - Buyer ID: {}", buyerId);
-    log.info("========================================");
-
-    try {
-        // ✅ Use native query — forces MySQL to load the LONGBLOB column fully
-        Buyer buyer = buyerRepository.findByIdWithLogoData(buyerId)
-                .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + buyerId));
-
-        log.info("  Buyer           : {}", buyer.getCompanyName());
-        log.info("  logoFilename    : {}", buyer.getLogoFilename());
-        log.info("  logoContentType : {}", buyer.getLogoContentType());
-        log.info("  logoData null?  : {}", buyer.getLogoData() == null);
-        log.info("  logoData bytes  : {}", buyer.getLogoData() != null ? buyer.getLogoData().length : 0);
-
-        if (buyer.getLogoData() == null || buyer.getLogoData().length == 0) {
-            log.warn("  ⚠️ logoData is EMPTY — logo was not saved to DB during buyer creation");
+            log.error("  ❌ Unexpected error: {}", e.getMessage());
             return null;
         }
-
-        String contentType = (buyer.getLogoContentType() != null && !buyer.getLogoContentType().trim().isEmpty())
-                ? buyer.getLogoContentType()
-                : "image/png";
-
-        String base64Data = Base64.getEncoder().encodeToString(buyer.getLogoData());
-        String dataUrl = "data:" + contentType + ";base64," + base64Data;
-
-        log.info("  ✅ Logo ready — {} chars, type: {}", dataUrl.length(), contentType);
-        return dataUrl;
-
-    } catch (RuntimeException e) {
-        log.error("  ❌ {}", e.getMessage());
-        throw e;
-    } catch (Exception e) {
-        log.error("  ❌ Unexpected error: {}", e.getMessage());
-        return null;
     }
-}
 
-// ============================================
-    // 🆕 ORGANIZATION ADMIN CREATES BUYER (WITH LOGO)
-    // ============================================
-    
+    /**
+     * Returns the company name for a buyer.
+     * Comes from the linked OrganizationAdmin — not stored per-buyer.
+     */
+    @Transactional(readOnly = true)
+    public String getCompanyNameForBuyer(Long buyerId) {
+        try {
+            Buyer buyer = buyerRepository.findByIdWithAllRelations(buyerId)
+                    .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + buyerId));
+
+            OrganizationAdmin admin = buyer.getCreatedByOrgAdmin();
+            if (admin != null && admin.getCompanyName() != null) {
+                return admin.getCompanyName();
+            }
+            return buyer.getOrganizationCompanyName();
+        } catch (Exception e) {
+            log.error("❌ Error getting company name for buyer {}: {}", buyerId, e.getMessage());
+            return null;
+        }
+    }
+
+    // ============================================================
+    // CREATE BUYER BY ORGANIZATION ADMIN
+    // ============================================================
+
     @Transactional
     public Buyer createBuyerByOrganizationAdmin(BuyerCreateByAdminDTO dto, Long orgAdminId) {
         try {
             log.info("========================================");
             log.info("🔵 CREATING BUYER BY ORGANIZATION ADMIN");
             log.info("========================================");
-            log.info("Company: {}", dto.getCompanyName());
-            log.info("Org Admin ID: {}", orgAdminId);
-            log.info("Organization Company: {}", dto.getOrganizationCompanyName());
-            log.info("Logo present: {}", dto.getLogoBase64() != null && !dto.getLogoBase64().isEmpty());
-            
-            // ✅ STEP 1: Fetch Organization Admin
+            log.info("  DTO companyName    : '{}'", dto.getCompanyName());
+            log.info("  Org Admin ID       : {}", orgAdminId);
+            log.info("  Organization Company: '{}'", dto.getOrganizationCompanyName());
+
+            // STEP 1: Fetch Organization Admin
             OrganizationAdmin orgAdmin = organizationAdminRepository.findById(orgAdminId)
-                    .orElseThrow(() -> new RuntimeException("Organization Admin not found with ID: " + orgAdminId));
-            
-            log.info("  [✓] Found Org Admin: {}", orgAdmin.getFullName());
-            log.info("  [✓] Org Admin Company: {}", orgAdmin.getCompanyName());
-            
-            // ✅ STEP 2: Verify company name matches
-            if (!orgAdmin.getCompanyName().equals(dto.getOrganizationCompanyName())) {
+                    .orElseThrow(() -> new RuntimeException(
+                        "Organization Admin not found with ID: " + orgAdminId));
+
+            log.info("  [✓] Found Org Admin: {} | Company: '{}'",
+                    orgAdmin.getFullName(), orgAdmin.getCompanyName());
+
+            // STEP 2: Verify organizationCompanyName matches
+            if (dto.getOrganizationCompanyName() != null
+                    && !dto.getOrganizationCompanyName().isBlank()
+                    && !orgAdmin.getCompanyName().equals(dto.getOrganizationCompanyName())) {
                 throw new RuntimeException(
                     "Organization company name mismatch! " +
                     "Expected: '" + orgAdmin.getCompanyName() + "', " +
                     "Provided: '" + dto.getOrganizationCompanyName() + "'"
                 );
             }
-            
-            // ✅ STEP 3: Create buyer with organization link
+
+            // ✅ STEP 2b: KEY FIX — Auto-fill companyName from OrgAdmin if DTO value is blank.
+            //
+            // WHY: The buyer creation form hides the companyName field because buyers
+            // inherit the company name from the OrgAdmin who created them. The Angular
+            // form sends companyName programmatically (set in onSubmit()), but this
+            // server-side fallback ensures the @NotBlank constraint on Buyer.companyName
+            // is never violated even if the frontend sends an empty string.
+            if (dto.getCompanyName() == null || dto.getCompanyName().trim().isEmpty()) {
+                dto.setCompanyName(orgAdmin.getCompanyName());
+                log.info("  [AUTO-FILL] companyName was blank — inherited from OrgAdmin: '{}'",
+                        orgAdmin.getCompanyName());
+            }
+
+            // STEP 3: Build Buyer entity — no logo fields (logo inherited from OrgAdmin)
             Buyer buyer = new Buyer();
-            buyer.setCompanyName(dto.getCompanyName());
+            buyer.setCompanyName(dto.getCompanyName());          // ← now guaranteed non-blank
             buyer.setCompanyType(dto.getCompanyType());
             buyer.setContactPersonName(dto.getContactPersonName());
             buyer.setContactPersonDesignation(dto.getContactPersonDesignation());
@@ -154,434 +859,263 @@ public String getBuyerLogoBase64(Long buyerId) {
             buyer.setPanNumber(dto.getPanNumber());
             buyer.setCinNumber(dto.getCinNumber());
             buyer.setWebsite(dto.getWebsite());
-            
-            // ✅ NEW: Process logo if provided
-            if (dto.getLogoBase64() != null && !dto.getLogoBase64().isEmpty()) {
-                processLogo(buyer, dto.getLogoBase64(), dto.getLogoFilename(), dto.getLogoContentType());
-            }
-            
-            // ✅ CRITICAL: Set organization linkage
+
+            // CRITICAL: Link buyer to OrgAdmin — logo + company brand inherited from here
             buyer.setCreatedByOrgAdmin(orgAdmin);
             buyer.setOrganizationCompanyName(orgAdmin.getCompanyName());
             buyer.setIsDeleted(false);
-            
-            // ✅ STEP 4: Process locations (if provided in DTO)
+
+            // STEP 4: Process locations → departments → users
             if (dto.getLocations() != null && !dto.getLocations().isEmpty()) {
                 List<Location> locations = new ArrayList<>();
-                
+
                 for (Location loc : dto.getLocations()) {
                     loc.setBuyer(buyer);
                     loc.setIsDeleted(false);
-                    
+
                     if (loc.getDepartments() != null) {
                         for (Department dept : loc.getDepartments()) {
                             dept.setLocation(loc);
                             dept.setIsDeleted(false);
-                            
+
                             if (dept.getUsers() != null) {
                                 for (User user : dept.getUsers()) {
                                     user.setDepartment(dept);
                                     user.setLocation(loc);
                                     user.setBuyer(buyer);
                                     user.setIsDeleted(false);
-                                    
-                                    // Encode password
-                                    if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+
+                                    if (user.getPassword() != null
+                                            && !user.getPassword().trim().isEmpty()) {
                                         user.setPassword(passwordEncoder.encode(user.getPassword()));
                                     }
                                 }
                             }
                         }
                     }
-                    
                     locations.add(loc);
                 }
-                
                 buyer.setLocations(locations);
             }
-            
-            // ✅ STEP 5: Save buyer (cascade saves locations, departments, users)
+
+            // STEP 5: Save
             Buyer savedBuyer = buyerRepository.save(buyer);
-            
+
             log.info("========================================");
-            log.info("✅ BUYER CREATED BY ORG ADMIN");
+            log.info("✅ BUYER CREATED SUCCESSFULLY");
+            log.info("  Buyer ID          : {}", savedBuyer.getId());
+            log.info("  Buyer companyName : '{}'", savedBuyer.getCompanyName());
+            log.info("  OrgAdmin (brand)  : '{}' (ID: {})",
+                    orgAdmin.getCompanyName(), orgAdmin.getId());
+            log.info("  Logo source       : OrgAdmin ID {}", orgAdmin.getId());
             log.info("========================================");
-            log.info("Buyer ID: {}", savedBuyer.getId());
-            log.info("Buyer Company: {}", savedBuyer.getCompanyName());
-            log.info("Organization Company: {}", savedBuyer.getOrganizationCompanyName());
-            log.info("Logo saved: {}", savedBuyer.getLogoData() != null);
-            log.info("Created By: {}", orgAdmin.getFullName());
-            log.info("========================================");
-            
+
             return savedBuyer;
-            
+
         } catch (Exception e) {
             log.error("========================================");
             log.error("❌ ERROR CREATING BUYER BY ORG ADMIN");
+            log.error("  Error: {}", e.getMessage());
             log.error("========================================");
-            log.error("Error: {}", e.getMessage());
             e.printStackTrace();
-            log.error("========================================");
             throw new RuntimeException("Failed to create buyer: " + e.getMessage(), e);
         }
     }
 
-    // ============================================
-    // ✅ NEW: GET BUYER LOGO AS BASE64
-    // ============================================
-    
-  
-    // ============================================
-    // ✅ NEW: GET RAW LOGO BYTES
-    // ============================================
-    
-    @Transactional(readOnly = true)
-    public byte[] getBuyerLogoBytes(Long buyerId) {
-        try {
-            Buyer buyer = buyerRepository.findById(buyerId)
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
-            
-            return buyer.getLogoData();
-        } catch (Exception e) {
-            log.error("❌ Error getting logo bytes for buyer {}: {}", buyerId, e.getMessage());
-            return null;
-        }
-    }
+    // ============================================================
+    // GET BUYERS BY ADMIN
+    // ============================================================
 
-    /**
-     * ✅ COMPLETELY FIXED: Get buyers created by Organization Admin
-     * Solution: Use @EntityGraph for locations only, then manually initialize nested collections
-     */
     @Transactional(readOnly = true)
     public List<Buyer> getBuyersByOrganizationAdmin(Long adminId) {
         try {
             log.info("========================================");
             log.info("📥 FETCHING BUYERS FOR ORG ADMIN: {}", adminId);
             log.info("========================================");
-            
-            // Verify admin exists first
+
             OrganizationAdmin admin = organizationAdminRepository.findById(adminId)
-                    .orElseThrow(() -> new RuntimeException("Organization Admin not found with ID: " + adminId));
-            
-            log.info("  [✓] Found Org Admin: {}", admin.getFullName());
-            log.info("  [✓] Company: {}", admin.getCompanyName());
-            
-            // ✅ CRITICAL FIX: Fetch buyers using @EntityGraph (loads locations only)
+                    .orElseThrow(() -> new RuntimeException(
+                        "Organization Admin not found with ID: " + adminId));
+
+            log.info("  [✓] Found Org Admin: {} (Company: {})",
+                    admin.getFullName(), admin.getCompanyName());
+
             List<Buyer> buyers = buyerRepository.findByCreatedByOrgAdminId(adminId);
-            
             log.info("  [✓] Found {} buyers", buyers.size());
-            
-            // ✅ CRITICAL: Manually initialize nested collections level by level
-            for (int i = 0; i < buyers.size(); i++) {
-                Buyer buyer = buyers.get(i);
-                log.info("");
-                log.info("  Buyer {}: {}", i + 1, buyer.getCompanyName());
-                log.info("    └─ Logo: {}", buyer.getLogoData() != null ? "Present" : "Not present");
-                
-                // Locations are already loaded by @EntityGraph
+
+            for (Buyer buyer : buyers) {
+                log.info("  Buyer: '{}'", buyer.getCompanyName());
                 if (buyer.getLocations() != null) {
-                    int locationCount = buyer.getLocations().size();
-                    log.info("    └─ Locations: {}", locationCount);
-                    
-                    // Now manually load departments for each location
                     for (Location location : buyer.getLocations()) {
                         if (location.getDepartments() != null) {
-                            int deptCount = location.getDepartments().size(); // This triggers load
-                            log.info("       └─ Location '{}' → Departments: {}", 
-                                     location.getLocationName(), deptCount);
-                            
-                            // Now manually load users for each department
+                            int deptCount = location.getDepartments().size();
+                            log.info("       └─ Location '{}' → Departments: {}",
+                                    location.getLocationName(), deptCount);
                             for (Department department : location.getDepartments()) {
                                 if (department.getUsers() != null) {
-                                    int userCount = department.getUsers().size(); // This triggers load
-                                    log.info("          └─ Department '{}' → Users: {}", 
-                                             department.getDepartmentName(), userCount);
+                                    department.getUsers().size(); // init lazy
                                 }
                             }
                         }
                     }
                 }
-                
-                // Initialize created by admin info
                 if (buyer.getCreatedByOrgAdmin() != null) {
-                    buyer.getCreatedByOrgAdmin().getFullName();
+                    buyer.getCreatedByOrgAdmin().getFullName(); // init lazy
                 }
             }
-            
-            log.info("========================================");
-            log.info("✅ BUYERS FETCHED SUCCESSFULLY");
-            log.info("========================================");
-            log.info("Total Buyers: {}", buyers.size());
-            log.info("Organization: {}", admin.getCompanyName());
-            log.info("========================================");
-            
+
+            log.info("✅ BUYERS FETCHED — Total: {}", buyers.size());
             return buyers;
-            
+
         } catch (Exception e) {
-            log.error("========================================");
             log.error("❌ ERROR FETCHING BUYERS FOR ADMIN: {}", adminId);
-            log.error("========================================");
-            log.error("Error Type: {}", e.getClass().getName());
-            log.error("Error Message: {}", e.getMessage());
+            log.error("  Error: {}", e.getMessage());
             e.printStackTrace();
-            log.error("========================================");
             throw new RuntimeException("Failed to fetch buyers: " + e.getMessage(), e);
         }
     }
 
+    // ============================================================
+    // GET BUYERS BY ORGANIZATION COMPANY NAME
+    // ============================================================
+
     @Transactional(readOnly = true)
     public List<Buyer> getBuyersByOrganizationCompanyName(String companyName) {
         try {
-            log.info("📥 Fetching buyers for organization: {}", companyName);
-            
+            log.info("📥 Fetching buyers for organization: '{}'", companyName);
+
             List<Buyer> buyers = buyerRepository.findByOrganizationCompanyName(companyName);
-            
-            // ✅ Manually initialize nested collections
+
             buyers.forEach(buyer -> {
                 if (buyer.getLocations() != null) {
                     buyer.getLocations().forEach(location -> {
                         if (location.getDepartments() != null) {
                             location.getDepartments().forEach(dept -> {
-                                if (dept.getUsers() != null) {
-                                    dept.getUsers().size();
-                                }
+                                if (dept.getUsers() != null) dept.getUsers().size();
                             });
                         }
                     });
                 }
             });
-            
+
             log.info("✅ Found {} buyers", buyers.size());
             return buyers;
-            
+
         } catch (Exception e) {
-            log.error("❌ Error fetching buyers for organization", e);
+            log.error("❌ Error fetching buyers for organization '{}'", companyName, e);
             throw new RuntimeException("Failed to fetch buyers: " + e.getMessage(), e);
         }
     }
 
-    @Transactional
-    public Buyer createBuyer(Buyer buyer) {
-        try {
-            log.info("========================================");
-            log.info("🔵 CREATING BUYER");
-            log.info("========================================");
-            log.info("Company: {}", buyer.getCompanyName());
-            
-            if (buyer.getLocations() == null) {
-                buyer.setLocations(new ArrayList<>());
-            }
-            buyer.setIsDeleted(false);
-            
-            log.info("📦 RECEIVED FROM FRONTEND:");
-            log.info("   Buyer locations: {}", buyer.getLocations().size());
-            
-            for (int i = 0; i < buyer.getLocations().size(); i++) {
-                Location location = buyer.getLocations().get(i);
-                
-                log.info("   Location {}: {} (departments: {})", 
-                         i, 
-                         location.getLocationName(),
-                         location.getDepartments() == null ? 0 : location.getDepartments().size());
-                
-                location.setBuyer(buyer);
-                location.setIsDeleted(false);
-                
-                if (location.getDepartments() == null) {
-                    location.setDepartments(new ArrayList<>());
-                }
-                
-                for (int j = 0; j < location.getDepartments().size(); j++) {
-                    Department department = location.getDepartments().get(j);
-                    
-                    log.info("      Department {}: {} (users: {})", 
-                             j,
-                             department.getDepartmentName(),
-                             department.getUsers() == null ? 0 : department.getUsers().size());
-                    
-                    department.setLocation(location);
-                    department.setIsDeleted(false);
-                    
-                    if (department.getUsers() == null) {
-                        department.setUsers(new ArrayList<>());
-                    }
-                    
-                    for (int k = 0; k < department.getUsers().size(); k++) {
-                        User user = department.getUsers().get(k);
-                        
-                        log.info("         User {}: {} {} ({})", 
-                                 k,
-                                 user.getFirstName(),
-                                 user.getLastName(),
-                                 user.getEmail());
-                        
-                        user.setDepartment(department);
-                        user.setLocation(location);
-                        user.setBuyer(buyer);
-                        user.setIsDeleted(false);
-                        
-                        if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
-                            String encodedPassword = passwordEncoder.encode(user.getPassword());
-                            user.setPassword(encodedPassword);
-                            log.info("            🔐 Password encoded for user: {}", user.getEmail());
-                        } else {
-                            log.error("            ❌ NO PASSWORD for user: {}", user.getEmail());
-                            throw new RuntimeException("Password is required for user: " + user.getEmail());
-                        }
-                    }
-                }
-            }
-            
-            log.info("");
-            log.info("💾 Saving buyer to database...");
-            Buyer savedBuyer = buyerRepository.save(buyer);
-            
-            log.info("");
-            log.info("========================================");
-            log.info("✅ BUYER SAVED SUCCESSFULLY");
-            log.info("========================================");
-            log.info("Buyer ID: {}", savedBuyer.getId());
-            log.info("Company: {}", savedBuyer.getCompanyName());
-            log.info("========================================");
-            
-            return savedBuyer;
-            
-        } catch (Exception e) {
-            log.error("========================================");
-            log.error("❌ ERROR CREATING BUYER");
-            log.error("========================================");
-            log.error("Error: {}", e.getMessage());
-            e.printStackTrace();
-            log.error("========================================");
-            throw new RuntimeException("Failed to create buyer: " + e.getMessage(), e);
-        }
-    }
+    // ============================================================
+    // GET ALL BUYERS
+    // ============================================================
 
     @Transactional(readOnly = true)
     public List<Buyer> getAllBuyers() {
         try {
             log.info("📥 Fetching all buyers...");
             List<Buyer> buyers = buyerRepository.findAll();
-            
-            // ✅ Initialize lazy collections
+
             buyers.forEach(buyer -> {
                 if (buyer.getLocations() != null) {
                     buyer.getLocations().forEach(location -> {
                         if (location.getDepartments() != null) {
                             location.getDepartments().forEach(department -> {
-                                if (department.getUsers() != null) {
-                                    department.getUsers().size();
-                                }
+                                if (department.getUsers() != null) department.getUsers().size();
                             });
                         }
                     });
                 }
             });
-            
+
             log.info("✅ Found {} buyer(s)", buyers.size());
             return buyers;
-            
+
         } catch (Exception e) {
             log.error("❌ Error fetching buyers", e);
             throw new RuntimeException("Failed to fetch buyers: " + e.getMessage(), e);
         }
     }
 
+    // ============================================================
+    // GET BUYER BY ID
+    // ============================================================
+
     @Transactional(readOnly = true)
     public Buyer getBuyerById(Long id) {
         try {
             log.info("📥 Fetching buyer with ID: {}", id);
-            
+
             Buyer buyer = buyerRepository.findByIdWithAllRelations(id)
                     .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + id));
-            
-            // ✅ Initialize nested collections
+
             if (buyer.getLocations() != null) {
                 buyer.getLocations().forEach(location -> {
                     if (location.getDepartments() != null) {
                         location.getDepartments().forEach(dept -> {
-                            if (dept.getUsers() != null) {
-                                dept.getUsers().size();
-                            }
+                            if (dept.getUsers() != null) dept.getUsers().size();
                         });
                     }
                 });
             }
-            
-            log.info("✅ Buyer found: {}", buyer.getCompanyName());
+
+            log.info("✅ Buyer found: '{}'", buyer.getCompanyName());
             return buyer;
-            
+
         } catch (Exception e) {
             log.error("❌ Error fetching buyer: {}", id, e);
             throw new RuntimeException("Failed to fetch buyer: " + e.getMessage(), e);
         }
     }
 
+    // ============================================================
+    // UPDATE BUYER
+    // ============================================================
+
     @Transactional
     public Buyer updateBuyer(Long id, Buyer buyerReq) {
         try {
             log.info("🔵 Updating buyer with ID: {}", id);
-            
+
             Buyer existingBuyer = buyerRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + id));
 
+            // ✅ FIX: If buyerReq.companyName is blank (hidden field), keep the existing value.
+            // This prevents accidental overwrite with an empty string during edit.
             if (buyerReq.getCompanyName() != null && !buyerReq.getCompanyName().trim().isEmpty()) {
                 existingBuyer.setCompanyName(buyerReq.getCompanyName());
             }
-            if (buyerReq.getCompanyType() != null && !buyerReq.getCompanyType().trim().isEmpty()) {
+            // If still blank, try to get from linked OrgAdmin
+            if (existingBuyer.getCompanyName() == null || existingBuyer.getCompanyName().isBlank()) {
+                OrganizationAdmin admin = existingBuyer.getCreatedByOrgAdmin();
+                if (admin != null && admin.getCompanyName() != null) {
+                    existingBuyer.setCompanyName(admin.getCompanyName());
+                    log.info("  [AUTO-FILL] companyName inherited from linked OrgAdmin on update: '{}'",
+                            admin.getCompanyName());
+                }
+            }
+
+            if (buyerReq.getCompanyType() != null && !buyerReq.getCompanyType().trim().isEmpty())
                 existingBuyer.setCompanyType(buyerReq.getCompanyType());
-            }
-            
-            // ✅ NEW: Update logo if provided
-            if (buyerReq.getLogoData() != null) {
-                existingBuyer.setLogoData(buyerReq.getLogoData());
-                existingBuyer.setLogoFilename(buyerReq.getLogoFilename());
-                existingBuyer.setLogoContentType(buyerReq.getLogoContentType());
-                log.info("✅ Logo updated for buyer: {}", id);
-            }
-            
-            if (buyerReq.getContactPersonName() != null && !buyerReq.getContactPersonName().trim().isEmpty()) {
+            if (buyerReq.getContactPersonName() != null && !buyerReq.getContactPersonName().trim().isEmpty())
                 existingBuyer.setContactPersonName(buyerReq.getContactPersonName());
-            }
-            if (buyerReq.getContactPersonDesignation() != null) {
+            if (buyerReq.getContactPersonDesignation() != null)
                 existingBuyer.setContactPersonDesignation(buyerReq.getContactPersonDesignation());
-            }
-            if (buyerReq.getContactPersonEmail() != null && !buyerReq.getContactPersonEmail().trim().isEmpty()) {
+            if (buyerReq.getContactPersonEmail() != null && !buyerReq.getContactPersonEmail().trim().isEmpty())
                 existingBuyer.setContactPersonEmail(buyerReq.getContactPersonEmail());
-            }
-            if (buyerReq.getContactPersonPhone() != null && !buyerReq.getContactPersonPhone().trim().isEmpty()) {
+            if (buyerReq.getContactPersonPhone() != null && !buyerReq.getContactPersonPhone().trim().isEmpty())
                 existingBuyer.setContactPersonPhone(buyerReq.getContactPersonPhone());
-            }
-            if (buyerReq.getAddressLine1() != null) {
-                existingBuyer.setAddressLine1(buyerReq.getAddressLine1());
-            }
-            if (buyerReq.getAddressLine2() != null) {
-                existingBuyer.setAddressLine2(buyerReq.getAddressLine2());
-            }
-            if (buyerReq.getCity() != null) {
-                existingBuyer.setCity(buyerReq.getCity());
-            }
-            if (buyerReq.getState() != null) {
-                existingBuyer.setState(buyerReq.getState());
-            }
-            if (buyerReq.getPostalCode() != null) {
-                existingBuyer.setPostalCode(buyerReq.getPostalCode());
-            }
-            if (buyerReq.getCountry() != null) {
-                existingBuyer.setCountry(buyerReq.getCountry());
-            }
-            if (buyerReq.getGstNumber() != null) {
-                existingBuyer.setGstNumber(buyerReq.getGstNumber());
-            }
-            if (buyerReq.getPanNumber() != null) {
-                existingBuyer.setPanNumber(buyerReq.getPanNumber());
-            }
-            if (buyerReq.getCinNumber() != null) {
-                existingBuyer.setCinNumber(buyerReq.getCinNumber());
-            }
-            if (buyerReq.getWebsite() != null) {
-                existingBuyer.setWebsite(buyerReq.getWebsite());
-            }
+            if (buyerReq.getAddressLine1() != null) existingBuyer.setAddressLine1(buyerReq.getAddressLine1());
+            if (buyerReq.getAddressLine2() != null) existingBuyer.setAddressLine2(buyerReq.getAddressLine2());
+            if (buyerReq.getCity() != null) existingBuyer.setCity(buyerReq.getCity());
+            if (buyerReq.getState() != null) existingBuyer.setState(buyerReq.getState());
+            if (buyerReq.getPostalCode() != null) existingBuyer.setPostalCode(buyerReq.getPostalCode());
+            if (buyerReq.getCountry() != null) existingBuyer.setCountry(buyerReq.getCountry());
+            if (buyerReq.getGstNumber() != null) existingBuyer.setGstNumber(buyerReq.getGstNumber());
+            if (buyerReq.getPanNumber() != null) existingBuyer.setPanNumber(buyerReq.getPanNumber());
+            if (buyerReq.getCinNumber() != null) existingBuyer.setCinNumber(buyerReq.getCinNumber());
+            if (buyerReq.getWebsite() != null) existingBuyer.setWebsite(buyerReq.getWebsite());
 
             if (buyerReq.getLocations() != null) {
                 existingBuyer.getLocations().clear();
@@ -589,46 +1123,51 @@ public String getBuyerLogoBase64(Long buyerId) {
                 for (Location newLocation : buyerReq.getLocations()) {
                     newLocation.setBuyer(existingBuyer);
                     newLocation.setIsDeleted(false);
-                    
+
                     if (newLocation.getDepartments() != null) {
                         for (Department newDepartment : newLocation.getDepartments()) {
                             newDepartment.setLocation(newLocation);
                             newDepartment.setIsDeleted(false);
-                            
+
                             if (newDepartment.getUsers() != null) {
                                 for (User newUser : newDepartment.getUsers()) {
                                     newUser.setDepartment(newDepartment);
                                     newUser.setLocation(newLocation);
                                     newUser.setBuyer(existingBuyer);
                                     newUser.setIsDeleted(false);
-                                    
-                                    if (newUser.getPassword() != null && !newUser.getPassword().trim().isEmpty()) {
+
+                                    if (newUser.getPassword() != null
+                                            && !newUser.getPassword().trim().isEmpty()) {
                                         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
                                     }
                                 }
                             }
                         }
                     }
-                    
                     existingBuyer.getLocations().add(newLocation);
                 }
             }
 
             Buyer updatedBuyer = buyerRepository.save(existingBuyer);
-            log.info("✅ Buyer updated: {}", updatedBuyer.getId());
+            log.info("✅ Buyer updated: '{}' (ID: {})",
+                    updatedBuyer.getCompanyName(), updatedBuyer.getId());
             return updatedBuyer;
-            
+
         } catch (Exception e) {
             log.error("❌ Error updating buyer with ID: {}", id, e);
             throw new RuntimeException("Failed to update buyer: " + e.getMessage(), e);
         }
     }
 
+    // ============================================================
+    // DELETE BUYER (soft delete)
+    // ============================================================
+
     @Transactional
     public void deleteBuyer(Long id) {
         try {
             log.info("🗑️  Soft deleting buyer with ID: {}", id);
-            
+
             Buyer buyer = buyerRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Buyer not found with ID: " + id));
 
@@ -657,11 +1196,25 @@ public String getBuyerLogoBase64(Long buyerId) {
             }
 
             buyerRepository.save(buyer);
-            log.info("✅ Buyer soft deleted: {}", buyer.getCompanyName());
-            
+            log.info("✅ Buyer soft deleted: '{}'", buyer.getCompanyName());
+
         } catch (Exception e) {
             log.error("❌ Error deleting buyer with ID: {}", id, e);
             throw new RuntimeException("Failed to delete buyer: " + e.getMessage(), e);
         }
+    }
+
+    // ============================================================
+    // HELPER
+    // ============================================================
+
+    private String getMimeType(String logoUrl) {
+        if (logoUrl == null) return "image/jpeg";
+        String lower = logoUrl.toLowerCase();
+        if (lower.endsWith(".png"))  return "image/png";
+        if (lower.endsWith(".gif"))  return "image/gif";
+        if (lower.endsWith(".svg"))  return "image/svg+xml";
+        if (lower.endsWith(".webp")) return "image/webp";
+        return "image/jpeg";
     }
 }

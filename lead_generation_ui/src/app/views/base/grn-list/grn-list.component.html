@@ -1,3 +1,5 @@
+<!-- 
+
 <div class="container-fluid mt-4">
 
 <div class="row mb-4" *ngIf="loggedInBuyer">
@@ -13,8 +15,7 @@
               <div class="text-white">
                 <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
                 <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
-                  <i class="bi bi-briefcase-fill me-1"></i>
-                  {{ loggedInBuyer.companyType }}
+                  <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
                 </p>
               </div>
             </div>
@@ -67,88 +68,121 @@
   </div>
 </div>
 
-  <!-- PAGE HEADER -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm page-header-card">
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-              <h3 class="mb-0 fw-bold">
-                <i class="bi bi-truck me-2 text-primary"></i>Goods Receipt Notes
-              </h3>
-              <p class="text-muted mb-0 mt-1">Manage and track all incoming goods receipts through the full GRN lifecycle</p>
-            </div>
-            <button class="btn btn-primary shadow-sm px-4" (click)="navigateCreate()">
-              <i class="bi bi-plus-circle me-2"></i>Create GRN
-            </button>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm page-header-card">
+      <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h3 class="mb-0 fw-bold">
+              <i class="bi bi-truck me-2 text-primary"></i>Goods Receipt Notes
+            </h3>
+            <p class="text-muted mb-0 mt-1">Manage and track all incoming goods receipts through the full GRN lifecycle</p>
           </div>
+          <button class="btn btn-primary shadow-sm px-4" (click)="navigateCreate()">
+            <i class="bi bi-plus-circle me-2"></i>Create GRN
+          </button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ALERTS -->
-  <div *ngIf="successMessage"
-       class="alert alert-success alert-dismissible d-flex align-items-center border-0 shadow-sm mb-3"
-       style="border-left:4px solid #198754!important">
-    <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
-    <button type="button" class="btn-close ms-auto" (click)="dismissAlert()"></button>
-  </div>
-  <div *ngIf="errorMessage && !showActionModal && !showMatchModal && !showUpdateModal"
-       class="alert alert-danger alert-dismissible d-flex align-items-center border-0 shadow-sm mb-3"
-       style="border-left:4px solid #dc3545!important">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
-    <button type="button" class="btn-close ms-auto" (click)="dismissAlert()"></button>
-  </div>
+<div *ngIf="successMessage"
+     class="alert alert-success alert-dismissible d-flex align-items-center border-0 shadow-sm mb-3"
+     style="border-left:4px solid #198754!important">
+  <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+  <button type="button" class="btn-close ms-auto" (click)="dismissAlert()"></button>
+</div>
+<div *ngIf="errorMessage && !showActionModal && !showMatchModal && !showUpdateModal"
+     class="alert alert-danger alert-dismissible d-flex align-items-center border-0 shadow-sm mb-3"
+     style="border-left:4px solid #dc3545!important">
+  <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+  <button type="button" class="btn-close ms-auto" (click)="dismissAlert()"></button>
+</div>
 
-  <!-- STAT CARDS -->
-  <!-- <div class="row mb-4 g-3" *ngIf="!isLoading">
-    <div class="col-12 col-sm-6 col-lg-2">
-      <div class="stat-card" (click)="onStatusFilter('')" style="cursor:pointer">
-        <div class="stat-icon-wrap stat-purple"><i class="bi bi-list-ul"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ grns.length }}</div><div class="stat-label">All GRNs</div></div>
+<div class="date-filter-card mb-4">
+  <div class="date-filter-accent"></div>
+  <div class="date-filter-inner">
+
+    <div class="date-filter-title-wrap">
+      <div class="date-filter-icon-wrap"><i class="bi bi-calendar3-range"></i></div>
+      <div>
+        <div class="date-filter-title">Date Range</div>
+        <div class="date-filter-subtitle">Filter GRNs by creation date</div>
       </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-2">
-      <div class="stat-card" (click)="onStatusFilter('DRAFT')" style="cursor:pointer">
-        <div class="stat-icon-wrap stat-orange-pink"><i class="bi bi-pencil-square"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ countByStatus('DRAFT') }}</div><div class="stat-label">Draft</div></div>
+
+    <div class="date-filter-divider"></div>
+
+    <div class="date-filter-controls">
+
+      <div class="date-filter-field">
+        <label class="date-filter-label">
+          <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+        </label>
+        <div class="date-filter-select-wrap">
+          <select class="date-filter-select"
+                  [(ngModel)]="selectedFYOption"
+                  (change)="onFYOptionChange()">
+            <option value="ALL">All Time</option>
+            <option *ngFor="let fy of financialYearOptions" [value]="fy.value">
+              {{ fy.label }}
+            </option>
+            <option value="CUSTOM">Custom Range</option>
+          </select>
+          <i class="bi bi-chevron-down date-filter-select-icon"></i>
+        </div>
       </div>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-2">
-      <div class="stat-card" (click)="onStatusFilter('SUBMITTED')" style="cursor:pointer">
-        <div class="stat-icon-wrap stat-pink"><i class="bi bi-send"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ countByStatus('SUBMITTED') }}</div><div class="stat-label">Submitted</div></div>
+
+      <div class="date-filter-field date-filter-custom-field"
+           [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+        <label class="date-filter-label"><i class="bi bi-calendar-event me-1"></i>From Date</label>
+        <div class="date-filter-input-wrap">
+          <input type="date" class="date-filter-input"
+                 [(ngModel)]="customFromDate" (change)="onFYOptionChange()" />
+        </div>
       </div>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-2">
-      <div class="stat-card" (click)="onStatusFilter('QA_REVIEW')" style="cursor:pointer">
-        <div class="stat-icon-wrap stat-teal"><i class="bi bi-search"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ countByStatus('QA_REVIEW') }}</div><div class="stat-label">QA Review</div></div>
+
+      <div class="date-filter-field date-filter-custom-field"
+           [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+        <label class="date-filter-label"><i class="bi bi-calendar-event-fill me-1"></i>To Date</label>
+        <div class="date-filter-input-wrap">
+          <input type="date" class="date-filter-input"
+                 [(ngModel)]="customToDate" (change)="onFYOptionChange()" />
+        </div>
       </div>
+
     </div>
-    <div class="col-12 col-sm-6 col-lg-2">
-      <div class="stat-card" (click)="onStatusFilter('APPROVED')" style="cursor:pointer">
-        <div class="stat-icon-wrap stat-green"><i class="bi bi-check-circle"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ countByStatus('APPROVED') }}</div><div class="stat-label">Approved</div></div>
+
+    <div class="date-filter-divider"></div>
+
+    <div class="date-filter-right">
+      <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+        <div class="date-filter-badge-icon"><i class="bi bi-funnel-fill"></i></div>
+        <div>
+          <div class="date-filter-badge-label">Active Filter</div>
+          <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+        </div>
       </div>
+      <button class="date-filter-reset-btn"
+              *ngIf="selectedFYOption !== getCurrentFYValue()"
+              (click)="resetDateFilter()"
+              title="Reset to current financial year">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+      </button>
     </div>
-    <div class="col-12 col-sm-6 col-lg-2">
-      <div class="stat-card" (click)="onStatusFilter('CLOSED')" style="cursor:pointer">
-        <div class="stat-icon-wrap stat-grey"><i class="bi bi-archive"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ countByStatus('CLOSED') }}</div><div class="stat-label">Closed</div></div>
-      </div>
-    </div>
-  </div> -->
-  
+
+  </div>
+</div>
+
 <div class="d-flex flex-wrap gap-3 mb-4" *ngIf="!isLoading">
 
   <div style="flex: 1; min-width: 300px; max-width: 300px;">
     <div class="stat-card" (click)="onStatusFilter('')" style="cursor:pointer">
       <div class="stat-icon-wrap stat-purple"><i class="bi bi-list-ul"></i></div>
       <div class="stat-info">
-        <div class="stat-value">{{ grns.length }}</div>
+        <div class="stat-value">{{ dateFilteredGrns.length }}</div>
         <div class="stat-label">All GRNs</div>
       </div>
     </div>
@@ -158,7 +192,7 @@
     <div class="stat-card" (click)="onStatusFilter('DRAFT')" style="cursor:pointer">
       <div class="stat-icon-wrap stat-orange-pink"><i class="bi bi-pencil-square"></i></div>
       <div class="stat-info">
-        <div class="stat-value">{{ countByStatus('DRAFT') }}</div>
+        <div class="stat-value">{{ countByStatusDateFiltered('DRAFT') }}</div>
         <div class="stat-label">Draft</div>
       </div>
     </div>
@@ -168,7 +202,7 @@
     <div class="stat-card" (click)="onStatusFilter('SUBMITTED')" style="cursor:pointer">
       <div class="stat-icon-wrap stat-pink"><i class="bi bi-send"></i></div>
       <div class="stat-info">
-        <div class="stat-value">{{ countByStatus('SUBMITTED') }}</div>
+        <div class="stat-value">{{ countByStatusDateFiltered('SUBMITTED') }}</div>
         <div class="stat-label">Submitted</div>
       </div>
     </div>
@@ -178,7 +212,7 @@
     <div class="stat-card" (click)="onStatusFilter('QA_REVIEW')" style="cursor:pointer">
       <div class="stat-icon-wrap stat-teal"><i class="bi bi-search"></i></div>
       <div class="stat-info">
-        <div class="stat-value">{{ countByStatus('QA_REVIEW') }}</div>
+        <div class="stat-value">{{ countByStatusDateFiltered('QA_REVIEW') }}</div>
         <div class="stat-label">QA Review</div>
       </div>
     </div>
@@ -188,286 +222,244 @@
     <div class="stat-card" (click)="onStatusFilter('APPROVED')" style="cursor:pointer">
       <div class="stat-icon-wrap stat-green"><i class="bi bi-check-circle"></i></div>
       <div class="stat-info">
-        <div class="stat-value">{{ countByStatus('APPROVED') }}</div>
+        <div class="stat-value">{{ countByStatusDateFiltered('APPROVED') }}</div>
         <div class="stat-label">Approved</div>
       </div>
     </div>
   </div>
 
-  <!-- <div style="flex: 1; min-width: 160px; max-width: 220px;">
-    <div class="stat-card" (click)="onStatusFilter('CLOSED')" style="cursor:pointer">
-      <div class="stat-icon-wrap stat-grey"><i class="bi bi-archive"></i></div>
-      <div class="stat-info">
-        <div class="stat-value">{{ countByStatus('CLOSED') }}</div>
-        <div class="stat-label">Closed</div>
-      </div>
-    </div>
-  </div> -->
-
 </div>
-  <!-- MAIN TABLE CARD -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
-          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <h5 class="mb-0 fw-bold">GRN Register</h5>
-            <div class="d-flex gap-2 flex-wrap align-items-center">
-              <div class="input-group" style="width:260px">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-search text-muted"></i>
-                </span>
-                <input type="text" class="form-control border-start-0 bg-light"
-                       placeholder="Search GRN, PO, Supplier…"
-                       [(ngModel)]="searchText" (ngModelChange)="onSearch()">
-              </div>
-              <select class="form-select form-select-sm" style="width:160px"
-                      [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilter($event)">
-                <option value="">All Statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="SUBMITTED">Submitted</option>
-                <option value="QA_REVIEW">QA Review</option>
-                <option value="APPROVED">Approved</option>
-                <option value="CLOSED">Closed</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              <button class="btn btn-sm btn-outline-secondary" (click)="loadGRNs()">
-                <i class="bi bi-arrow-clockwise"></i>
-              </button>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <h5 class="mb-0 fw-bold">
+            GRN Register
+            <span *ngIf="activeDateRangeLabel" class="text-muted fw-normal" style="font-size: 0.85rem;">
+              — {{ activeDateRangeLabel }}
+            </span>
+          </h5>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <div class="input-group" style="width:260px">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-search text-muted"></i>
+              </span>
+              <input type="text" class="form-control border-start-0 bg-light"
+                     placeholder="Search GRN, PO, Supplier…"
+                     [(ngModel)]="searchText" (ngModelChange)="onSearch()">
             </div>
-          </div>
-        </div>
-
-        <div class="card-body p-0">
-          <!-- Loading -->
-          <div *ngIf="isLoading" class="text-center py-5">
-            <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted">Loading GRNs…</p>
-          </div>
-
-          <!-- Empty -->
-          <div *ngIf="!isLoading && filteredGrns.length === 0" class="text-center py-5">
-            <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
-            <p class="text-muted mt-3 mb-0">No GRNs found.</p>
-            <button class="btn btn-primary mt-3" (click)="navigateCreate()">
-              <i class="bi bi-plus-circle me-2"></i>Create First GRN
+            <select class="form-select form-select-sm" style="width:160px"
+                    [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilter($event)">
+              <option value="">All Statuses</option>
+              <option value="DRAFT">Draft</option>
+              <option value="SUBMITTED">Submitted</option>
+              <option value="QA_REVIEW">QA Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="CLOSED">Closed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadGRNs()">
+              <i class="bi bi-arrow-clockwise"></i>
             </button>
           </div>
+        </div>
+      </div>
 
-          <!-- Table -->
-          <div class="table-responsive" *ngIf="!isLoading && filteredGrns.length > 0">
-            <table class="table grn-table mb-0">
-              <thead class="table-header">
-                <tr>
-                  <th>GRN Number</th>
-                  <th>PO Ref</th>
-                  <th>Supplier</th>
-                  <th>Delivery Date</th>
-                  <th class="text-center">Qty Summary</th>
-                  <th class="text-center">Status</th>
-                  <th class="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let grn of pagedGrns"
-                    class="grn-row"
-                    (click)="openView(grn)" style="cursor:pointer">
+      <div class="card-body p-0">
+      
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2 text-muted">Loading GRNs…</p>
+        </div>
 
-                  <td>
-                    <a class="grn-number-link" (click)="$event.stopPropagation(); openView(grn)">
-                      <i class="bi bi-truck me-1"></i>{{ grn.grnNumber || '—' }}
-                    </a>
-                    <!-- Partial receipt indicator badge -->
-                  <!-- NEW -->
-<span *ngIf="isPartialDelivery(grn)"
-      class="partial-badge ms-1"
-      title="Partial delivery — remaining qty pending">
-  <i class="bi bi-clock-history me-1"></i>Partial
-</span>
-                    <div class="text-muted small mt-1">
-                      <i class="bi bi-clock me-1"></i>{{ formatDate(grn.createdAt) }}
-                    </div>
-                    <div *ngIf="grn.deliveryRemarks" class="grn-delivery-remarks mt-1">
-  <i class="bi bi-info-circle me-1"></i>{{ grn.deliveryRemarks }}
-</div>
-                  </td>
+       
+        <div *ngIf="!isLoading && filteredGrns.length === 0" class="text-center py-5">
+          <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
+          <p class="text-muted mt-3 mb-0">No GRNs found.</p>
+          <button class="btn btn-primary mt-3" (click)="navigateCreate()">
+            <i class="bi bi-plus-circle me-2"></i>Create First GRN
+          </button>
+        </div>
 
-                  <td><div class="fw-semibold">{{ grn.poNumber || '—' }}</div></td>
-                  <td><div class="fw-semibold">{{ grn.supplierName || '—' }}</div></td>
+      
+        <div class="table-responsive" *ngIf="!isLoading && filteredGrns.length > 0">
+          <table class="table grn-table mb-0">
+            <thead class="table-header">
+              <tr>
+                <th>GRN Number</th>
+                <th>PO Ref</th>
+                <th>Supplier</th>
+                <th>Delivery Date</th>
+                <th class="text-center">Qty Summary</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let grn of pagedGrns"
+                  class="grn-row"
+                  (click)="openView(grn)" style="cursor:pointer">
 
-                  <td>
-                    <small class="text-muted">
-                      <i class="bi bi-calendar3 me-1"></i>{{ formatDate(grn.deliveryDate) }}
-                    </small>
-                  </td>
-
-                  <td class="text-center">
-                    <div class="qty-summary">
-                      <!-- <span class="qty-chip ordered"  title="Ordered">O: {{ grn.totalOrderedQuantity }}</span>
-                      <span class="qty-chip received" title="Received">R: {{ grn.totalReceivedQuantity }}</span>
-                      <span class="qty-chip accepted" title="Accepted">A: {{ grn.totalAcceptedQuantity }}</span>
-                      <span *ngIf="grn.totalRejectedQuantity > 0" class="qty-chip rejected" title="Rejected">
-                        X: {{ grn.totalRejectedQuantity }}
-                      </span>
-                     
-                      <span *ngIf="grn.totalOrderedQuantity > grn.totalReceivedQuantity"
-                            class="qty-chip pending"
-                            title="Pending / remaining to receive">
-                        P: {{ grn.totalOrderedQuantity - grn.totalReceivedQuantity }}
-                      </span> -->
-
-                      <!-- NEW -->
-<!-- In the qty summary td -->
-<div class="qty-summary">
-  <span class="qty-chip ordered"  title="Ordered">O: {{ grn.totalOrderedQuantity }}</span>
-  <span class="qty-chip received" title="Received">R: {{ grn.totalReceivedQuantity }}</span>
-  <span class="qty-chip pending"  title="Pending">P: {{ grn.pendingQty ?? 0 }}</span>
-</div>
-
-                    </div>
-                  </td>
-
-                  <td class="text-center">
-                    <span [class]="getStatusBadgeClass(grn.status)">{{ getStatusLabel(grn.status) }}</span>
-                  </td>
-
-                  <!-- ACTION BUTTONS -->
-                  <td class="text-center" (click)="$event.stopPropagation()">
-                    <div class="d-flex justify-content-center gap-1 flex-wrap">
-
-                      <!-- View (always) -->
-                      <button class="btn btn-sm btn-action btn-view"
-                              (click)="openView(grn)" title="View Details">
-                        <i class="bi bi-eye"></i>
-                      </button>
-
-                      <!-- ── UPDATE RECEIVED QTY — shown when partial receipt exists ── -->
-                      <!-- <button *ngIf="hasPartialReceipt(grn)"
-                              class="btn btn-sm btn-action btn-update-qty"
-                              (click)="openUpdateModal(grn)"
-                              title="Update received quantity for remaining items">
-                        <i class="bi bi-plus-circle"></i>
-                      </button> -->
-
-                      <!-- DRAFT: Submit -->
-                      <button *ngIf="grn.status === 'DRAFT'"
-                              class="btn btn-sm btn-action btn-submit"
-                              (click)="submitGRN(grn)" [disabled]="actionLoading"
-                              title="Submit for QA Review">
-                        <i class="bi bi-send"></i>
-                      </button>
-
-                      <!-- SUBMITTED: Start QA Review -->
-                      <button *ngIf="grn.status === 'SUBMITTED'"
-                              class="btn btn-sm btn-action btn-qa"
-                              (click)="openQAReview(grn)"
-                              title="Start QA Review">
-                        <i class="bi bi-clipboard-check"></i>
-                      </button>
-
-                      <!-- QA_REVIEW: Continue QA Review -->
-                      <button *ngIf="grn.status === 'QA_REVIEW'"
-                              class="btn btn-sm btn-action btn-qa"
-                              (click)="openQAReview(grn)"
-                              title="Continue QA Review">
-                        <i class="bi bi-search"></i>
-                        <span class="btn-action-label ms-1">Continue QA</span>
-                      </button>
-
-                      <!-- APPROVED: 3-Way Match -->
-                      <button *ngIf="grn.status === 'APPROVED'"
-                              class="btn btn-sm btn-action btn-match"
-                              (click)="openMatchModal(grn)" title="Perform 3-Way Match">
-                        <i class="bi bi-diagram-3"></i>
-                      </button>
-
-                      <!-- DRAFT / SUBMITTED: Cancel -->
-                      <button *ngIf="grn.status === 'DRAFT' || grn.status === 'SUBMITTED'"
-                              class="btn btn-sm btn-action btn-cancel"
-                              (click)="openAction(grn, 'cancel')" title="Cancel GRN">
-                        <i class="bi bi-x-lg"></i>
-                      </button>
-
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- PAGINATION -->
-            <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3">
-              <div class="d-flex align-items-center gap-3 flex-wrap">
-                <span class="text-muted small">
-                  Showing
-                  <strong>{{ (currentPage-1)*pageSize+1 }}–{{ currentPage*pageSize > filteredGrns.length ? filteredGrns.length : currentPage*pageSize }}</strong>
-                  of <strong>{{ filteredGrns.length }}</strong>
-                </span>
-                <div class="d-flex align-items-center gap-2">
-                  <label class="text-muted small mb-0 text-nowrap">Rows:</label>
-                  <div class="page-size-group">
-                    <button *ngFor="let size of pageSizeOptions"
-                            class="page-size-btn"
-                            [class.active]="pageSize === size"
-                            (click)="onPageSizeChange(size)">{{ size }}</button>
+                <td>
+                  <a class="grn-number-link" (click)="$event.stopPropagation(); openView(grn)">
+                    <i class="bi bi-truck me-1"></i>{{ grn.grnNumber || '—' }}
+                  </a>
+                  <span *ngIf="isPartialDelivery(grn)"
+                        class="partial-badge ms-1"
+                        title="Partial delivery — remaining qty pending">
+                    <i class="bi bi-clock-history me-1"></i>Partial
+                  </span>
+                  <div class="text-muted small mt-1">
+                    <i class="bi bi-clock me-1"></i>{{ formatDate(grn.createdAt) }}
                   </div>
+                  <div *ngIf="grn.deliveryRemarks" class="grn-delivery-remarks mt-1">
+                    <i class="bi bi-info-circle me-1"></i>{{ grn.deliveryRemarks }}
+                  </div>
+                </td>
+
+                <td><div class="fw-semibold">{{ grn.poNumber || '—' }}</div></td>
+                <td><div class="fw-semibold">{{ grn.supplierName || '—' }}</div></td>
+
+                <td>
+                  <small class="text-muted">
+                    <i class="bi bi-calendar3 me-1"></i>{{ formatDate(grn.deliveryDate) }}
+                  </small>
+                </td>
+
+                <td class="text-center">
+                  <div class="qty-summary">
+                    <span class="qty-chip ordered"  title="Ordered">O: {{ grn.totalOrderedQuantity }}</span>
+                    <span class="qty-chip received" title="Received">R: {{ grn.totalReceivedQuantity }}</span>
+                    <span class="qty-chip pending"  title="Pending">P: {{ grn.pendingQty ?? 0 }}</span>
+                  </div>
+                </td>
+
+                <td class="text-center">
+                  <span [class]="getStatusBadgeClass(grn.status)">{{ getStatusLabel(grn.status) }}</span>
+                </td>
+
+          
+                <td class="text-center" (click)="$event.stopPropagation()">
+                  <div class="d-flex justify-content-center gap-1 flex-wrap">
+
+                 
+                    <button class="btn btn-sm btn-action btn-view"
+                            (click)="openView(grn)" title="View Details">
+                      <i class="bi bi-eye"></i>
+                    </button>
+
+                  
+                    <button *ngIf="grn.status === 'DRAFT'"
+                            class="btn btn-sm btn-action btn-submit"
+                            (click)="submitGRN(grn)" [disabled]="actionLoading"
+                            title="Submit for QA Review">
+                      <i class="bi bi-send"></i>
+                    </button>
+
+                   
+                    <button *ngIf="grn.status === 'SUBMITTED'"
+                            class="btn btn-sm btn-action btn-qa"
+                            (click)="openQAReview(grn)"
+                            title="Start QA Review">
+                      <i class="bi bi-clipboard-check"></i>
+                    </button>
+
+                 
+                    <button *ngIf="grn.status === 'QA_REVIEW'"
+                            class="btn btn-sm btn-action btn-qa"
+                            (click)="openQAReview(grn)"
+                            title="Continue QA Review">
+                      <i class="bi bi-search"></i>
+                      <span class="btn-action-label ms-1">Continue QA</span>
+                    </button>
+
+                  
+                    <button *ngIf="grn.status === 'APPROVED'"
+                            class="btn btn-sm btn-action btn-match"
+                            (click)="openMatchModal(grn)" title="Perform 3-Way Match">
+                      <i class="bi bi-diagram-3"></i>
+                    </button>
+
+                    <button *ngIf="grn.status === 'DRAFT' || grn.status === 'SUBMITTED'"
+                            class="btn btn-sm btn-action btn-cancel"
+                            (click)="openAction(grn, 'cancel')" title="Cancel GRN">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <span class="text-muted small">
+                Showing
+                <strong>{{ (currentPage-1)*pageSize+1 }}–{{ currentPage*pageSize > filteredGrns.length ? filteredGrns.length : currentPage*pageSize }}</strong>
+                of <strong>{{ filteredGrns.length }}</strong>
+              </span>
+              <div class="d-flex align-items-center gap-2">
+                <label class="text-muted small mb-0 text-nowrap">Rows:</label>
+                <div class="page-size-group">
+                  <button *ngFor="let size of pageSizeOptions"
+                          class="page-size-btn"
+                          [class.active]="pageSize === size"
+                          (click)="onPageSizeChange(size)">{{ size }}</button>
                 </div>
               </div>
-              <div class="d-flex align-items-center gap-1">
-                <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
-                  <i class="bi bi-chevron-double-left"></i>
-                </button>
-                <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="prevPage()">
-                  <i class="bi bi-chevron-left"></i>
-                </button>
-                <ng-container *ngFor="let page of pageNumbers">
-                  <span *ngIf="page === -1" class="page-ellipsis">…</span>
-                  <button *ngIf="page !== -1" class="page-num-btn"
-                          [class.active]="currentPage === page"
-                          (click)="goToPage(page)">{{ page }}</button>
-                </ng-container>
-                <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
-                  <i class="bi bi-chevron-right"></i>
-                </button>
-                <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
-                  <i class="bi bi-chevron-double-right"></i>
-                </button>
-              </div>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+              <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
+                <i class="bi bi-chevron-double-left"></i>
+              </button>
+              <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <ng-container *ngFor="let page of pageNumbers">
+                <span *ngIf="page === -1" class="page-ellipsis">…</span>
+                <button *ngIf="page !== -1" class="page-num-btn"
+                        [class.active]="currentPage === page"
+                        (click)="goToPage(page)">{{ page }}</button>
+              </ng-container>
+              <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+              <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+                <i class="bi bi-chevron-double-right"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-</div><!-- /container-fluid -->
+</div>
 
 
-<!-- ════════════════════════════════════════════════════════════════
-     VIEW MODAL
-════════════════════════════════════════════════════════════════ -->
+
 <div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showViewModal">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content border-0 shadow-lg modal-rounded">
       <div class="modal-header text-white border-0 modal-header-view">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-truck me-2"></i>GRN Details
-        </h5>
+        <h5 class="modal-title fw-bold"><i class="bi bi-truck me-2"></i>GRN Details</h5>
         <button class="btn-close btn-close-white" (click)="closeViewModal()"></button>
       </div>
-
       <div class="modal-body p-4">
         <div *ngIf="viewLoading" class="text-center py-4">
           <div class="spinner-border text-primary"></div>
           <p class="mt-2 text-muted">Loading details...</p>
         </div>
-
         <ng-container *ngIf="!viewLoading && viewGrn">
           <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <span [class]="getStatusBadgeClass(viewGrn.status)" style="font-size:1rem;">
               {{ getStatusLabel(viewGrn.status) }}
             </span>
             <div class="d-flex gap-2 flex-wrap">
-              <!-- Update received qty from view modal -->
               <button *ngIf="hasPartialReceipt(viewGrn)"
                       class="btn btn-sm btn-update-qty-action"
                       (click)="closeViewModal(); openUpdateModal(viewGrn)">
@@ -491,7 +483,6 @@
               </button>
             </div>
           </div>
-
           <div class="row g-3 mb-4">
             <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">GRN Number</div><div class="info-chip-value text-primary">{{ viewGrn.grnNumber || '—' }}</div></div></div>
             <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">PO Number</div><div class="info-chip-value fw-bold">{{ viewGrn.poNumber || '—' }}</div></div></div>
@@ -503,14 +494,12 @@
             <div class="col-md-4" *ngIf="viewGrn.inspectedByName"><div class="info-chip"><div class="info-chip-label">QA Inspector</div><div class="info-chip-value text-primary">{{ viewGrn.inspectedByName }}</div></div></div>
             <div class="col-md-4" *ngIf="viewGrn.approvedByName"><div class="info-chip"><div class="info-chip-label">Approved By</div><div class="info-chip-value text-success">{{ viewGrn.approvedByName }}</div></div></div>
           </div>
-
           <div class="row g-3 mb-4">
             <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-purple"><i class="bi bi-box"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalOrderedQuantity }}</div><div class="stat-label">Ordered</div></div></div></div>
             <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-pink"><i class="bi bi-inbox-fill"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalReceivedQuantity }}</div><div class="stat-label">Received</div></div></div></div>
             <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-teal"><i class="bi bi-check-circle"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalAcceptedQuantity }}</div><div class="stat-label">Accepted</div></div></div></div>
             <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-red"><i class="bi bi-x-circle"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalRejectedQuantity }}</div><div class="stat-label">Rejected</div></div></div></div>
           </div>
-
           <h6 class="fw-bold mb-3"><i class="bi bi-list-check me-2 text-primary"></i>Line Items</h6>
           <div class="table-responsive">
             <table class="table grn-table mb-0">
@@ -531,8 +520,7 @@
                   <td class="text-center">{{ li.orderedQuantity }}</td>
                   <td class="text-center">{{ li.receivedQuantity }}</td>
                   <td class="text-center">
-                    <span *ngIf="li.orderedQuantity > li.receivedQuantity"
-                          class="badge bg-warning text-dark">
+                    <span *ngIf="li.orderedQuantity > li.receivedQuantity" class="badge bg-warning text-dark">
                       {{ li.orderedQuantity - li.receivedQuantity }}
                     </span>
                     <span *ngIf="li.orderedQuantity <= li.receivedQuantity" class="text-success fw-bold">✓</span>
@@ -551,7 +539,6 @@
           </div>
         </ng-container>
       </div>
-
       <div class="modal-footer border-0">
         <button class="btn btn-secondary" (click)="closeViewModal()">Close</button>
       </div>
@@ -560,14 +547,10 @@
 </div>
 
 
-<!-- ════════════════════════════════════════════════════════════════
-     UPDATE RECEIVED QTY MODAL
-════════════════════════════════════════════════════════════════ -->
+
 <div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showUpdateModal">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content border-0 shadow-lg modal-rounded">
-
-      <!-- Header -->
       <div class="modal-header border-0" style="background:linear-gradient(135deg,#667eea,#764ba2);">
         <div>
           <h5 class="modal-title fw-bold text-white">
@@ -579,16 +562,11 @@
         </div>
         <button class="btn-close btn-close-white" (click)="closeUpdateModal()" [disabled]="updateSubmitting"></button>
       </div>
-
       <div class="modal-body p-4">
-
-        <!-- Loading spinner while GRN loads (not yet processing) -->
         <div *ngIf="!updateGrn && !updateErrorMessage && !updateSubmitting" class="text-center py-4">
           <div class="spinner-border text-primary"></div>
           <p class="mt-2 text-muted">Loading GRN line items…</p>
         </div>
-
-        <!-- 3-Step progress indicator while saving -->
         <div *ngIf="updateSubmitting && updateStep > 0" class="update-progress-wrap mb-4">
           <div class="d-flex align-items-center mb-3">
             <div class="spinner-border spinner-border-sm text-primary me-2"></div>
@@ -596,125 +574,67 @@
           </div>
           <div class="update-steps">
             <div class="upd-step" [class.upd-step-active]="updateStep === 1" [class.upd-step-done]="updateStep > 1">
-              <div class="upd-step-circle">
-                <i *ngIf="updateStep > 1" class="bi bi-check-lg"></i>
-                <span *ngIf="updateStep <= 1">1</span>
-              </div>
+              <div class="upd-step-circle"><i *ngIf="updateStep > 1" class="bi bi-check-lg"></i><span *ngIf="updateStep <= 1">1</span></div>
               <div class="upd-step-text">Revert to Draft</div>
             </div>
             <div class="upd-step-line" [class.upd-step-line-done]="updateStep > 1"></div>
             <div class="upd-step" [class.upd-step-active]="updateStep === 2" [class.upd-step-done]="updateStep > 2">
-              <div class="upd-step-circle">
-                <i *ngIf="updateStep > 2" class="bi bi-check-lg"></i>
-                <span *ngIf="updateStep <= 2">2</span>
-              </div>
+              <div class="upd-step-circle"><i *ngIf="updateStep > 2" class="bi bi-check-lg"></i><span *ngIf="updateStep <= 2">2</span></div>
               <div class="upd-step-text">Update Quantities</div>
             </div>
             <div class="upd-step-line" [class.upd-step-line-done]="updateStep > 2"></div>
             <div class="upd-step" [class.upd-step-active]="updateStep === 3" [class.upd-step-done]="updateStep >= 4">
-              <div class="upd-step-circle">
-                <i *ngIf="updateStep >= 4" class="bi bi-check-lg"></i>
-                <span *ngIf="updateStep < 4">3</span>
-              </div>
+              <div class="upd-step-circle"><i *ngIf="updateStep >= 4" class="bi bi-check-lg"></i><span *ngIf="updateStep < 4">3</span></div>
               <div class="upd-step-text">Re-submit GRN</div>
             </div>
           </div>
         </div>
-
-        <!-- Error -->
         <div *ngIf="updateErrorMessage" class="alert alert-danger d-flex align-items-start gap-2 mb-3">
-          <i class="bi bi-exclamation-triangle-fill mt-1"></i>
-          <span>{{ updateErrorMessage }}</span>
+          <i class="bi bi-exclamation-triangle-fill mt-1"></i><span>{{ updateErrorMessage }}</span>
         </div>
-
-        <!-- Success -->
         <div *ngIf="updateSuccessMessage" class="alert alert-success d-flex align-items-start gap-2 mb-3">
-          <i class="bi bi-check-circle-fill mt-1"></i>
-          <span>{{ updateSuccessMessage }}</span>
+          <i class="bi bi-check-circle-fill mt-1"></i><span>{{ updateSuccessMessage }}</span>
         </div>
-
         <ng-container *ngIf="updateGrn && updateLineItems.length > 0 && !updateSuccessMessage && !updateSubmitting">
-
-          <!-- Info banner -->
           <div class="update-info-banner mb-4">
             <i class="bi bi-info-circle-fill me-2"></i>
             <div>
               <strong>Adding remaining received quantity to the existing GRN.</strong><br>
-              <small>
-                Enter how many additional units arrived for each line item.
-                The system will add this to the previously recorded quantity.
-                You cannot exceed the remaining (undelivered) amount.
-              </small>
+              <small>Enter how many additional units arrived for each line item. The system will add this to the previously recorded quantity. You cannot exceed the remaining (undelivered) amount.</small>
             </div>
           </div>
-
-          <!-- Line items update table -->
           <div class="table-responsive">
             <table class="table update-table mb-0">
               <thead class="update-thead">
                 <tr>
-                  <th>#</th>
-                  <th>Item</th>
-                  <th class="text-center">UOM</th>
+                  <th>#</th><th>Item</th><th class="text-center">UOM</th>
                   <th class="text-center">Ordered</th>
                   <th class="text-center col-prev">Previously<br>Received</th>
                   <th class="text-center col-remaining">Remaining<br>to Receive</th>
-                  <th class="text-center col-add">
-                    <i class="bi bi-plus-circle me-1 text-success"></i>Additional<br>Qty Now <span class="text-danger">*</span>
-                  </th>
+                  <th class="text-center col-add"><i class="bi bi-plus-circle me-1 text-success"></i>Additional<br>Qty Now <span class="text-danger">*</span></th>
                   <th class="text-center col-new-total">New Total<br>Received</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let li of updateLineItems; let i = index" class="update-row">
                   <td class="text-muted fw-semibold">{{ i + 1 }}</td>
-
-                  <td>
-                    <div class="fw-semibold update-item-name">{{ li.itemDescription }}</div>
-                  </td>
-
+                  <td><div class="fw-semibold update-item-name">{{ li.itemDescription }}</div></td>
                   <td class="text-center text-muted">{{ li.uom }}</td>
-
-                  <!-- Ordered -->
+                  <td class="text-center"><span class="upd-badge upd-ordered">{{ li.orderedQuantity }}</span></td>
+                  <td class="text-center"><span class="upd-badge upd-prev">{{ li.previousReceived }}</span></td>
+                  <td class="text-center"><span class="upd-badge upd-remaining">{{ li.remainingQty }}</span></td>
                   <td class="text-center">
-                    <span class="upd-badge upd-ordered">{{ li.orderedQuantity }}</span>
-                  </td>
-
-                  <!-- Previously received -->
-                  <td class="text-center">
-                    <span class="upd-badge upd-prev">{{ li.previousReceived }}</span>
-                  </td>
-
-                  <!-- Remaining -->
-                  <td class="text-center">
-                    <span class="upd-badge upd-remaining">{{ li.remainingQty }}</span>
-                  </td>
-
-                  <!-- Additional qty — editable -->
-                  <td class="text-center">
-                    <input type="number"
-                           class="upd-input"
-                           [(ngModel)]="li.additionalQty"
-                           [min]="0"
-                           [max]="li.remainingQty"
-                           (ngModelChange)="onAdditionalQtyChange(li)"
-                           placeholder="0" />
+                    <input type="number" class="upd-input" [(ngModel)]="li.additionalQty" [min]="0" [max]="li.remainingQty" (ngModelChange)="onAdditionalQtyChange(li)" placeholder="0" />
                     <div class="upd-max-hint">max {{ li.remainingQty }}</div>
                   </td>
-
-                  <!-- New total — auto-computed -->
                   <td class="text-center">
-                    <span class="upd-badge upd-newtotal"
-                          [class.upd-newtotal-full]="li.newTotalReceived === li.orderedQuantity">
+                    <span class="upd-badge upd-newtotal" [class.upd-newtotal-full]="li.newTotalReceived === li.orderedQuantity">
                       {{ li.newTotalReceived }}
-                      <i *ngIf="li.newTotalReceived === li.orderedQuantity"
-                         class="bi bi-check-circle-fill ms-1 text-success" style="font-size:.75rem;"></i>
+                      <i *ngIf="li.newTotalReceived === li.orderedQuantity" class="bi bi-check-circle-fill ms-1 text-success" style="font-size:.75rem;"></i>
                     </span>
                   </td>
                 </tr>
               </tbody>
-
-              <!-- Totals footer -->
               <tfoot class="update-tfoot">
                 <tr>
                   <td colspan="3" class="fw-bold text-end pe-3">TOTALS</td>
@@ -727,30 +647,22 @@
               </tfoot>
             </table>
           </div>
-
         </ng-container>
       </div>
-
       <div class="modal-footer border-0" *ngIf="!updateSuccessMessage && !updateSubmitting">
-        <button class="btn btn-secondary" (click)="closeUpdateModal()" [disabled]="updateSubmitting">
-          Cancel
-        </button>
+        <button class="btn btn-secondary" (click)="closeUpdateModal()" [disabled]="updateSubmitting">Cancel</button>
         <button class="btn btn-update-submit px-4"
                 (click)="submitUpdateReceivedQty()"
                 [disabled]="updateSubmitting || updateLineItems.length === 0 || updateTotalAdditional === 0">
-          <i class="bi bi-check-circle me-2"></i>
-          Update GRN — Add {{ updateTotalAdditional }} Unit{{ updateTotalAdditional !== 1 ? 's' : '' }}
+          <i class="bi bi-check-circle me-2"></i>Update GRN — Add {{ updateTotalAdditional }} Unit{{ updateTotalAdditional !== 1 ? 's' : '' }}
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
 
-<!-- ════════════════════════════════════════════════════════════════
-     APPROVE / CANCEL MODAL
-════════════════════════════════════════════════════════════════ -->
+
 <div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showActionModal">
   <div class="modal-dialog">
     <div class="modal-content border-0 shadow-lg modal-rounded">
@@ -782,131 +694,874 @@
 </div>
 
 
-<!-- ════════════════════════════════════════════════════════════════
-     3-WAY MATCH MODAL
-════════════════════════════════════════════════════════════════ -->
-<div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showMatchModal">
+<style>
+  .grn-delivery-remarks {
+  font-size: 0.72rem;
+  color: #6b7280;
+  max-width: 280px;
+  line-height: 1.4;
+}
+/* ── Update modal specific styles ─────────────────────── */
+.btn-update-qty {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important; border: none !important;
+}
+.btn-update-qty:hover { opacity: 0.9; }
+
+.btn-update-qty-action {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white; border: none; border-radius: 7px;
+  padding: 5px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+}
+.btn-update-qty-action:hover { opacity: 0.9; }
+
+.btn-update-submit {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white; border: none; border-radius: 9px;
+  font-size: 0.86rem; font-weight: 700; padding: 10px 22px;
+  display: inline-flex; align-items: center;
+}
+.btn-update-submit:hover:not(:disabled) { opacity: 0.9; }
+.btn-update-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Partial badge in table */
+.partial-badge {
+  display: inline-flex; align-items: center;
+  background: #fef3c7; color: #92400e;
+  border: 1px solid #fde68a; border-radius: 20px;
+  padding: 1px 7px; font-size: 0.65rem; font-weight: 700;
+  vertical-align: middle;
+}
+
+/* Pending qty chip */
+.qty-chip.pending {
+  background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+}
+
+/* Info banner */
+.update-info-banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 13px 16px; border-radius: 10px;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #3b82f6;
+  font-size: 0.84rem; color: #1e40af; line-height: 1.6;
+}
+.update-info-banner i { flex-shrink: 0; margin-top: 2px; font-size: 1rem; }
+
+/* Update table */
+.update-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.update-thead th {
+  background: #f1f5f9; color: #334155; font-weight: 700; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 10px 12px; border-bottom: 2px solid #e2e8f0; white-space: nowrap;
+}
+.col-prev      { background: #fefce8 !important; color: #713f12 !important; }
+.col-remaining { background: #f0fdf4 !important; color: #14532d !important; }
+.col-add       { background: #eef2ff !important; color: #3730a3 !important; }
+.col-new-total { background: #f5f3ff !important; color: #4c1d95 !important; }
+.update-row td { padding: 10px 12px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+.update-row:last-child td { border-bottom: none; }
+.update-row:hover td { background: #f8f9ff; }
+.update-item-name { font-weight: 600; color: #1e293b; }
+
+/* Update badges */
+.upd-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 36px; padding: 3px 9px; border-radius: 7px; font-weight: 700; font-size: 0.82rem;
+}
+.upd-ordered   { background: #eef2ff; color: #4338ca; }
+.upd-prev      { background: #fef9c3; color: #854d0e; }
+.upd-remaining { background: #dcfce7; color: #15803d; }
+.upd-newtotal  { background: #f3e8ff; color: #6b21a8; }
+.upd-newtotal-full { background: #dcfce7 !important; color: #15803d !important; }
+
+/* Update input */
+.upd-input {
+  width: 80px; padding: 6px 8px; border: 2px solid #c7d2fe;
+  border-radius: 7px; font-size: 0.86rem; font-weight: 700;
+  text-align: center; color: #1e293b; outline: none; background: #f5f8ff;
+}
+.upd-input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); background: white; }
+.upd-max-hint { font-size: 0.64rem; color: #94a3b8; margin-top: 3px; }
+
+/* Update tfoot */
+.update-tfoot td {
+  padding: 10px 12px; font-weight: 800; font-size: 0.84rem;
+  color: #1e293b; background: #f8f9ff; border-top: 2px solid #e2e8f0;
+}
+
+/* ── 3-Step update progress indicator ───────────────────── */
+.update-progress-wrap {
+  padding: 20px 24px;
+  background: #f0f4ff;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 14px;
+}
+.update-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 4px;
+}
+.upd-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.upd-step-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.88rem;
+  background: #e2e8f0; color: #64748b;
+  border: 2px solid #cbd5e1;
+  transition: all 0.3s ease;
+}
+.upd-step.upd-step-active .upd-step-circle {
+  background: #667eea; color: white; border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
+}
+.upd-step.upd-step-done .upd-step-circle {
+  background: #22c55e; color: white; border-color: #22c55e;
+}
+.upd-step-text {
+  font-size: 0.72rem; font-weight: 600;
+  color: #64748b; text-align: center; white-space: nowrap;
+}
+.upd-step.upd-step-active .upd-step-text { color: #667eea; }
+.upd-step.upd-step-done   .upd-step-text { color: #15803d; }
+.upd-step-line {
+  flex: 1; height: 2px; background: #cbd5e1;
+  margin: 0 4px; margin-bottom: 22px;
+  transition: background 0.3s ease;
+}
+.upd-step-line.upd-step-line-done { background: #22c55e; }
+
+</style> -->
+
+<div class="container-fluid mt-4">
+
+<!-- ==================== BUYER INFO CARD ==================== -->
+<div class="row mb-4" *ngIf="loggedInBuyer">
+  <div class="col-12">
+    <div class="card border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+      <div class="gradient-header">
+        <div class="row align-items-center">
+          <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+            <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+              <div class="avatar-circle-large me-3">
+                {{ getInitials(loggedInBuyer.contactPersonName) }}
+              </div>
+              <div class="text-white">
+                <h3 class="mb-1 fw-bold" style="font-size: 1.5rem;">{{ loggedInBuyer.contactPersonName }}</h3>
+                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                  <i class="bi bi-briefcase-fill me-1"></i>{{ loggedInBuyer.companyType }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-9">
+            <div class="row g-2">
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
+                  <div class="info-card-content">
+                    <div class="info-label">Company Name</div>
+                    <div class="info-value">{{ loggedInBuyer.companyName }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
+                  <div class="info-card-content">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ loggedInBuyer.email }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
+                  <div class="info-card-content">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="info-card">
+                  <div class="info-card-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                  <div class="info-card-content">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">
+                      {{ loggedInBuyer.city || 'N/A' }}<span *ngIf="loggedInBuyer.city && loggedInBuyer.state">, {{ loggedInBuyer.state }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE HEADER ==================== -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm page-header-card">
+      <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h3 class="mb-0 fw-bold">
+              <i class="bi bi-truck me-2 text-primary"></i>Goods Receipt Notes
+            </h3>
+            <p class="text-muted mb-0 mt-1">Manage and track all incoming goods receipts through the full GRN lifecycle</p>
+          </div>
+          <button class="btn btn-primary shadow-sm px-4" (click)="navigateCreate()">
+            <i class="bi bi-plus-circle me-2"></i>Create GRN
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ALERTS ==================== -->
+<div *ngIf="successMessage"
+     class="alert alert-success alert-dismissible d-flex align-items-center border-0 shadow-sm mb-3"
+     style="border-left:4px solid #198754!important">
+  <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+  <button type="button" class="btn-close ms-auto" (click)="dismissAlert()"></button>
+</div>
+<div *ngIf="errorMessage && !showActionModal && !showMatchModal && !showUpdateModal"
+     class="alert alert-danger alert-dismissible d-flex align-items-center border-0 shadow-sm mb-3"
+     style="border-left:4px solid #dc3545!important">
+  <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+  <button type="button" class="btn-close ms-auto" (click)="dismissAlert()"></button>
+</div>
+
+<!-- ==================== DATE FILTER BAR ==================== -->
+<div class="date-filter-card mb-4">
+  <div class="date-filter-accent"></div>
+  <div class="date-filter-inner">
+
+    <div class="date-filter-title-wrap">
+      <div class="date-filter-icon-wrap"><i class="bi bi-calendar3-range"></i></div>
+      <div>
+        <div class="date-filter-title">Date Range</div>
+        <div class="date-filter-subtitle">Filter GRNs by creation date</div>
+      </div>
+    </div>
+
+    <div class="date-filter-divider"></div>
+
+    <div class="date-filter-controls">
+
+      <div class="date-filter-field">
+        <label class="date-filter-label">
+          <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+        </label>
+        <div class="date-filter-select-wrap">
+          <select class="date-filter-select"
+                  [(ngModel)]="selectedFYOption"
+                  (change)="onFYOptionChange()">
+            <option value="ALL">All Time</option>
+            <option *ngFor="let fy of financialYearOptions" [value]="fy.value">
+              {{ fy.label }}
+            </option>
+            <option value="CUSTOM">Custom Range</option>
+          </select>
+          <i class="bi bi-chevron-down date-filter-select-icon"></i>
+        </div>
+      </div>
+
+      <div class="date-filter-field date-filter-custom-field"
+           [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+        <label class="date-filter-label"><i class="bi bi-calendar-event me-1"></i>From Date</label>
+        <div class="date-filter-input-wrap">
+          <input type="date" class="date-filter-input"
+                 [(ngModel)]="customFromDate" (change)="onFYOptionChange()" />
+        </div>
+      </div>
+
+      <div class="date-filter-field date-filter-custom-field"
+           [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+        <label class="date-filter-label"><i class="bi bi-calendar-event-fill me-1"></i>To Date</label>
+        <div class="date-filter-input-wrap">
+          <input type="date" class="date-filter-input"
+                 [(ngModel)]="customToDate" (change)="onFYOptionChange()" />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="date-filter-divider"></div>
+
+    <div class="date-filter-right">
+      <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+        <div class="date-filter-badge-icon"><i class="bi bi-funnel-fill"></i></div>
+        <div>
+          <div class="date-filter-badge-label">Active Filter</div>
+          <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+        </div>
+      </div>
+      <button class="date-filter-reset-btn"
+              *ngIf="selectedFYOption !== getCurrentFYValue()"
+              (click)="resetDateFilter()"
+              title="Reset to current financial year">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+      </button>
+    </div>
+
+  </div>
+</div>
+<!-- ==================== END DATE FILTER BAR ==================== -->
+
+<!-- ==================== STAT CARDS ==================== -->
+<div class="d-flex flex-wrap gap-3 mb-4" *ngIf="!isLoading">
+
+  <div style="flex: 1; min-width: 300px; max-width: 300px;">
+    <div class="stat-card" (click)="onStatusFilter('')" style="cursor:pointer">
+      <div class="stat-icon-wrap stat-purple"><i class="bi bi-list-ul"></i></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ dateFilteredGrns.length }}</div>
+        <div class="stat-label">All GRNs</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-width: 300px; max-width: 300px;">
+    <div class="stat-card" (click)="onStatusFilter('DRAFT')" style="cursor:pointer">
+      <div class="stat-icon-wrap stat-orange-pink"><i class="bi bi-pencil-square"></i></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ countByStatusDateFiltered('DRAFT') }}</div>
+        <div class="stat-label">Draft</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-width: 300px; max-width: 300px;">
+    <div class="stat-card" (click)="onStatusFilter('SUBMITTED')" style="cursor:pointer">
+      <div class="stat-icon-wrap stat-pink"><i class="bi bi-send"></i></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ countByStatusDateFiltered('SUBMITTED') }}</div>
+        <div class="stat-label">Submitted</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-width: 300px; max-width: 300px;">
+    <div class="stat-card" (click)="onStatusFilter('QA_REVIEW')" style="cursor:pointer">
+      <div class="stat-icon-wrap stat-teal"><i class="bi bi-search"></i></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ countByStatusDateFiltered('QA_REVIEW') }}</div>
+        <div class="stat-label">QA Review</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-width: 300px; max-width: 300px;">
+    <div class="stat-card" (click)="onStatusFilter('APPROVED')" style="cursor:pointer">
+      <div class="stat-icon-wrap stat-green"><i class="bi bi-check-circle"></i></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ countByStatusDateFiltered('APPROVED') }}</div>
+        <div class="stat-label">Approved</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== MAIN TABLE CARD ==================== -->
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-4 px-4 pb-3">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <h5 class="mb-0 fw-bold">
+            GRN Register
+            <span *ngIf="activeDateRangeLabel" class="text-muted fw-normal" style="font-size: 0.85rem;">
+              — {{ activeDateRangeLabel }}
+            </span>
+          </h5>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <div class="input-group" style="width:260px">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-search text-muted"></i>
+              </span>
+              <input type="text" class="form-control border-start-0 bg-light"
+                     placeholder="Search GRN, PO, Supplier…"
+                     [(ngModel)]="searchText" (ngModelChange)="onSearch()">
+            </div>
+            <select class="form-select form-select-sm" style="width:160px"
+                    [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilter($event)">
+              <option value="">All Statuses</option>
+              <option value="DRAFT">Draft</option>
+              <option value="SUBMITTED">Submitted</option>
+              <option value="QA_REVIEW">QA Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="CLOSED">Closed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadGRNs()">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2 text-muted">Loading GRNs…</p>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!isLoading && filteredGrns.length === 0" class="text-center py-5">
+          <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
+          <p class="text-muted mt-3 mb-0">No GRNs found.</p>
+          <button class="btn btn-primary mt-3" (click)="navigateCreate()">
+            <i class="bi bi-plus-circle me-2"></i>Create First GRN
+          </button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive" *ngIf="!isLoading && filteredGrns.length > 0">
+          <table class="table grn-table mb-0">
+            <thead class="table-header">
+              <tr>
+                <th>GRN Number</th>
+                <th>PO Ref</th>
+                <th>Supplier</th>
+                <th>Delivery Date</th>
+                <th class="text-center">Qty Summary</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let grn of pagedGrns"
+                  class="grn-row"
+                  (click)="openView(grn)" style="cursor:pointer">
+
+                <td>
+                  <a class="grn-number-link" (click)="$event.stopPropagation(); openView(grn)">
+                    <i class="bi bi-truck me-1"></i>{{ grn.grnNumber || '—' }}
+                  </a>
+                  <span *ngIf="isPartialDelivery(grn)"
+                        class="partial-badge ms-1"
+                        title="Partial delivery — remaining qty pending">
+                    <i class="bi bi-clock-history me-1"></i>Partial
+                  </span>
+                  <div class="text-muted small mt-1">
+                    <i class="bi bi-clock me-1"></i>{{ formatDate(grn.createdAt) }}
+                  </div>
+                  <div *ngIf="grn.deliveryRemarks" class="grn-delivery-remarks mt-1">
+                    <i class="bi bi-info-circle me-1"></i>{{ grn.deliveryRemarks }}
+                  </div>
+                </td>
+
+                <td><div class="fw-semibold">{{ grn.poNumber || '—' }}</div></td>
+                <td><div class="fw-semibold">{{ grn.supplierName || '—' }}</div></td>
+
+                <td>
+                  <small class="text-muted">
+                    <i class="bi bi-calendar3 me-1"></i>{{ formatDate(grn.deliveryDate) }}
+                  </small>
+                </td>
+
+                <td class="text-center">
+                  <div class="qty-summary">
+                    <span class="qty-chip ordered"  title="Ordered">O: {{ grn.totalOrderedQuantity }}</span>
+                    <span class="qty-chip received" title="Received">R: {{ grn.totalReceivedQuantity }}</span>
+                    <span class="qty-chip pending"  title="Pending">P: {{ grn.pendingQty ?? 0 }}</span>
+                  </div>
+                </td>
+
+                <td class="text-center">
+                  <span [class]="getStatusBadgeClass(grn.status)">{{ getStatusLabel(grn.status) }}</span>
+                </td>
+
+                <!-- ACTION BUTTONS -->
+                <td class="text-center" (click)="$event.stopPropagation()">
+                  <div class="d-flex justify-content-center gap-1 flex-wrap">
+
+                    <!-- View -->
+                    <button class="btn btn-sm btn-action btn-view"
+                            (click)="openView(grn)" title="View Details">
+                      <i class="bi bi-eye"></i>
+                    </button>
+
+            
+
+                    <!-- DRAFT: Submit -->
+                    <button *ngIf="grn.status === 'DRAFT'"
+                            class="btn btn-sm btn-action btn-submit"
+                            (click)="submitGRN(grn)" [disabled]="actionLoading"
+                            title="Submit for QA Review">
+                      <i class="bi bi-send"></i>
+                    </button>
+
+                    <!-- SUBMITTED: Start QA Review -->
+                    <button *ngIf="grn.status === 'SUBMITTED'"
+                            class="btn btn-sm btn-action btn-qa"
+                            (click)="openQAReview(grn)"
+                            title="Start QA Review">
+                      <i class="bi bi-clipboard-check"></i>
+                    </button>
+
+                    <!-- QA_REVIEW: Continue QA Review -->
+                    <button *ngIf="grn.status === 'QA_REVIEW'"
+                            class="btn btn-sm btn-action btn-qa"
+                            (click)="openQAReview(grn)"
+                            title="Continue QA Review">
+                      <i class="bi bi-search"></i>
+                      <span class="btn-action-label ms-1">Continue QA</span>
+                    </button>
+
+                    <!-- APPROVED: 3-Way Match -->
+                    <button *ngIf="grn.status === 'APPROVED'"
+                            class="btn btn-sm btn-action btn-match"
+                            (click)="openMatchModal(grn)" title="Perform 3-Way Match">
+                      <i class="bi bi-diagram-3"></i>
+                    </button>
+
+                    <!-- DRAFT / SUBMITTED: Cancel -->
+                    <button *ngIf="grn.status === 'DRAFT' || grn.status === 'SUBMITTED'"
+                            class="btn btn-sm btn-action btn-cancel"
+                            (click)="openAction(grn, 'cancel')" title="Cancel GRN">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+
+                            <!-- ✅ NEW: Download Excel Report -->
+                    <button class="btn btn-sm btn-action btn-excel"
+                            (click)="downloadGRNExcel(grn)"
+                            [disabled]="downloadingGrnId === grn.id"
+                            title="Download GRN Report (Excel)">
+                      <span *ngIf="downloadingGrnId === grn.id"
+                            class="spinner-border spinner-border-sm"></span>
+                      <i *ngIf="downloadingGrnId !== grn.id"
+                        class="bi bi-download"></i>
+                    </button>
+
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- PAGINATION -->
+          <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <span class="text-muted small">
+                Showing
+                <strong>{{ (currentPage-1)*pageSize+1 }}–{{ currentPage*pageSize > filteredGrns.length ? filteredGrns.length : currentPage*pageSize }}</strong>
+                of <strong>{{ filteredGrns.length }}</strong>
+              </span>
+              <div class="d-flex align-items-center gap-2">
+                <label class="text-muted small mb-0 text-nowrap">Rows:</label>
+                <div class="page-size-group">
+                  <button *ngFor="let size of pageSizeOptions"
+                          class="page-size-btn"
+                          [class.active]="pageSize === size"
+                          (click)="onPageSizeChange(size)">{{ size }}</button>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+              <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
+                <i class="bi bi-chevron-double-left"></i>
+              </button>
+              <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <ng-container *ngFor="let page of pageNumbers">
+                <span *ngIf="page === -1" class="page-ellipsis">…</span>
+                <button *ngIf="page !== -1" class="page-num-btn"
+                        [class.active]="currentPage === page"
+                        (click)="goToPage(page)">{{ page }}</button>
+              </ng-container>
+              <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+              <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+                <i class="bi bi-chevron-double-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container-fluid -->
+
+
+<!-- ════════════════ VIEW MODAL ════════════════ -->
+<div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showViewModal">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content border-0 shadow-lg modal-rounded">
+      <div class="modal-header text-white border-0 modal-header-view">
+        <h5 class="modal-title fw-bold"><i class="bi bi-truck me-2"></i>GRN Details</h5>
+        <button class="btn-close btn-close-white" (click)="closeViewModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div *ngIf="viewLoading" class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2 text-muted">Loading details...</p>
+        </div>
+        <ng-container *ngIf="!viewLoading && viewGrn">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <span [class]="getStatusBadgeClass(viewGrn.status)" style="font-size:1rem;">
+              {{ getStatusLabel(viewGrn.status) }}
+            </span>
+            <div class="d-flex gap-2 flex-wrap">
 
-      <div class="modal-header border-0 modal-header-match">
+              <!-- ✅ NEW: Download Excel from View Modal -->
+              <button class="btn btn-sm btn-excel-modal"
+                      (click)="downloadGRNExcel(viewGrn)"
+                      [disabled]="downloadingGrnId === viewGrn.id"
+                      title="Download GRN Report (Excel)">
+                <span *ngIf="downloadingGrnId === viewGrn.id"
+                      class="spinner-border spinner-border-sm me-1"></span>
+                <i *ngIf="downloadingGrnId !== viewGrn.id"
+                   class="bi bi-file-earmark-spreadsheet me-1"></i>
+                {{ downloadingGrnId === viewGrn.id ? 'Downloading…' : 'Download Excel' }}
+              </button>
+
+              <button *ngIf="hasPartialReceipt(viewGrn)"
+                      class="btn btn-sm btn-update-qty-action"
+                      (click)="closeViewModal(); openUpdateModal(viewGrn)">
+                <i class="bi bi-plus-circle me-1"></i>Update Received Qty
+              </button>
+              <button *ngIf="viewGrn.status === 'DRAFT'"
+                      class="btn btn-sm btn-primary"
+                      (click)="submitGRN(viewGrn); closeViewModal()">
+                <i class="bi bi-send me-1"></i>Submit for QA
+              </button>
+              <button *ngIf="viewGrn.status === 'SUBMITTED' || viewGrn.status === 'QA_REVIEW'"
+                      class="btn btn-sm btn-qa-action"
+                      (click)="closeViewModal(); openQAReview(viewGrn)">
+                <i class="bi bi-clipboard-check me-1"></i>
+                {{ viewGrn.status === 'SUBMITTED' ? 'Start QA Review' : 'Continue QA Review' }}
+              </button>
+              <button *ngIf="viewGrn.status === 'APPROVED'"
+                      class="btn btn-sm btn-match-action"
+                      (click)="closeViewModal(); openMatchModal(viewGrn)">
+                <i class="bi bi-diagram-3 me-1"></i>3-Way Match
+              </button>
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">GRN Number</div><div class="info-chip-value text-primary">{{ viewGrn.grnNumber || '—' }}</div></div></div>
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">PO Number</div><div class="info-chip-value fw-bold">{{ viewGrn.poNumber || '—' }}</div></div></div>
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">Supplier</div><div class="info-chip-value">{{ viewGrn.supplierName || '—' }}</div></div></div>
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">Delivery Date</div><div class="info-chip-value">{{ formatDate(viewGrn.deliveryDate) }}</div></div></div>
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">Transporter</div><div class="info-chip-value">{{ viewGrn.transporterName || '—' }}</div></div></div>
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">Vehicle No.</div><div class="info-chip-value">{{ viewGrn.vehicleNumber || '—' }}</div></div></div>
+            <div class="col-md-4"><div class="info-chip"><div class="info-chip-label">Received By</div><div class="info-chip-value">{{ viewGrn.receivedByName || '—' }}</div></div></div>
+            <div class="col-md-4" *ngIf="viewGrn.inspectedByName"><div class="info-chip"><div class="info-chip-label">QA Inspector</div><div class="info-chip-value text-primary">{{ viewGrn.inspectedByName }}</div></div></div>
+            <div class="col-md-4" *ngIf="viewGrn.approvedByName"><div class="info-chip"><div class="info-chip-label">Approved By</div><div class="info-chip-value text-success">{{ viewGrn.approvedByName }}</div></div></div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-purple"><i class="bi bi-box"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalOrderedQuantity }}</div><div class="stat-label">Ordered</div></div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-pink"><i class="bi bi-inbox-fill"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalReceivedQuantity }}</div><div class="stat-label">Received</div></div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-teal"><i class="bi bi-check-circle"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalAcceptedQuantity }}</div><div class="stat-label">Accepted</div></div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon-wrap stat-red"><i class="bi bi-x-circle"></i></div><div class="stat-info"><div class="stat-value">{{ viewGrn.totalRejectedQuantity }}</div><div class="stat-label">Rejected</div></div></div></div>
+          </div>
+          <h6 class="fw-bold mb-3"><i class="bi bi-list-check me-2 text-primary"></i>Line Items</h6>
+          <div class="table-responsive">
+            <table class="table grn-table mb-0">
+              <thead class="table-header">
+                <tr>
+                  <th>#</th><th>Item Description</th>
+                  <th class="text-center">Ordered</th><th class="text-center">Received</th>
+                  <th class="text-center">Pending</th>
+                  <th class="text-center">Defective</th><th class="text-center">Rejected</th>
+                  <th class="text-center">Accepted</th><th class="text-center">Condition</th>
+                  <th>QA Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let li of viewGrn.lineItems; let i=index">
+                  <td>{{ i+1 }}</td>
+                  <td><div class="fw-semibold">{{ li.itemDescription || '—' }}</div></td>
+                  <td class="text-center">{{ li.orderedQuantity }}</td>
+                  <td class="text-center">{{ li.receivedQuantity }}</td>
+                  <td class="text-center">
+                    <span *ngIf="li.orderedQuantity > li.receivedQuantity" class="badge bg-warning text-dark">
+                      {{ li.orderedQuantity - li.receivedQuantity }}
+                    </span>
+                    <span *ngIf="li.orderedQuantity <= li.receivedQuantity" class="text-success fw-bold">✓</span>
+                  </td>
+                  <td class="text-center text-warning fw-semibold">{{ li.defectiveQuantity > 0 ? li.defectiveQuantity : '—' }}</td>
+                  <td class="text-center text-danger fw-semibold">{{ li.rejectedQuantity > 0 ? li.rejectedQuantity : '—' }}</td>
+                  <td class="text-center text-success fw-semibold">{{ li.acceptedQuantity }}</td>
+                  <td class="text-center"><span class="condition-badge condition-{{ (li.itemCondition || 'GOOD').toLowerCase() }}">{{ li.itemCondition || 'GOOD' }}</span></td>
+                  <td><span class="text-muted small">{{ li.qaRemarks || '—' }}</span></td>
+                </tr>
+                <tr *ngIf="!viewGrn.lineItems || viewGrn.lineItems.length === 0">
+                  <td colspan="10" class="text-center text-muted py-3">No line items</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-secondary" (click)="closeViewModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ UPDATE RECEIVED QTY MODAL ════════════════ -->
+<div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showUpdateModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg modal-rounded">
+      <div class="modal-header border-0" style="background:linear-gradient(135deg,#667eea,#764ba2);">
         <div>
           <h5 class="modal-title fw-bold text-white">
-            <i class="bi bi-diagram-3 me-2"></i>3-Way Match — {{ matchGrn?.grnNumber }}
+            <i class="bi bi-plus-circle me-2"></i>Update Received Quantity
           </h5>
-          <div class="text-white-50 small mt-1">Reconcile PO ↔ GRN (accepted qty) ↔ Invoice</div>
+          <div class="text-white-50 small mt-1" *ngIf="updateGrn">
+            {{ updateGrn.grnNumber }} &bull; {{ updateGrn.poNumber }} &bull; {{ updateGrn.supplierName }}
+          </div>
         </div>
-        <button class="btn-close btn-close-white" (click)="closeMatchModal()"></button>
+        <button class="btn-close btn-close-white" (click)="closeUpdateModal()" [disabled]="updateSubmitting"></button>
       </div>
-
       <div class="modal-body p-4">
-        <div *ngIf="matchErrorMessage" class="alert alert-danger mb-3">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ matchErrorMessage }}
+        <div *ngIf="!updateGrn && !updateErrorMessage && !updateSubmitting" class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2 text-muted">Loading GRN line items…</p>
         </div>
-
-        <div class="row g-3 mb-4">
-          <div class="col-md-3"><div class="info-chip"><div class="info-chip-label">GRN Number</div><div class="info-chip-value text-primary">{{ matchGrn?.grnNumber }}</div></div></div>
-          <div class="col-md-3"><div class="info-chip"><div class="info-chip-label">PO Number</div><div class="info-chip-value">{{ matchGrn?.poNumber }}</div></div></div>
-          <div class="col-md-3"><div class="info-chip"><div class="info-chip-label">Accepted Qty</div><div class="info-chip-value text-success fw-bold">{{ matchGrn?.totalAcceptedQuantity }}</div></div></div>
-          <div class="col-md-3">
-            <div class="info-chip">
-              <div class="info-chip-label">Tolerance %</div>
-              <div><input type="number" class="form-control form-control-sm" [(ngModel)]="matchTolerance" [min]="0" [max]="10" style="width:80px; display:inline;"></div>
+        <div *ngIf="updateSubmitting && updateStep > 0" class="update-progress-wrap mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+            <span class="fw-semibold text-primary">{{ updateStepLabel }}</span>
+          </div>
+          <div class="update-steps">
+            <div class="upd-step" [class.upd-step-active]="updateStep === 1" [class.upd-step-done]="updateStep > 1">
+              <div class="upd-step-circle"><i *ngIf="updateStep > 1" class="bi bi-check-lg"></i><span *ngIf="updateStep <= 1">1</span></div>
+              <div class="upd-step-text">Revert to Draft</div>
+            </div>
+            <div class="upd-step-line" [class.upd-step-line-done]="updateStep > 1"></div>
+            <div class="upd-step" [class.upd-step-active]="updateStep === 2" [class.upd-step-done]="updateStep > 2">
+              <div class="upd-step-circle"><i *ngIf="updateStep > 2" class="bi bi-check-lg"></i><span *ngIf="updateStep <= 2">2</span></div>
+              <div class="upd-step-text">Update Quantities</div>
+            </div>
+            <div class="upd-step-line" [class.upd-step-line-done]="updateStep > 2"></div>
+            <div class="upd-step" [class.upd-step-active]="updateStep === 3" [class.upd-step-done]="updateStep >= 4">
+              <div class="upd-step-circle"><i *ngIf="updateStep >= 4" class="bi bi-check-lg"></i><span *ngIf="updateStep < 4">3</span></div>
+              <div class="upd-step-text">Re-submit GRN</div>
             </div>
           </div>
         </div>
-
-        <!-- Invoice Selection -->
-        <div class="mb-4">
-          <h6 class="fw-bold mb-3"><i class="bi bi-receipt me-2 text-primary"></i>Select Invoice to Match Against</h6>
-          <div *ngIf="matchInvoicesLoading" class="text-center py-3">
-            <div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading submitted invoices...
-          </div>
-          <div *ngIf="!matchInvoicesLoading && matchInvoices.length === 0" class="alert alert-warning">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            No <strong>SUBMITTED</strong> invoices found for this PO.
-          </div>
-          <div *ngIf="!matchInvoicesLoading && matchInvoices.length > 0" class="match-invoice-grid">
-            <div *ngFor="let inv of matchInvoices"
-                 class="match-invoice-card"
-                 [class.selected]="selectedInvoiceId === inv.id"
-                 (click)="selectedInvoiceId = inv.id">
-              <div class="match-invoice-select-icon">
-                <i [class]="selectedInvoiceId === inv.id ? 'bi bi-check-circle-fill text-success' : 'bi bi-circle text-muted'"></i>
-              </div>
-              <div class="match-invoice-info">
-                <div class="fw-bold text-primary">{{ inv.invoiceNumber }}</div>
-                <div class="small text-muted">{{ inv.supplierCompanyName || inv.supplierName }}</div>
-                <div class="small text-muted">Date: {{ formatDate(inv.invoiceDate) }}</div>
-              </div>
-              <div class="match-invoice-amount fw-bold text-success">{{ formatCurrency(inv.grandTotal || inv.totalAmount) }}</div>
-            </div>
-          </div>
+        <div *ngIf="updateErrorMessage" class="alert alert-danger d-flex align-items-start gap-2 mb-3">
+          <i class="bi bi-exclamation-triangle-fill mt-1"></i><span>{{ updateErrorMessage }}</span>
         </div>
-
-        <!-- Match Result -->
-        <div *ngIf="matchResult" class="match-result-card">
-          <div class="match-result-header" [class]="getMatchStatusClass(matchResult.matchStatus)">
-            <i class="bi me-2"
-               [class.bi-check-circle-fill]="matchResult.matchStatus === 'MATCHED'"
-               [class.bi-exclamation-circle-fill]="matchResult.matchStatus !== 'MATCHED'"></i>
-            <span class="fw-bold">{{ matchResult.matchStatus }}</span>
-            <span class="ms-2 small fw-normal">— {{ matchResult.matchSummary }}</span>
-          </div>
-          <div class="row g-3 p-4">
-            <div class="col-md-3"><div class="match-value-chip"><div class="match-value-label">PO Total</div><div class="match-value">{{ formatCurrency(matchResult.poTotalValue) }}</div></div></div>
-            <div class="col-md-3"><div class="match-value-chip"><div class="match-value-label">GRN Accepted Value</div><div class="match-value">{{ formatCurrency(matchResult.grnAcceptedValue) }}</div></div></div>
-            <div class="col-md-3"><div class="match-value-chip"><div class="match-value-label">Invoice Total</div><div class="match-value">{{ formatCurrency(matchResult.invoiceTotalValue) }}</div></div></div>
-            <div class="col-md-3">
-              <div class="match-value-chip"
-                   [class.variance-ok]="matchResult.variancePercentage <= matchTolerance"
-                   [class.variance-fail]="matchResult.variancePercentage > matchTolerance">
-                <div class="match-value-label">Variance</div>
-                <div class="match-value">{{ formatCurrency(matchResult.varianceAmount) }} <span class="small">({{ matchResult.variancePercentage | number:'1.2-2' }}%)</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="px-4 pb-4 d-flex gap-2 flex-wrap" *ngIf="matchResult.hasQuantityMismatch || matchResult.hasPriceMismatch || matchResult.hasItemMismatch">
-            <span *ngIf="matchResult.hasQuantityMismatch" class="mismatch-flag"><i class="bi bi-exclamation-triangle-fill me-1"></i>Quantity Mismatch</span>
-            <span *ngIf="matchResult.hasPriceMismatch"    class="mismatch-flag"><i class="bi bi-exclamation-triangle-fill me-1"></i>Price Mismatch</span>
-            <span *ngIf="matchResult.hasItemMismatch"     class="mismatch-flag"><i class="bi bi-exclamation-triangle-fill me-1"></i>Item Mismatch</span>
-          </div>
-          <div class="px-4 pb-4" *ngIf="matchResult.lineResults?.length > 0">
-            <h6 class="fw-bold mb-2">Line-Level Results</h6>
-            <div class="table-responsive">
-              <table class="table grn-table mb-0" style="font-size:.85rem;">
-                <thead class="table-header">
-                  <tr>
-                    <th>Item</th><th class="text-center">PO Qty</th><th class="text-center">GRN Accepted</th>
-                    <th class="text-center">Invoice Qty</th><th class="text-center">PO Rate</th>
-                    <th class="text-center">Invoice Rate</th><th class="text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let lr of matchResult.lineResults">
-                    <td>{{ lr.itemDescription || lr.itemCode }}</td>
-                    <td class="text-center">{{ lr.poOrderedQuantity }}</td>
-                    <td class="text-center text-success fw-semibold">{{ lr.grnAcceptedQuantity }}</td>
-                    <td class="text-center">{{ lr.invoiceQuantity }}</td>
-                    <td class="text-center">{{ formatCurrency(lr.poUnitRate) }}</td>
-                    <td class="text-center">{{ formatCurrency(lr.invoiceUnitPrice) }}</td>
-                    <td class="text-center"><span [class]="getMatchStatusClass(lr.lineMatchStatus)">{{ lr.lineMatchStatus }}</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div *ngIf="updateSuccessMessage" class="alert alert-success d-flex align-items-start gap-2 mb-3">
+          <i class="bi bi-check-circle-fill mt-1"></i><span>{{ updateSuccessMessage }}</span>
         </div>
+        <ng-container *ngIf="updateGrn && updateLineItems.length > 0 && !updateSuccessMessage && !updateSubmitting">
+          <div class="update-info-banner mb-4">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <div>
+              <strong>Adding remaining received quantity to the existing GRN.</strong><br>
+              <small>Enter how many additional units arrived for each line item. The system will add this to the previously recorded quantity. You cannot exceed the remaining (undelivered) amount.</small>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table update-table mb-0">
+              <thead class="update-thead">
+                <tr>
+                  <th>#</th><th>Item</th><th class="text-center">UOM</th>
+                  <th class="text-center">Ordered</th>
+                  <th class="text-center col-prev">Previously<br>Received</th>
+                  <th class="text-center col-remaining">Remaining<br>to Receive</th>
+                  <th class="text-center col-add"><i class="bi bi-plus-circle me-1 text-success"></i>Additional<br>Qty Now <span class="text-danger">*</span></th>
+                  <th class="text-center col-new-total">New Total<br>Received</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let li of updateLineItems; let i = index" class="update-row">
+                  <td class="text-muted fw-semibold">{{ i + 1 }}</td>
+                  <td><div class="fw-semibold update-item-name">{{ li.itemDescription }}</div></td>
+                  <td class="text-center text-muted">{{ li.uom }}</td>
+                  <td class="text-center"><span class="upd-badge upd-ordered">{{ li.orderedQuantity }}</span></td>
+                  <td class="text-center"><span class="upd-badge upd-prev">{{ li.previousReceived }}</span></td>
+                  <td class="text-center"><span class="upd-badge upd-remaining">{{ li.remainingQty }}</span></td>
+                  <td class="text-center">
+                    <input type="number" class="upd-input" [(ngModel)]="li.additionalQty" [min]="0" [max]="li.remainingQty" (ngModelChange)="onAdditionalQtyChange(li)" placeholder="0" />
+                    <div class="upd-max-hint">max {{ li.remainingQty }}</div>
+                  </td>
+                  <td class="text-center">
+                    <span class="upd-badge upd-newtotal" [class.upd-newtotal-full]="li.newTotalReceived === li.orderedQuantity">
+                      {{ li.newTotalReceived }}
+                      <i *ngIf="li.newTotalReceived === li.orderedQuantity" class="bi bi-check-circle-fill ms-1 text-success" style="font-size:.75rem;"></i>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="update-tfoot">
+                <tr>
+                  <td colspan="3" class="fw-bold text-end pe-3">TOTALS</td>
+                  <td class="text-center fw-bold">{{ updateTotal('orderedQuantity') }}</td>
+                  <td class="text-center fw-bold">{{ updateTotal('previousReceived') }}</td>
+                  <td class="text-center fw-bold text-warning">{{ updateTotal('remainingQty') }}</td>
+                  <td class="text-center fw-bold text-success">+ {{ updateTotalAdditional }}</td>
+                  <td class="text-center fw-bold text-primary">{{ updateTotal('newTotalReceived') }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </ng-container>
       </div>
+      <div class="modal-footer border-0" *ngIf="!updateSuccessMessage && !updateSubmitting">
+        <button class="btn btn-secondary" (click)="closeUpdateModal()" [disabled]="updateSubmitting">Cancel</button>
+        <button class="btn btn-update-submit px-4"
+                (click)="submitUpdateReceivedQty()"
+                [disabled]="updateSubmitting || updateLineItems.length === 0 || updateTotalAdditional === 0">
+          <i class="bi bi-check-circle me-2"></i>Update GRN — Add {{ updateTotalAdditional }} Unit{{ updateTotalAdditional !== 1 ? 's' : '' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
+
+<!-- ════════════════ APPROVE / CANCEL MODAL ════════════════ -->
+<div class="modal fade show d-block modal-backdrop-custom" tabindex="-1" *ngIf="showActionModal">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow-lg modal-rounded">
+      <div class="modal-header text-white border-0"
+           [style.background]="actionType === 'approve' ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#ef4444,#dc2626)'">
+        <h5 class="modal-title fw-bold">
+          <i [class]="actionType === 'approve' ? 'bi bi-check-circle me-2' : 'bi bi-x-circle me-2'"></i>
+          {{ actionType === 'approve' ? 'Approve GRN' : 'Cancel GRN' }}
+        </h5>
+        <button class="btn-close btn-close-white" (click)="closeActionModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div *ngIf="errorMessage" class="alert alert-danger small">{{ errorMessage }}</div>
+        <p class="mb-1">Are you sure you want to <strong>{{ actionType }}</strong> GRN <strong class="text-primary">{{ selectedGrn?.grnNumber }}</strong>?</p>
+        <p *ngIf="actionType === 'cancel'" class="text-danger small mb-0">
+          <i class="bi bi-exclamation-triangle me-1"></i>This action cannot be undone.
+        </p>
+      </div>
       <div class="modal-footer border-0">
-        <button class="btn btn-outline-secondary" (click)="closeMatchModal()" [disabled]="matchSubmitting">Close</button>
-        <button class="btn btn-match-action px-4"
-                (click)="performMatch()"
-                [disabled]="matchSubmitting || !selectedInvoiceId || matchInvoicesLoading">
-          <span *ngIf="matchSubmitting" class="spinner-border spinner-border-sm me-1"></span>
-          <i *ngIf="!matchSubmitting" class="bi bi-diagram-3 me-1"></i>
-          {{ matchResult ? 'Re-run Match' : 'Perform 3-Way Match' }}
+        <button class="btn btn-secondary" (click)="closeActionModal()" [disabled]="actionLoading">Cancel</button>
+        <button [class]="actionType === 'approve' ? 'btn btn-success' : 'btn btn-danger'"
+                (click)="confirmAction()" [disabled]="actionLoading">
+          <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ actionType === 'approve' ? 'Yes, Approve' : 'Yes, Cancel GRN' }}
         </button>
       </div>
     </div>
@@ -921,6 +1576,38 @@
   max-width: 280px;
   line-height: 1.4;
 }
+
+/* ── Excel download button — table row ───────────────────── */
+.btn-excel {
+  background: linear-gradient(135deg, #16a34a, #15803d) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 7px;
+  width: 30px; height: 30px;
+  padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.82rem;
+  transition: opacity 0.15s;
+}
+.btn-excel:hover:not(:disabled) { opacity: 0.85; }
+.btn-excel:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Excel download button — view modal ─────────────────── */
+.btn-excel-modal {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: inline-flex; align-items: center;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-excel-modal:hover:not(:disabled) { opacity: 0.85; }
+.btn-excel-modal:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ── Update modal specific styles ─────────────────────── */
 .btn-update-qty {
   background: linear-gradient(135deg, #667eea, #764ba2) !important;

@@ -301,6 +301,7 @@ import { SessionTimerComponent } from '../../../views/session-timer/session-time
 import { SessionExpiryDialogComponent } from '../../../shared/session-expiry-dialog/session-expiry-dialog.component';
 import { DataService } from '../../../shared/service/DataService';
 import { AuthService } from '../../../shared/service/AuthService';
+import { ThemeSwitcherComponent } from '../../../shared/components/theme-switcher/theme-switcher.component';
 
 @Component({
   selector: 'app-default-header',
@@ -323,7 +324,8 @@ import { AuthService } from '../../../shared/service/AuthService';
     MatDialogModule,
     SessionTimerComponent,
     BreadcrumbRouterComponent,
-    SessionExpiryDialogComponent
+    SessionExpiryDialogComponent,
+    ThemeSwitcherComponent   
   ]
 })
 export class DefaultHeaderComponent extends HeaderComponent implements OnInit, OnDestroy {

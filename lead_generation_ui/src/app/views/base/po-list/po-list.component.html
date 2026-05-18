@@ -1,5 +1,5 @@
-<!-- <c-container fluid class="mt-4">
-
+<!-- 
+<c-container fluid class="mt-4">
 
   <div class="row mb-4" *ngIf="loggedInBuyer">
     <div class="col-12">
@@ -75,7 +75,6 @@
                 <i class="bi bi-file-earmark-text me-2 text-primary"></i>Purchase Orders
               </h3>
               <p class="text-muted mb-0 mt-1">View and manage all your purchase orders</p>
-              
               <span class="badge bg-primary mt-1" style="font-size:0.8rem;">
                 <i class="bi bi-globe2 me-1"></i>{{ currencySymbol }} {{ currencyCode }}
               </span>
@@ -89,7 +88,6 @@
     </c-col>
   </c-row>
 
- 
   <c-row class="mb-4 g-3" *ngIf="!isLoading">
     <c-col xs="12" sm="6" lg="3">
       <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='ALL'; applyStatusFilter()">
@@ -128,25 +126,27 @@
       </div>
     </c-col>
     <c-col xs="12" sm="6" lg="3">
-      
       <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='ALL'; applyStatusFilter()">
         <div class="stat-icon-wrap stat-green"><i class="bi bi-cash-coin"></i></div>
         <div class="stat-info">
-          <div class="stat-value stat-value-sm">
-            {{ currencySymbol }}{{ getTotalValue() | number:'1.0-0' }}
-          </div>
+<div class="stat-value stat-value-sm">
+  <ng-container *ngIf="exchangeRatesLoaded || !hasCrossBorderPOs()">
+    {{ currencySymbol }}{{ getTotalValueInLocalCurrency() | number:'1.0-0' }}
+  </ng-container>
+  <ng-container *ngIf="!exchangeRatesLoaded && hasCrossBorderPOs()">
+    <span style="font-size:0.8rem;">Loading...</span>
+  </ng-container>
+</div>
           <div class="stat-label">Total Value</div>
         </div>
       </div>
     </c-col>
   </c-row>
 
-
   <div *ngIf="isLoading" class="text-center py-5">
     <c-spinner color="primary" style="width:3rem;height:3rem;"></c-spinner>
     <p class="mt-3 text-muted">Loading purchase orders...</p>
   </div>
-
 
   <c-row *ngIf="!isLoading">
     <c-col xs="12">
@@ -171,8 +171,14 @@
                   <th>RFQ Reference</th>
                   <th>Supplier</th>
                   <th class="text-center">Items</th>
-                
-                  <th class="text-end">Grand Total ({{ currencyCode }})</th>
+               
+                  <th class="text-end">
+                    Grand Total
+                    <div style="font-size:0.7rem; font-weight:400; opacity:0.8;">
+                      {{ currencySymbol }} {{ currencyCode }}
+                      <span *ngIf="exchangeRatesLoaded" style="opacity:0.7;">· cross-border shows original + ({{ currencyCode }})</span>
+                    </div>
+                  </th>
                   <th class="text-center">Status</th>
                   <th class="text-center">Actions</th>
                 </tr>
@@ -202,8 +208,40 @@
                     </td>
 
                     <td class="text-end">
-                      <div class="fw-bold text-success fs-6">{{ formatCurrencyAmount(po.grandTotal) }}</div>
+
+                      <ng-container *ngIf="!isCrossBorderPO(po)">
+                        <div class="fw-bold text-success fs-6">
+                          {{ formatCurrencyAmount(po.grandTotal) }}
+                        </div>
+                      </ng-container>
+                      <ng-container *ngIf="isCrossBorderPO(po)">
+                     
+                        <div class="fw-bold text-primary fs-6">
+                          {{ formatInCurrency(po.grandTotal, po.currencyCode) }}
+                         
+                          <span class="badge ms-1"
+                                style="font-size:0.62rem; background:#dbeafe; color:#1d4ed8; vertical-align:middle;">
+                            {{ po.currencyCode }}
+                          </span>
+                        </div>
+                        
+                        <div class="mt-1" style="font-size:0.78rem;">
+                          <ng-container *ngIf="exchangeRatesLoaded">
+                            <span class="fw-semibold" style="color:#16a34a;">
+                                 {{ formatInCurrency(po.grandTotal, po.currencyCode) }}
+                              ({{ getConvertedDisplay(po) }})
+                            </span>
+                          </ng-container>
+                          <ng-container *ngIf="!exchangeRatesLoaded">
+                            <span class="text-muted" style="font-size:0.7rem;">
+                              <i class="bi bi-hourglass-split me-1"></i>Converting...
+                            </span>
+                          </ng-container>
+                        </div>
+                      </ng-container>
+
                     </td>
+
                     <td class="text-center">
                       <span class="badge" [ngClass]="getStatusBadgeClass(po.status)">{{ po.status | titlecase }}</span>
                     </td>
@@ -228,7 +266,7 @@
                     </td>
                   </tr>
 
-                 
+                  
                   <tr *ngIf="hasRemark(po)" class="remark-row">
                     <td colspan="8" class="p-0 border-0">
                       <ng-container [ngSwitch]="getApprovalRemark(po.id)?.type">
@@ -308,7 +346,7 @@
                 </button>
               </div>
             </div>
-           
+            
 
           </div>
         </c-card-body>
@@ -342,28 +380,19 @@
                 <div class="col-12 col-md-3">
                   <div class="info-card">
                     <div class="info-card-icon"><i class="bi bi-building-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Company Name</div>
-                      <div class="info-value">{{ loggedInBuyer.companyName }}</div>
-                    </div>
+                    <div class="info-card-content"><div class="info-label">Company Name</div><div class="info-value">{{ loggedInBuyer.companyName }}</div></div>
                   </div>
                 </div>
                 <div class="col-12 col-md-3">
                   <div class="info-card">
                     <div class="info-card-icon"><i class="bi bi-envelope-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Email</div>
-                      <div class="info-value">{{ loggedInBuyer.email }}</div>
-                    </div>
+                    <div class="info-card-content"><div class="info-label">Email</div><div class="info-value">{{ loggedInBuyer.email }}</div></div>
                   </div>
                 </div>
                 <div class="col-12 col-md-3">
                   <div class="info-card">
                     <div class="info-card-icon"><i class="bi bi-telephone-fill"></i></div>
-                    <div class="info-card-content">
-                      <div class="info-label">Phone</div>
-                      <div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div>
-                    </div>
+                    <div class="info-card-content"><div class="info-label">Phone</div><div class="info-value">{{ loggedInBuyer.contactPersonPhone }}</div></div>
                   </div>
                 </div>
                 <div class="col-12 col-md-3">
@@ -409,12 +438,89 @@
     </c-col>
   </c-row>
 
+  <!-- ==================== DATE FILTER BAR ==================== -->
+  <div class="date-filter-card mb-4">
+    <div class="date-filter-accent"></div>
+    <div class="date-filter-inner">
+
+      <div class="date-filter-title-wrap">
+        <div class="date-filter-icon-wrap"><i class="bi bi-calendar3-range"></i></div>
+        <div>
+          <div class="date-filter-title">Date Range</div>
+          <div class="date-filter-subtitle">Filter POs by creation date</div>
+        </div>
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-controls">
+
+        <div class="date-filter-field">
+          <label class="date-filter-label">
+            <i class="bi bi-calendar2-check me-1"></i>Financial Year / Period
+          </label>
+          <div class="date-filter-select-wrap">
+            <select class="date-filter-select"
+                    [(ngModel)]="selectedFYOption"
+                    (change)="onFYOptionChange()">
+              <option value="ALL">All Time</option>
+              <option *ngFor="let fy of financialYearOptions" [value]="fy.value">
+                {{ fy.label }}
+              </option>
+              <option value="CUSTOM">Custom Range</option>
+            </select>
+            <i class="bi bi-chevron-down date-filter-select-icon"></i>
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event me-1"></i>From Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input"
+                   [(ngModel)]="customFromDate" (change)="applyFiltersAndPagination()" />
+          </div>
+        </div>
+
+        <div class="date-filter-field date-filter-custom-field"
+             [class.date-filter-field-visible]="selectedFYOption === 'CUSTOM'">
+          <label class="date-filter-label"><i class="bi bi-calendar-event-fill me-1"></i>To Date</label>
+          <div class="date-filter-input-wrap">
+            <input type="date" class="date-filter-input"
+                   [(ngModel)]="customToDate" (change)="applyFiltersAndPagination()" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="date-filter-divider"></div>
+
+      <div class="date-filter-right">
+        <div class="date-filter-badge-wrap" *ngIf="activeDateRangeLabel">
+          <div class="date-filter-badge-icon"><i class="bi bi-funnel-fill"></i></div>
+          <div>
+            <div class="date-filter-badge-label">Active Filter</div>
+            <div class="date-filter-badge-value">{{ activeDateRangeLabel }}</div>
+          </div>
+        </div>
+        <button class="date-filter-reset-btn"
+                *ngIf="selectedFYOption !== getCurrentFYValue()"
+                (click)="resetDateFilter()"
+                title="Reset to current financial year">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Current FY
+        </button>
+      </div>
+
+    </div>
+  </div>
+  <!-- ==================== END DATE FILTER BAR ==================== -->
+
   <!-- ===== STAT CARDS ===== -->
   <c-row class="mb-4 g-3" *ngIf="!isLoading">
     <c-col xs="12" sm="6" lg="3">
       <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='ALL'; applyStatusFilter()">
         <div class="stat-icon-wrap stat-purple"><i class="bi bi-file-earmark-text"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ purchaseOrders.length }}</div><div class="stat-label">Total POs</div></div>
+        <div class="stat-info"><div class="stat-value">{{ dateFilteredOrders.length }}</div><div class="stat-label">Total POs</div></div>
       </div>
     </c-col>
     <c-col xs="12" sm="6" lg="3">
@@ -444,22 +550,27 @@
     <c-col xs="12" sm="6" lg="3">
       <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='HOLD'; applyStatusFilter()">
         <div class="stat-icon-wrap stat-hold"><i class="bi bi-pause-circle"></i></div>
-        <div class="stat-info"><div class="stat-value">{{ holdCount }}</div><div class="stat-label">On HOLD</div></div>
+        <div class="stat-info"><div class="stat-value">{{ dateFilteredHoldCount }}</div><div class="stat-label">On HOLD</div></div>
       </div>
     </c-col>
     <c-col xs="12" sm="6" lg="3">
       <div class="stat-card" style="cursor:pointer;" (click)="statusFilter='ALL'; applyStatusFilter()">
         <div class="stat-icon-wrap stat-green"><i class="bi bi-cash-coin"></i></div>
         <div class="stat-info">
-<div class="stat-value stat-value-sm">
-  <ng-container *ngIf="exchangeRatesLoaded || !hasCrossBorderPOs()">
-    {{ currencySymbol }}{{ getTotalValueInLocalCurrency() | number:'1.0-0' }}
-  </ng-container>
-  <ng-container *ngIf="!exchangeRatesLoaded && hasCrossBorderPOs()">
-    <span style="font-size:0.8rem;">Loading...</span>
-  </ng-container>
-</div>
-          <div class="stat-label">Total Value</div>
+          <div class="stat-value stat-value-sm">
+            <ng-container *ngIf="exchangeRatesLoaded || !hasCrossBorderPOs()">
+              {{ currencySymbol }}{{ getTotalValueInLocalCurrency() | number:'1.0-0' }}
+            </ng-container>
+            <ng-container *ngIf="!exchangeRatesLoaded && hasCrossBorderPOs()">
+              <span style="font-size:0.8rem;">Loading...</span>
+            </ng-container>
+          </div>
+          <div class="stat-label">Total Value
+            <span *ngIf="activeDateRangeLabel && activeDateRangeLabel !== 'All Time'"
+                  class="text-muted fw-normal" style="font-size:0.7rem; display:block;">
+              {{ activeDateRangeLabel }}
+            </span>
+          </div>
         </div>
       </div>
     </c-col>
@@ -487,6 +598,20 @@
           </div>
 
           <div class="table-responsive" *ngIf="purchaseOrders.length > 0">
+
+            <!-- Table header with result count -->
+            <div class="px-4 pt-3 pb-2 d-flex align-items-center justify-content-between">
+              <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-table me-2 text-primary"></i>All Purchase Orders
+                <span *ngIf="activeDateRangeLabel" class="text-muted fw-normal" style="font-size: 0.85rem;">
+                  — {{ activeDateRangeLabel }}
+                </span>
+              </h5>
+              <small class="text-muted">
+                {{ filteredOrders.length }} result{{ filteredOrders.length !== 1 ? 's' : '' }}
+              </small>
+            </div>
+
             <table class="table po-table mb-0">
               <thead class="table-header">
                 <tr>
@@ -495,7 +620,6 @@
                   <th>RFQ Reference</th>
                   <th>Supplier</th>
                   <th class="text-center">Items</th>
-                  <!-- ✅ Header shows buyer's local currency -->
                   <th class="text-end">
                     Grand Total
                     <div style="font-size:0.7rem; font-weight:400; opacity:0.8;">
@@ -531,32 +655,24 @@
                       <span class="badge bg-light text-dark border">{{ po.lineItems?.length || 0 }}</span>
                     </td>
 
-                    <!-- ✅ Grand Total cell: original amount + converted local currency in brackets -->
                     <td class="text-end">
-
-                      <!-- Same-country PO: just show the amount in buyer's currency directly -->
                       <ng-container *ngIf="!isCrossBorderPO(po)">
                         <div class="fw-bold text-success fs-6">
                           {{ formatCurrencyAmount(po.grandTotal) }}
                         </div>
                       </ng-container>
-
-                      <!-- Cross-border PO: show original (USD) on top, converted (INR) below in brackets -->
                       <ng-container *ngIf="isCrossBorderPO(po)">
-                        <!-- Original currency amount (e.g. $ 4,770.00) -->
                         <div class="fw-bold text-primary fs-6">
                           {{ formatInCurrency(po.grandTotal, po.currencyCode) }}
-                          <!-- Currency badge -->
                           <span class="badge ms-1"
                                 style="font-size:0.62rem; background:#dbeafe; color:#1d4ed8; vertical-align:middle;">
                             {{ po.currencyCode }}
                           </span>
                         </div>
-                        <!-- Converted to buyer's local currency (e.g. ≈ ₹ 3,97,832.50) -->
                         <div class="mt-1" style="font-size:0.78rem;">
                           <ng-container *ngIf="exchangeRatesLoaded">
                             <span class="fw-semibold" style="color:#16a34a;">
-                                 {{ formatInCurrency(po.grandTotal, po.currencyCode) }}
+                              {{ formatInCurrency(po.grandTotal, po.currencyCode) }}
                               ({{ getConvertedDisplay(po) }})
                             </span>
                           </ng-container>
@@ -567,7 +683,6 @@
                           </ng-container>
                         </div>
                       </ng-container>
-
                     </td>
 
                     <td class="text-center">
@@ -634,14 +749,22 @@
                     </td>
                   </tr>
                 </ng-container>
+
+                <tr *ngIf="filteredOrders.length === 0">
+                  <td colspan="8" class="text-center py-5">
+                    <i class="bi bi-inbox display-6 mb-3 d-block opacity-25"></i>
+                    <p class="text-muted mb-0">No purchase orders found for this period.</p>
+                  </td>
+                </tr>
               </tbody>
             </table>
 
             <!-- ===== PAGINATION BAR ===== -->
-            <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3">
+            <div class="pagination-bar d-flex align-items-center justify-content-between flex-wrap gap-3 px-4 py-3"
+                 *ngIf="filteredOrders.length > 0">
               <div class="d-flex align-items-center gap-3 flex-wrap">
-                <span class="pagination-info text-muted small">
-                  Showing <strong>{{ startIndex }}–{{ endIndex }}</strong> of <strong>{{ purchaseOrders.length }}</strong> orders
+                <span class="text-muted small">
+                  Showing <strong>{{ startIndex }}–{{ endIndex }}</strong> of <strong>{{ filteredOrders.length }}</strong> orders
                 </span>
                 <div class="d-flex align-items-center gap-2">
                   <label class="text-muted small mb-0 text-nowrap">Rows per page:</label>

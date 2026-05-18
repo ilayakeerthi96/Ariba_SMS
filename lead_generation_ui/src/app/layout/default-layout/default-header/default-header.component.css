@@ -1,7 +1,9 @@
 /* ============================================
    HEADER WRAPPER
    ============================================ */
-.logout-confirm-overlay {
+
+
+   .logout-confirm-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -64,12 +66,12 @@
 }
 
 .btn-confirm-no:hover { background: #ddd; }
-.header-wrapper {
-  background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 12px 24px !important;
-  position: relative;
-}
+ .header-wrapper {
+    /* background removed — controlled by _theme-overrides.scss */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 12px 24px !important;
+    position: relative;
+  }
 
 /* ============================================
    HEADER FLEX CONTAINER - PROPER 3-SECTION LAYOUT
@@ -205,15 +207,15 @@
   pointer-events: auto; /* Re-enable clicks for child elements */
 }
 
-.system-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #336fd5;
-  /* letter-spacing: 1px; */
-  margin: 0 0 4px 0;
-  line-height: 1.2;
-  white-space: nowrap;
-}
+  .system-title {
+    /* color controlled by theme */
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+ 
 
 .user-info-line {
   display: flex;
@@ -300,6 +302,8 @@
   padding: 8px;
   margin-top: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff !important; 
+    color: #212529 !important; 
 }
 
 .dropdown-header {
@@ -307,6 +311,16 @@
   background-color: #f7fafc;
   border-radius: 8px;
   margin-bottom: 4px;
+}
+
+.dropdown-header .fw-bold {
+  color: #1a1a2e !important;   /* dark name text */
+  font-size: 0.95rem;
+}
+
+.dropdown-header .text-muted,
+.dropdown-header small {
+  color: #6c757d !important;   /* grey role text */
 }
 
 .dropdown-item-custom {
@@ -317,12 +331,18 @@
   transition: all 0.2s ease;
   font-size: 14px;
   cursor: pointer;
+    color: #374151 !important;   /* always dark text */
+  background-color: transparent !important;
+  text-decoration: none;
 }
 
 .dropdown-item-custom:hover {
   background-color: #f7fafc;
   color: #667eea;
   transform: translateX(4px);
+}
+.dropdown-item-custom.text-danger {
+  color: #e53e3e !important;
 }
 
 .dropdown-item-custom.text-danger:hover {
@@ -333,10 +353,12 @@
 .dropdown-item-custom svg {
   width: 18px;
   height: 18px;
+  color: inherit;
 }
 
 .dropdown-divider {
   margin: 4px 0;
+  border-color: #e9ecef !important;
 }
 
 /* ============================================
@@ -362,6 +384,32 @@
     padding: 8px 16px;
     font-size: 13px;
   }
+}
+
+[data-theme] .dropdown-menu-custom,
+[data-theme] .dropdown-menu-custom * {
+  /* Reset theme text color override for dropdown */
+}
+ 
+[data-theme] .dropdown-menu-custom {
+  background-color: #ffffff !important;
+}
+ 
+[data-theme] .dropdown-header .fw-bold {
+  color: #1a1a2e !important;
+}
+ 
+[data-theme] .dropdown-header small,
+[data-theme] .dropdown-header .text-muted {
+  color: #6c757d !important;
+}
+ 
+[data-theme] .dropdown-item-custom {
+  color: #374151 !important;
+}
+ 
+[data-theme] .dropdown-item-custom.text-danger {
+  color: #e53e3e !important;
 }
 
 /* Mobile */

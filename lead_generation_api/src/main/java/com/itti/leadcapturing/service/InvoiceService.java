@@ -291,11 +291,19 @@ public class InvoiceService {
             boolean hasInvoice = invoiceRepository.existsActiveInvoiceForPo(po.getId());
             m.put("hasInvoice", hasInvoice);
             if (hasInvoice) {
-                invoiceRepository.findByPoId(po.getId()).ifPresent(inv -> {
-                    m.put("invoiceId",     inv.getId());
-                    m.put("invoiceNumber", inv.getInvoiceNumber());
-                    m.put("invoiceStatus", inv.getStatus());
-                });
+                // invoiceRepository.findByPoId(po.getId()).ifPresent(inv -> {
+                //     m.put("invoiceId",     inv.getId());
+                //     m.put("invoiceNumber", inv.getInvoiceNumber());
+                //     m.put("invoiceStatus", inv.getStatus());
+                // });
+                // FIXED — use the List correctly
+List<Invoice> invoicesForPo = invoiceRepository.findByPoId(po.getId());
+if (!invoicesForPo.isEmpty()) {
+    Invoice inv = invoicesForPo.get(0);
+    m.put("invoiceId",     inv.getId());
+    m.put("invoiceNumber", inv.getInvoiceNumber());
+    m.put("invoiceStatus", inv.getStatus());
+}
             }
             return m;
         }).toList();
