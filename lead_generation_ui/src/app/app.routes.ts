@@ -293,6 +293,18 @@
             roles: ['ROLE_BUYER']
           }
         },
+
+        // ✅ RFQ Chat — accessible by both buyers and suppliers after supplier selection
+        {
+          path: 'rfq-chat/:rfqId',
+          loadComponent: () =>
+            import('./views/base/rfq-chat/rfq-chat.component')
+              .then(m => m.RfqChatComponent),
+          data: {
+            title: 'RFQ Chat',
+            roles: ['ROLE_BUYER', 'ROLE_SUPPLIER']
+          }
+        },
       ]
     },
 

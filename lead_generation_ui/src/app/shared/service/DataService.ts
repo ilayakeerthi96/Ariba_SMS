@@ -2136,4 +2136,36 @@ downloadPdfBlob(blob: Blob, filename: string): void {
         return this.invokeGetAPI(`${this.MATCH_URL}/pending`);
     }
 
+    // ============================================
+    // CHAT API METHODS
+    // ============================================
+    private readonly CHAT_URL = `${environment.API_URL}leadcapture/api/chat`;
+
+    getChatRoomByRfq(rfqId: number): Observable<any> {
+        return this.invokeGetAPI(`${this.CHAT_URL}/room/rfq/${rfqId}`);
+    }
+
+    getChatMessages(roomId: number, readerType?: string): Observable<any> {
+        const url = readerType
+            ? `${this.CHAT_URL}/room/${roomId}/messages?readerType=${readerType}`
+            : `${this.CHAT_URL}/room/${roomId}/messages`;
+        return this.invokeGetAPI(url);
+    }
+
+    getChatUnreadCount(roomId: number, readerType: string): Observable<any> {
+        return this.invokeGetAPI(`${this.CHAT_URL}/room/${roomId}/unread?readerType=${readerType}`);
+    }
+
+    markChatAsRead(roomId: number, readerType: string): Observable<any> {
+        return this.invokePutAPI(`${this.CHAT_URL}/room/${roomId}/read?readerType=${readerType}`, {});
+    }
+
+    getBuyerChatRooms(buyerId: number): Observable<any> {
+        return this.invokeGetAPI(`${this.CHAT_URL}/rooms/buyer/${buyerId}`);
+    }
+
+    getSupplierChatRooms(supplierId: number): Observable<any> {
+        return this.invokeGetAPI(`${this.CHAT_URL}/rooms/supplier/${supplierId}`);
+    }
+
 }

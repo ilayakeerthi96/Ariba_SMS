@@ -549,7 +549,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   CardComponent, CardBodyComponent, CardHeaderComponent,
   RowComponent, ColComponent, ContainerComponent,
@@ -581,7 +581,7 @@ interface NegotiationLineItem {
   selector: 'app-po-negotiation',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, ContainerComponent, RowComponent, ColComponent,
+    CommonModule, FormsModule, RouterLink, ContainerComponent, RowComponent, ColComponent,
     CardComponent, CardBodyComponent, CardHeaderComponent,
     ButtonDirective, BadgeComponent, SpinnerComponent, TableModule
   ],

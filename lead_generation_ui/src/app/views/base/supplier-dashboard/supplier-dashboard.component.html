@@ -196,7 +196,12 @@
                       <button *ngIf="hasSubmittedQuote(rfq)" class="btn btn-sm btn-outline-success shadow-sm" (click)="viewSubmittedQuote(rfq)">
                         <i class="bi bi-check-circle-fill me-1"></i>
                       </button>
-                     
+                      <!-- ✅ Chat with Buyer — available after supplier is selected -->
+                      <a [routerLink]="['/rfq-chat', rfq.id]"
+                         class="btn btn-sm btn-outline-primary shadow-sm"
+                         title="Chat with Buyer about this RFQ">
+                        <i class="bi bi-chat-dots-fill me-1"></i>Chat
+                      </a>
                     </div>
                   </td>
                 </tr>

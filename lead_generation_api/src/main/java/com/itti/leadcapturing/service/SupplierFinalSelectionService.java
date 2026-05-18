@@ -236,6 +236,9 @@ public class SupplierFinalSelectionService {
     @Autowired
     private SupplierRecommendationRepository recommendationRepository;
 
+    @Autowired
+    private ChatService chatService;
+
     // ===================== SELECT SUPPLIER =====================
 
     @Transactional
@@ -287,6 +290,25 @@ public class SupplierFinalSelectionService {
         logger.info("  ✅ Supplier selected: {} ({})",
                 supplier.getCompanyName(),
                 isSystemRec ? "System Recommended" : "Manual Override");
+
+        // Auto-create chat room so buyer and selected supplier can communicate
+        try {
+            Long buyerId = rfq.getBuyer() != null ? rfq.getBuyer().getId() : null;
+            String buyerName = rfq.getBuyer() != null ? rfq.getBuyer().getCompanyName() : "Buyer";
+            chatService.createChatRoom(
+                    rfq.getId(),
+                    buyerId,
+                    supplier.getId(),
+                    rfq.getRfqNumber(),
+                    rfq.getRfqTitle(),
+                    buyerName,
+                    supplier.getCompanyName()
+            );
+            logger.info("  💬 Chat room created for RFQ {}", rfq.getId());
+        } catch (Exception e) {
+            logger.error("  ⚠️ Could not create chat room for RFQ {}: {}", rfq.getId(), e.getMessage());
+        }
+
         logger.info("=".repeat(70));
 
         return toResponse(saved);

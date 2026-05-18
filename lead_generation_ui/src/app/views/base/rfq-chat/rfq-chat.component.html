@@ -1,0 +1,111 @@
+<div class="chat-page">
+
+  <!-- ─── HEADER ──────────────────────────────────────────────────────────── -->
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <button class="btn-back" (click)="goBack()" title="Go Back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+        </svg>
+        Back
+      </button>
+    </div>
+
+    <div class="chat-header-center">
+      <div class="chat-title">
+        <div class="chat-peer-avatar">
+          {{ peerName ? peerName.charAt(0).toUpperCase() : '?' }}
+        </div>
+        <div class="chat-title-info">
+          <span class="peer-name">{{ peerName || 'Loading...' }}</span>
+          <span class="rfq-label" *ngIf="chatRoom">
+            RFQ: {{ chatRoom.rfqNumber }} &bull; {{ chatRoom.rfqTitle }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-header-right">
+      <span class="ws-badge" [class.connected]="wsConnected" [class.disconnected]="!wsConnected">
+        <span class="ws-dot"></span>
+        {{ wsConnected ? 'Live' : 'Offline' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ─── LOADING ─────────────────────────────────────────────────────────── -->
+  <div class="chat-loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <span>Loading chat...</span>
+  </div>
+
+  <!-- ─── ERROR STATE ──────────────────────────────────────────────────────── -->
+  <div class="chat-error" *ngIf="!isLoading && error">
+    <div class="error-icon">💬</div>
+    <p>{{ error }}</p>
+    <small>Chat becomes available once a supplier is selected for the RFQ.</small>
+  </div>
+
+  <!-- ─── MESSAGES AREA ────────────────────────────────────────────────────── -->
+  <div class="chat-messages" *ngIf="!isLoading && !error">
+
+    <div class="empty-chat" *ngIf="messages.length === 0">
+      <div class="empty-icon">💬</div>
+      <p>No messages yet.</p>
+      <small>Start the conversation with {{ peerName }}.</small>
+    </div>
+
+    <ng-container *ngFor="let msg of messages; let i = index">
+
+      <!-- Date separator -->
+      <div class="date-separator" *ngIf="shouldShowDateLabel(i)">
+        <span>{{ formatDateLabel(msg.sentAt) }}</span>
+      </div>
+
+      <!-- Message bubble -->
+      <div class="message-row" [class.mine]="msg.isMine" [class.theirs]="!msg.isMine">
+        <div class="bubble-wrap">
+          <div class="sender-name" *ngIf="!msg.isMine">{{ msg.senderName }}</div>
+          <div class="bubble">
+            <span class="message-text">{{ msg.message }}</span>
+            <span class="message-time">{{ formatTime(msg.sentAt) }}</span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- Scroll anchor -->
+    <div #messagesEnd></div>
+  </div>
+
+  <!-- ─── INPUT AREA ───────────────────────────────────────────────────────── -->
+  <div class="chat-input-area" *ngIf="!isLoading && !error">
+    <div class="chat-input-wrap">
+      <textarea
+        class="chat-input"
+        [(ngModel)]="newMessage"
+        (keydown)="onEnterKey($event)"
+        placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+        rows="1"
+        [disabled]="isSending">
+      </textarea>
+      <button
+        class="btn-send"
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim() || isSending"
+        title="Send message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint" *ngIf="!wsConnected">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+      </svg>
+      Reconnecting to live chat…
+    </div>
+  </div>
+
+</div>

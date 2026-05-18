@@ -923,7 +923,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   CardComponent, CardBodyComponent, CardHeaderComponent,
@@ -944,7 +944,7 @@ import html2canvas from 'html2canvas';
   styleUrls: ['./supplier-dashboard.component.css'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, ContainerComponent, RowComponent, ColComponent,
+    CommonModule, FormsModule, RouterLink, ContainerComponent, RowComponent, ColComponent,
     CardComponent, CardBodyComponent, CardHeaderComponent, ButtonDirective,
     IconDirective, BadgeComponent, FormModule, TableModule, ModalModule, SpinnerComponent
   ]

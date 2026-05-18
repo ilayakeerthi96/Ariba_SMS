@@ -42,7 +42,9 @@ public class SecurityConfig {
             "http://localhost:3000",
             "http://localhost:8080",
             "http://127.0.0.1:4200",
-            "http://127.0.0.1:8080"
+            "http://127.0.0.1:8080",
+            "http://117.239.138.177:4200",
+            "http://117.239.138.177:8080"
         ));
         
         configuration.setAllowedMethods(Arrays.asList(
@@ -93,7 +95,10 @@ public class SecurityConfig {
                 
                 // Health check endpoints
                 .requestMatchers("/api/*/health").permitAll()
-                
+
+                // WebSocket endpoints for real-time chat (SockJS uses HTTP handshake)
+                .requestMatchers("/ws/**", "/ws/chat/**").permitAll()
+
                 // Allow all other requests (you can restrict later)
                 .anyRequest().permitAll()
             );
