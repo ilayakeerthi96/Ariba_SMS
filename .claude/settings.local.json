@@ -3,7 +3,11 @@
     "allow": [
       "Bash(xargs grep *)",
       "Bash(xargs basename *)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(node node_modules/@angular/cli/bin/ng.js version)",
+      "Bash(ng version *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npm install *)"
     ]
   }
 }
